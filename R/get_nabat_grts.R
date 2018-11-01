@@ -25,7 +25,7 @@ HASH_DICT <- list(Alaska = '5b7b54efe4b0f5d578846149',
                   Mexico = '5b7b5658e4b0f5d57884615f',
                   PuertoRico = '5b7b5660e4b0f5d578846161')
 
-URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?service=wfs&request=getcapabilities&version=1.1.0"
+URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?service=wfs&request=getcapabilities&version=1.0.0"
 
 #' @title NABat GRTS Cell Data Access Function
 #'
