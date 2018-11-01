@@ -41,14 +41,18 @@ URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?servic
 #' @param query (optional) String Query to apply to the request, for example: "state_n_1='Florida'"
 #' @keywords bats, NABat, GRTS
 #' @examples
-#' # hawaii_grts = get_grts_data('Hawaii')
+#'
+#' library(nabatr)
+#' library(sp)
+#'
+#' hawaii_grts = get_grts_data('Hawaii')
 #' spplot(hawaii_grts, zcol='own_NPS')
 #'
 #' florida_grts = get_grts_data('Conus', query="state_n_1='Florida'")
 #' spplot(florida_grts, zcol="lat")
 #
 #' two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
-#' spplot(two_conties, zcol='own_STATE')
+#' spplot(two_counties, zcol='own_STATE')
 #' @export
 get_grts_data <- function(grid_frame, query){
   grid_frame <- normalize_grid_frame(grid_frame)

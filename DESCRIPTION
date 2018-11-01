@@ -1,13 +1,18 @@
 Package: nabatr
 Title: R Tools for Accessing and Manipulating North American Bat Monitoring Data
-Version: 0.0.0.9000
+Version: 0.0.0.1
 Authors@R: 
     person(given = "Colin",
            family = "Talbert",
            role = c("aut", "cre"),
            email = "talbertc@usgsg.gov")
 Description: R Tools for Accessing and Manipulating North American Bat Monitoring Data.
-License: CC0 1.0 Universal
+Imports:
+    httr (>= 1.0.0),
+    xml2,
+    rgdal,
+    sp
+License: CC0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0

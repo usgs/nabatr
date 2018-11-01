@@ -17,13 +17,17 @@ Allows you to select which sampling frame to choose from (Conus, Canada, Alaska,
 Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
 }
 \examples{
-# hawaii_grts = get_grts_data('Hawaii')
+
+library(nabatr)
+library(sp)
+
+hawaii_grts = get_grts_data('Hawaii')
 spplot(hawaii_grts, zcol='own_NPS')
 
 florida_grts = get_grts_data('Conus', query="state_n_1='Florida'")
 spplot(florida_grts, zcol="lat")
 two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
-spplot(two_conties, zcol='own_STATE')
+spplot(two_counties, zcol='own_STATE')
 }
 \keyword{GRTS}
 \keyword{NABat,}

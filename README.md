@@ -27,6 +27,7 @@ library(nabatr)
 
 ```r
 library(nabatr)
+library(sp)
 
 examples:
 hawaii_grts = get_grts_data('Hawaii')
