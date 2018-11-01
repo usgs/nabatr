@@ -2,16 +2,29 @@
 % Please edit documentation in R/get_nabat_grts.R
 \name{get_grts_data}
 \alias{get_grts_data}
-\title{Return the spatial layer from the associated wfs query}
+\title{NABat GRTS Cell Data Access Function}
 \usage{
 get_grts_data(grid_frame, query)
 }
 \arguments{
-\item{grid_frame}{String name of the grid frame to return}
+\item{grid_frame}{String name of the grid frame to return. Must be one of: Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico}
 
-\item{query}{String query to apply to the request ("state_n_1='Florida'")
-for query syntac help see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html}
+\item{query}{(optional) String Query to apply to the request, for example: "state_n_1='Florida'"}
 }
 \description{
-Return the spatial layer from the associated wfs query
+This function returns a spatial featrue with the selected GRTS Cells.
+Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico)
+Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)
 }
+\examples{
+# hawaii_grts = get_grts_data('Hawaii')
+spplot(hawaii_grts, zcol='own_NPS')
+
+florida_grts = get_grts_data('Conus', query="state_n_1='Florida'")
+spplot(florida_grts, zcol="lat")
+two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
+spplot(two_conties, zcol='own_STATE')
+}
+\keyword{GRTS}
+\keyword{NABat,}
+\keyword{bats,}

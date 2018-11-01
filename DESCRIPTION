@@ -1,10 +1,13 @@
 Package: nabatr
-Title: What the Package Does (one line, title case)
+Title: R Tools for Accessing and Manipulating North American Bat Monitoring Data
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.5.1)
-License: What license is it under?
+Authors@R: 
+    person(given = "Colin",
+           family = "Talbert",
+           role = c("aut", "cre"),
+           email = "talbertc@usgsg.gov")
+Description: R Tools for Accessing and Manipulating North American Bat Monitoring Data.
+License: CC0 1.0 Universal
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0
