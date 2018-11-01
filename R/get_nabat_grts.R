@@ -1,4 +1,3 @@
-
 #############################################################################
 #     _   _____    ____        __  ____
 #    / | / /   |  / __ )____ _/ /_/ __ \
@@ -28,8 +27,13 @@ HASH_DICT <- list(Alaska = '5b7b54efe4b0f5d578846149',
 
 URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?service=wfs&request=getcapabilities&version=1.1.0"
 
-#' NABat GRTS Cell Data Access Function
+#' @title NABat GRTS Cell Data Access Function
 #'
+#' @import rgdal
+#' @import xml2
+#' @import httr
+#'
+#' @description
 #' This function returns a spatial featrue with the selected GRTS Cells.
 #' Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico).
 #' Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
