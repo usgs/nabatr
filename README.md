@@ -13,10 +13,20 @@ This package provides a interface to North American Bat Monitoring (NABat) data 
 
 Proof of concept, community input/collaboration welcome!
 
+## Installation
+
+To install the toolbox in R run the following commands in a R terminal
+
+```R
+if(!require(devtools)){install.packages(devtools)}
+devtools::install_github("talbertc-usgs/nabatr")
+library(nabatr)
+```
+
 ## Examples
 
 ```r
-# library(nabat) # TODO:Format these functions as an actual library
+library(nabatr)
 
 examples:
 hawaii_grts = get_grts_data('Hawaii')
