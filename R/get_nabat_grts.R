@@ -76,21 +76,26 @@ normalize_grid_frame = function(grid_frame){
   #'
   #' @param grid_frame String name of the grid frame to return
 
-  if (tolower(grid_frame) %in% c('canada', 'ca', 'can')) {
-    grid_frame <- 'Canada'
-  } else if (tolower(grid_frame) %in% c('conus', 'us', 'usa', 'unitedstates', 'united states')) {
-    grid_frame <- 'Conus'
-  } else if (tolower(grid_frame) %in% c('mexico', 'mex', 'mx')) {
-    grid_frame <- 'Mexco'
-  } else if (tolower(grid_frame) %in% c('puerto rico', 'puertorico', 'pr')) {
-    grid_frame <- 'PuertoRico'
-  } else if (tolower(grid_frame) %in% c('alaska', 'ak')) {
-    grid_frame <- 'Alaska'
-  } else if (tolower(grid_frame) %in% c('hawaii', 'hi')) {
-    grid_frame <- 'Hawaii'
-  } else {
-    stop('The supplied grid_frame must be one of "Alaska", "Canada", "Conus", "Hawaii", "Mexico", or "Puerto Rico"')
-  }
+  grid_frame = switch(gsub(" ", "", tolower(grid_frame)),
+         ak="Alaska",
+         alaska='Alaska',
+         ca="Canada",
+         can="Canada",
+         canada="Canada",
+         conus='Conus',
+         us='Conus',
+         usa='Conus',
+         unitedstates='Conus',
+         hawaii='Hawaii',
+         hi='Hawaii',
+         mex='Mexico',
+         mx='Mexico',
+         mexico='Mexico',
+         mexico='Mexico',
+         mexico='Mexico',
+         puertorico='PuertoRico',
+         pr='PuertoRico',
+         stop('The supplied grid_frame must be one of "Alaska", "Canada", "Conus", "Hawaii", "Mexico", or "Puerto Rico"'))
   
   return(grid_frame)
 }
