@@ -1,3 +1,4 @@
+
 #############################################################################
 #     _   _____    ____        __  ____
 #    / | / /   |  / __ )____ _/ /_/ __ \
@@ -13,7 +14,6 @@
 # Based on wfs access code from sbtools:
 # https://github.com/USGS-R/sbtools/blob/869282738eeea73225c8cc388ca4d189aa987899/R/item_get_wfs.R
 #############################################################################
-
 
 library(xml2)
 library(httr)
@@ -31,8 +31,8 @@ URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?servic
 #' NABat GRTS Cell Data Access Function
 #'
 #' This function returns a spatial featrue with the selected GRTS Cells.
-#' Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico)
-#' Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)
+#' Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico).
+#' Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
 #' @param grid_frame String name of the grid frame to return. Must be one of: Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico
 #' @param query (optional) String Query to apply to the request, for example: "state_n_1='Florida'"
 #' @keywords bats, NABat, GRTS
@@ -45,7 +45,7 @@ URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?servic
 #
 #' two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
 #' spplot(two_conties, zcol='own_STATE')
-
+#' @export
 get_grts_data <- function(grid_frame, query){
   grid_frame <- normalize_grid_frame(grid_frame)
   hash = HASH_DICT[[grid_frame]]

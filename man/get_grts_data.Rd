@@ -12,9 +12,7 @@ get_grts_data(grid_frame, query)
 \item{query}{(optional) String Query to apply to the request, for example: "state_n_1='Florida'"}
 }
 \description{
-This function returns a spatial featrue with the selected GRTS Cells.
-Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico)
-Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)
+This function returns a spatial featrue with the selected GRTS Cells.  Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico)  Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)
 }
 \examples{
 # hawaii_grts = get_grts_data('Hawaii')
