@@ -24,8 +24,13 @@ HASH_DICT <- list(Alaska = '5b7b54efe4b0f5d578846149',
                   Hawaii = '5b7b5641e4b0f5d57884615d',
                   Mexico = '5b7b5658e4b0f5d57884615f',
                   PuertoRico = '5b7b5660e4b0f5d578846161')
-
+# CONSTANTS ----
 URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?service=wfs&request=getcapabilities&version=1.0.0"
+
+# GRTS cells <= these values are the high priority cells (top 5%) for each frame.
+PRIORITY_CUTOFFS <- c( 17142, 16964, 6714, 605, 3240, 123)
+names(PRIORITY_CUTOFFS)  = c('Alaska', 'Canada', 'Conus', 'Hawaii', 'Mexico', 'PuertoRico')
+
 
 #' @title NABat GRTS Cell Data Access Function
 #'
@@ -39,6 +44,7 @@ URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?servic
 #' Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
 #' @param grid_frame String name of the grid frame to return. Must be one of: Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico
 #' @param query (optional) String Query to apply to the request, for example: "state_n_1='Florida'"
+#' @param only_priority (optional) Bool defaults to False.  Only return NABat priority cells (top 5%)
 #' @keywords bats, NABat, GRTS
 #' @examples
 #'
@@ -51,10 +57,14 @@ URL_TEMPLATE <- "https://www.sciencebase.gov/catalogMaps/mapping/ows/HASH?servic
 #' florida_grts = get_grts_data('Conus', query="state_n_1='Florida'")
 #' spplot(florida_grts, zcol="lat")
 #
-#' two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
+#' two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer') or (cnty_n_1='Colorado_Jackson'))")
 #' spplot(two_counties, zcol='own_STATE')
+#'
+#' #' CA_priority_grts = get_grts_data('Conus', query="state_n_1='California'", only_priority=TRUE)
+#' spplot(CA_priority_grts, zcol="lat")
+#
 #' @export
-get_grts_data <- function(grid_frame, query){
+get_grts_data <- function(grid_frame, query=NULL, only_priority=FALSE){
   grid_frame <- normalize_grid_frame(grid_frame)
   hash = HASH_DICT[[grid_frame]]
   layer_names = get_wfs_layer_name(hash)
@@ -62,9 +72,23 @@ get_grts_data <- function(grid_frame, query){
   wfs_request = sub('request=GetCapabilities', 'request=GetFeature', wfs_url, ignore.case = TRUE)
   wfs_request = paste0(wfs_request, '&outputformat=shape-zip&format_options=filename:shape-zip&typename=', layer_names)
 
-  if (missing(query) == FALSE) {
+  if (only_priority == TRUE ) {
+    cutoff <- PRIORITY_CUTOFFS[grid_frame]
+    grts_query = paste0("GRTS_ID<=", cutoff)
+  }
+
+
+  if (is.null(query) && only_priority == TRUE) {
+    # They're looking for only the high priority cells
+    wfs_request = paste0(wfs_request, '&CQL_FILTER=', grts_query)
+  } else if (!is.null(query) && only_priority == TRUE) {
+    # They're looking the high priority cells AND a subset of the data
+    wfs_request = paste0(wfs_request, '&CQL_FILTER=(', grts_query, ') and (', query, ')')
+  }  else if (!is.null(query)) {
+    # They're looking the high priority cells AND a subset of the data
     wfs_request = paste0(wfs_request, '&CQL_FILTER=', query)
   }
+  wfs_request = URLencode(wfs_request)
 
   out_fname = tempfile(fileext = '.shp')
   dirname = file.path(tempdir(), basename(tempfile()))
@@ -97,23 +121,23 @@ normalize_grid_frame = function(grid_frame){
   #' @param grid_frame String name of the grid frame to return
 
   grid_frame = switch(gsub(" ", "", tolower(grid_frame)),
-         ak="Alaska",
-         alaska='Alaska',
-         ca="Canada",
-         can="Canada",
-         canada="Canada",
-         conus='Conus',
-         us='Conus',
-         usa='Conus',
-         unitedstates='Conus',
-         hawaii='Hawaii',
-         hi='Hawaii',
-         mex='Mexico',
-         mx='Mexico',
-         mexico='Mexico',
-         puertorico='PuertoRico',
-         pr='PuertoRico',
-         stop('The supplied grid_frame must be one of "Alaska", "Canada", "Conus", "Hawaii", "Mexico", or "Puerto Rico"'))
+                      ak="Alaska",
+                      alaska='Alaska',
+                      ca="Canada",
+                      can="Canada",
+                      canada="Canada",
+                      conus='Conus',
+                      us='Conus',
+                      usa='Conus',
+                      unitedstates='Conus',
+                      hawaii='Hawaii',
+                      hi='Hawaii',
+                      mex='Mexico',
+                      mx='Mexico',
+                      mexico='Mexico',
+                      puertorico='PuertoRico',
+                      pr='PuertoRico',
+                      stop('The supplied grid_frame must be one of "Alaska", "Canada", "Conus", "Hawaii", "Mexico", or "Puerto Rico"'))
 
   return(grid_frame)
 }
