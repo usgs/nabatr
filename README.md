@@ -25,6 +25,8 @@ library(nabatr)
 
 ## Examples
 
+[Example in R-Markdown](http://htmlpreview.github.io/?https://github.com/ennsk/NABatR/blob/master/Examples/NABatR_Demo.html)
+
 ```r
 library(nabatr)
 library(sp)
@@ -38,6 +40,8 @@ spplot(florida_grts, zcol="lat")
 
 two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
 spplot(two_conties, zcol='own_STATE')
+
+Example in R-Markdown: 
 
 ```
 
