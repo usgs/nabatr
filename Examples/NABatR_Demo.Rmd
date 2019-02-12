@@ -1,24 +1,18 @@
 ---
 title: "NABatR_Demo"
-author: "Kyle"
-date: "2/12/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ### Demonstration of using the NABatR library to query and display GRTS cells.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, include = FALSE}
 source('/users/kenns/projects/r/nabat/nabatr/R/get_nabat_grts.R')
 library(sp)
 ```
 
-### Let's take a look at the amount of US Forest Service land in each GRTS cell in Colorado
+#### Let's take a look at the amount of US Forest Service land in each GRTS cell in Colorado
 
-```{r}
+```{r, include = FALSE}
 colorado = get_grts_data('conus', query="state_n_1='Colorado'")
 ```
 
