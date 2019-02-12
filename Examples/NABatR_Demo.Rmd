@@ -6,7 +6,12 @@ output: html_document
 ### Demonstration of using the NABatR library to query and display GRTS cells.
 
 ```{r, echo=FALSE, include = FALSE}
-source('/users/kenns/projects/r/nabat/nabatr/R/get_nabat_grts.R')
+if(!require(devtools)){install.packages(devtools)}
+devtools::install_github("ennsk/nabatr")
+```
+
+```{r, results='hide'}
+library(nabatr)
 library(sp)
 ```
 

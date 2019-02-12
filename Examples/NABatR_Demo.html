@@ -127,6 +127,8 @@ $(document).ready(function () {
 
 <div id="demonstration-of-using-the-nabatr-library-to-query-and-display-grts-cells." class="section level3">
 <h3>Demonstration of using the NABatR library to query and display GRTS cells.</h3>
+<pre class="r"><code>library(nabatr)
+library(sp)</code></pre>
 <div id="lets-take-a-look-at-the-amount-of-us-forest-service-land-in-each-grts-cell-in-colorado" class="section level4">
 <h4>Let’s take a look at the amount of US Forest Service land in each GRTS cell in Colorado</h4>
 <pre class="r"><code>colorado = get_grts_data('conus', query=&quot;state_n_1='Colorado'&quot;)</code></pre>
