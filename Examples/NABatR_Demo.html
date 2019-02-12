@@ -127,9 +127,9 @@ $(document).ready(function () {
 
 <div id="demonstration-of-using-the-nabatr-library-to-query-and-display-grts-cells." class="section level3">
 <h3>Demonstration of using the NABatR library to query and display GRTS cells.</h3>
-</div>
-<div id="lets-take-a-look-at-the-amount-of-us-forest-service-land-in-each-grts-cell-in-colorado" class="section level3">
-<h3>Let’s take a look at the amount of US Forest Service land in each GRTS cell in Colorado</h3>
+<div id="lets-take-a-look-at-the-amount-of-us-forest-service-land-in-each-grts-cell-in-colorado" class="section level4">
+<h4>Let’s take a look at the amount of US Forest Service land in each GRTS cell in Colorado</h4>
+<pre class="r"><code>colorado = get_grts_data('conus', query=&quot;state_n_1='Colorado'&quot;)</code></pre>
 <pre class="r"><code>ylgn &lt;- colorRampPalette(c('palegoldenrod', 'forestgreen'))
 
 spplot(colorado, zcol='own_USFS', col.regions = ylgn(100))</code></pre>
@@ -146,6 +146,7 @@ print (paste0('GRTS ID:   ', grts_id))</code></pre>
 <pre><code>## [1] &quot;Latitude:  37.666151&quot;</code></pre>
 <pre class="r"><code>print (paste0('Longitude: ', lon))</code></pre>
 <pre><code>## [1] &quot;Longitude: -104.802276&quot;</code></pre>
+</div>
 </div>
 
 

@@ -12,7 +12,7 @@ library(sp)
 
 #### Let's take a look at the amount of US Forest Service land in each GRTS cell in Colorado
 
-```{r, include = FALSE}
+```{r, results='hide'}
 colorado = get_grts_data('conus', query="state_n_1='Colorado'")
 ```
 
