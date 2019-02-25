@@ -11,6 +11,7 @@ output:
 ```{r, echo=FALSE, include = FALSE}
 if(!require(devtools)){install.packages(devtools)}
 devtools::install_github("ennsk/nabatr")
+print ('test for dev branch')
 ```
 
 ```{r, results='hide'}
