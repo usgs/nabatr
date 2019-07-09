@@ -25,6 +25,8 @@ library(nabatr)
 
 ## Examples
 
+[Example in R-Markdown](http://htmlpreview.github.io/?https://github.com/talbertc-usgs/NABatR/blob/master/Examples/NABatR_Demo.html)
+
 ```r
 library(nabatr)
 library(sp)
