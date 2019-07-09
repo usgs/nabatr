@@ -9,12 +9,14 @@ output:
 ### Demonstration of using the NABatR library to query and display GRTS cells.
 
 ```{r, echo=FALSE, include = FALSE}
-if(!require(devtools)){install.packages(devtools)}
-devtools::install_github("ennsk/nabatr")
+# if(!require(devtools)){install.packages(devtools)}
+# devtools::install_github("talbertc-usgs/nabatr")
+# library(nabatr)
+# OR
+source('../R/get_nabat_grts.R')
 ```
 
 ```{r, results='hide'}
-library(nabatr)
 library(sp)
 ```
 
@@ -26,7 +28,6 @@ colorado = get_grts_data('conus', query="state_n_1='Colorado'")
 
 ```{r}
 ylgn <- colorRampPalette(c('palegoldenrod', 'forestgreen'))
-
 spplot(colorado, zcol='own_USFS', col.regions = ylgn(100))
 ```
 
