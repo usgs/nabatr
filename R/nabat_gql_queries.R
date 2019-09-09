@@ -24,7 +24,6 @@
 #'
 bats_df =  read.csv('data/bat_species.csv')
 
-
 #' @title NABat login to NABAt Database GQL
 #'
 #' @import httr
@@ -75,8 +74,6 @@ get_nabat_gql_token = function(username, password = NULL){
   content = content(res)
   bearer = content$data$login$token
   token = strsplit(bearer, 'Bearer ')[[1]][2]
-
-  print (bats_df$species_code[1])
 
   # Display token
   return (token)
