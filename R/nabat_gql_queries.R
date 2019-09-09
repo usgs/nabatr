@@ -99,15 +99,13 @@ get_nabat_gql_token = function(username, password = NULL){
 #'
 get_projects = function(token, username){
   # Create cli
-  print ('creating cli')
+  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
                                                              'X-email-address' = username)))
   # Set empty Query
-  print ('adding new query')
   qry = Query$new()
   # Build query for all projects under user
-  print ('building query')
   qry$query('projIds',
             paste0('{allProjects{
                        nodes{
@@ -118,13 +116,10 @@ get_projects = function(token, username){
                        }
                      }'))
   # Build dataframe of project data to return
-  print ('execute query')
   proj_dat  = cli$exec(qry$queries$projIds)
-  print ('build project dataframe')
   proj_json = fromJSON(proj_dat, flatten = TRUE)
-  print ('build data.frame from data')
-  # proj_df   = as.data.frame(proj_json)
-  return (proj_json)
+  proj_df   = as.data.frame(proj_json)
+  return (proj_df)
 }
 
 
