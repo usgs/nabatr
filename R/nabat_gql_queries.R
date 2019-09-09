@@ -11,7 +11,17 @@
 # Created: 2019-9-6
 #############################################################################
 
-# Import Species Dataframe
+#' @title NABat species lookup table
+#'
+#' @description
+#' Reads in dataframe for NABat species lookup table
+#' @keywords species, bats, NABat
+#' @examples
+#'
+#' nabatr::bats_df
+#
+#' @export
+#'
 bats_df =  read.csv('data/bat_species.csv')
 
 
