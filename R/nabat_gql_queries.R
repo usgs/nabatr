@@ -33,8 +33,7 @@
 #'nabat_gql_token = nabat_gql_login('NABat_Username')
 #
 #' @export
-
-nabat_gql_login = function(username, password = NULL){
+get_nabat_gql_token = function(username, password = NULL){
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
     password = .rs.askForPassword('Password')
