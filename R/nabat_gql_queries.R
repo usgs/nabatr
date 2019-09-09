@@ -49,7 +49,7 @@ get_nabat_gql_token = function(username, password = NULL){
     password = .rs.askForPassword('Password')
   }
   # Returns a message with username
-  message(paste0("Loging into the NABat database as ", username))
+  message(paste0("Logging into the NABat database as ", username))
 
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   # Username and password
