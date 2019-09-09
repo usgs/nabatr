@@ -10,6 +10,30 @@
 # Written by: Kyle Enns
 # Created: 2019-9-6
 #############################################################################
+
+#' @title NABat GRTS Cell Data Access Function
+#'
+#' @import httr
+#' @import jsonlite
+#' @import ghql
+#' @import plyr
+#'
+#' @description
+#' Get a NABat GQL token to use for queries
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
+#' @param password (optional) String it will prompt you for your password
+#' @keywords bats, NABat, GQL
+#' @examples
+#'
+#'library(httr)
+#'library(jsonlite)
+#'library(ghql)
+#'library(plyr)
+#'
+#'nabat_gql_token = nabat_gql_login('NABat_Username')
+#
+#' @export
+
 nabat_gql_login = function(username, password = NULL){
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -44,4 +68,3 @@ nabat_gql_login = function(username, password = NULL){
   return (token)
 }
 
-nabat_gql_token = nabat_gql_login('kenns')
