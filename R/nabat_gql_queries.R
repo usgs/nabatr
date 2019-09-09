@@ -122,7 +122,7 @@ get_projects = function(token, username){
   proj_dat  = cli$exec(qry$queries$projIds)
   print ('build project dataframe')
   proj_json = fromJSON(proj_dat, flatten = TRUE)
-  # print ('build data.frame from data')
+  print ('build data.frame from data')
   # proj_df   = as.data.frame(proj_json)
   return (proj_json)
 }
