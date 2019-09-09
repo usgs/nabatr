@@ -11,7 +11,7 @@
 # Created: 2019-9-6
 #############################################################################
 
-#' @title NABat GRTS Cell Data Access Function
+#' @title NABat login to NABAt Database GQL
 #'
 #' @import httr
 #' @import jsonlite
