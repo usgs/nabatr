@@ -16,7 +16,7 @@ Get a NABat GQL token to use for queries
 }
 \examples{
 
-nabat_gql_token = get_nabat_gql_token('NABat_Username')
+nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
 -- Will prompt for password
 }
 \keyword{GQL}

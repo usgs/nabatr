@@ -38,12 +38,11 @@ bats_df =  read.csv('data/bat_species.csv')
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
-#'nabat_gql_token = get_nabat_gql_token('NABat_Username')
+#' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
 #' -- Will prompt for password
 #
 #' @export
 #'
-
 get_nabat_gql_token = function(username, password = NULL){
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -78,4 +77,52 @@ get_nabat_gql_token = function(username, password = NULL){
   # Display token
   return (token)
 }
+
+
+#' @title Find your NABat Projects
+#'
+#' @import httr
+#' @import jsonlite
+#' @import ghql
+#' @import plyr
+#'
+#' @description
+#' Returns all projects that the user has permissions to view
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
+#' @param token String token created from get_nabat_gql_token function
+#' @keywords bats, NABat, GQL
+#' @examples
+#'
+#' project_df = get_projects(username = 'NABat_Username', token = 'generated-nabat-gql-token')
+#'
+#' @export
+#'
+get_projects = function(token, username){
+  # Create cli
+  cli = GraphqlClient$new(url = url,
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
+                                                             'X-email-address' = username)))
+  # Set empty Query
+  qry <- Query$new()
+  # Build query for all projects under user
+  qry$query('projIds',
+            paste0('{allProjects{
+                       nodes{
+                         id
+                         projectName
+                         projectKey
+                         }
+                       }
+                     }'))
+  # Build dataframe of project data to return
+  proj_dat  = cli$exec(qry$queries$projIds)
+  proj_json = fromJSON(proj_dat, flatten = TRUE)
+  proj_df   = as.data.frame(proj_json)
+  return (proj_df)
+}
+
+
+
+
+
 
