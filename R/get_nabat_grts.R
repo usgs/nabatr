@@ -9,7 +9,7 @@
 #
 # Github: https://github.com/talbertc-usgs/NABatR
 # Written by: Colin B Talbert
-# Created: 2help018-10-31
+# Created: 2018-10-31
 # Based on wfs access code from sbtools:
 # https://github.com/USGS-R/sbtools/blob/869282738eeea73225c8cc388ca4d189aa987899/R/item_get_wfs.R
 #############################################################################
