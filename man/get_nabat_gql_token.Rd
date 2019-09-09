@@ -16,12 +16,8 @@ Get a NABat GQL token to use for queries
 }
 \examples{
 
-library(httr)
-library(jsonlite)
-library(ghql)
-library(plyr)
-
 nabat_gql_token = get_nabat_gql_token('NABat_Username')
+-- Will prompt for password
 }
 \keyword{GQL}
 \keyword{NABat,}

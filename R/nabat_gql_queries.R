@@ -11,6 +11,10 @@
 # Created: 2019-9-6
 #############################################################################
 
+# Import Species Dataframe
+bats_df =  read.csv('data/bat_species.csv')
+
+
 #' @title NABat login to NABAt Database GQL
 #'
 #' @import httr
@@ -25,14 +29,12 @@
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
-#'library(httr)
-#'library(jsonlite)
-#'library(ghql)
-#'library(plyr)
-#'
 #'nabat_gql_token = get_nabat_gql_token('NABat_Username')
+#' -- Will prompt for password
 #
 #' @export
+#'
+
 get_nabat_gql_token = function(username, password = NULL){
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -63,6 +65,9 @@ get_nabat_gql_token = function(username, password = NULL){
   content = content(res)
   bearer = content$data$login$token
   token = strsplit(bearer, 'Bearer ')[[1]][2]
+
+  print (me$species_code[1])
+
   # Display token
   return (token)
 }
