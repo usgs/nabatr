@@ -76,7 +76,7 @@ get_nabat_gql_token = function(username, password = NULL){
   bearer = content$data$login$token
   token = strsplit(bearer, 'Bearer ')[[1]][2]
 
-  print (me$species_code[1])
+  print (bats_df$species_code[1])
 
   # Display token
   return (token)
