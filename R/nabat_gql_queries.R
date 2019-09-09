@@ -30,7 +30,7 @@
 #'library(ghql)
 #'library(plyr)
 #'
-#'nabat_gql_token = nabat_gql_login('NABat_Username')
+#'nabat_gql_token = get_nabat_gql_token('NABat_Username')
 #
 #' @export
 get_nabat_gql_token = function(username, password = NULL){
