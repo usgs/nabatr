@@ -2,7 +2,7 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_project_surveys}
 \alias{get_project_surveys}
-\title{Get a project's Accoustic Surveys as Acoustic Bulk Upload format}
+\title{Get a project's Stationary Accoustic Surveys}
 \usage{
 get_project_surveys(token, username, project_id)
 }
@@ -11,16 +11,16 @@ get_project_surveys(token, username, project_id)
 
 \item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 
-\item{project_id}{Numeric or String a project id from}
+\item{project_id}{Numeric or String a project id}
 }
 \description{
 Returns all surveys within a single project (project_id)
 }
 \examples{
 
-surveys_df = get_project_surveys(username   = 'NABat_Username',
-                                 token      = 'generated-nabat-gql-token',
-                                 project_id = 'number or string of a number')
+survey_df = get_project_surveys(username   = 'NABat_Username',
+                                token      = 'generated-nabat-gql-token',
+                                project_id = 'number or string of a number')
 
 }
 \keyword{GQL,}

@@ -27,7 +27,7 @@ Get Project dataframe which contains all of your acoustic stationary
   projects in the NABat Database
 ```{r}
 project_df = nabatr::get_projects(token = token_, 
-                                   username = username_)
+                                  username = username_)
 project_df
 ```
 
@@ -35,7 +35,7 @@ Get all Acoustic Stationary Surveys within a single Project set with project_id_
 ```{r}
 project_id_ = 'project_id from project_df'
 survey_df = nabatr::get_project_surveys(username   = username_,
-                                  token      = token_,
-                                  project_id = project_id_)
+                                        token      = token_,
+                                        project_id = project_id_)
 survey_df
 ```

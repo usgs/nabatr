@@ -44,13 +44,15 @@ bats_df =  read.csv('data/bat_species.csv')
 #' @export
 #'
 get_nabat_gql_token = function(username, password = NULL){
+
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
     password = .rs.askForPassword('Password')
   }
+
   # Returns a message with username
   message(paste0("Logging into the NABat database as ", username))
-
+  # Prod URL for NABat GQL
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   # Username and password
   variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
@@ -62,7 +64,6 @@ get_nabat_gql_token = function(username, password = NULL){
     }
   }'
 
-  #Get login token
   # Finalize json request
   pbody = list(query = query, variables = variables)
   # POST to url
@@ -74,7 +75,7 @@ get_nabat_gql_token = function(username, password = NULL){
   bearer = content$data$login$token
   token = strsplit(bearer, 'Bearer ')[[1]][2]
 
-  # Display token
+  # Return token
   return (token)
 }
 
@@ -99,7 +100,8 @@ get_nabat_gql_token = function(username, password = NULL){
 #' @export
 #'
 get_projects = function(token, username){
-  # Create cli
+
+  # Create cli using NABat prod url and ghql library
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
@@ -116,36 +118,42 @@ get_projects = function(token, username){
                          }
                        }
                      }'))
+
   # Build dataframe of project data to return
   proj_dat  = cli$exec(qry$queries$projIds)
   proj_json = fromJSON(proj_dat, flatten = TRUE)
   proj_df   = rename_project_df(as.data.frame(proj_json))
+  # Return dataframe of projects
   return (proj_df)
 }
 
 
 
-#' @title Get a project's Accoustic Surveys as Acoustic Bulk Upload format
+#' @title Get a project's Stationary Accoustic Surveys
 #'
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
 #' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
-#' @param project_id Numeric or String a project id from
+#' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' surveys_df = get_project_surveys(username   = 'NABat_Username',
-#'                                  token      = 'generated-nabat-gql-token',
-#'                                  project_id = 'number or string of a number')
+#' survey_df = get_project_surveys(username   = 'NABat_Username',
+#'                                 token      = 'generated-nabat-gql-token',
+#'                                 project_id = 'number or string of a number')
 #'
 #' @export
 get_project_surveys = function(token, username, project_id){
+
+  # Create cli using NABat prod url and ghql library
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
                                                              'X-email-address' = username)))
-  qry <- Query$new()
+  # Set empty Query
+  qry = Query$new()
+  # Build query for all surveys under user project
   qry$query('allSurveys',
             paste0('{allSurveys (filter :{projectId:{equalTo:',as.numeric(project_id),'}}){
                        nodes{
@@ -159,7 +167,125 @@ get_project_surveys = function(token, username, project_id){
   survey_json = fromJSON(survey_dat, flatten = TRUE)
   survey_df   = rename_survey_df(as.data.frame(survey_json))
   return (survey_df)
+}
+
+
+
+#' @title Get Acoustic stationary bulk upload template dataframe for a project
+#'
+#' @description
+#' Returns all surveys within a single project (project_id)
+#' @param token String token created from get_nabat_gql_token function
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
+#' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
+#' @param project_id Numeric or String a project id
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' get_acoustic_bulk_df = get_project_acoustic_df(username   = 'NABat_Username',
+#'                                       token      = 'generated-nabat-gql-token',
+#'                                       survey_df  = 'dataframe from output of get_project_surveys()',
+#'                                       project_id = 'number or string of a number')
+#'
+#' @export
+get_acoustic_bulk_df = function(token, username, survey_df, project_id){
+
+  # Extract all survey ids from survey_df
+  survey_ids = survey_df$survey_id
+
+  # Set empty dataframe to build acoustic stationary bulk template data in
+  all_wav_n_acc = data.frame()
+
+  # Query each survey through GQL to extract and build a dataframe with all
+  #   acoustic stationary records for these acoustic survey ids
+  for (survey in survey_ids){
+    qry = Query$new()
+    qry$query('grtsIds', paste0('{
+      allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+        nodes{
+          id
+          projectId
+          grtsId
+          stationaryAcousticEventsBySurveyId {
+            nodes{
+              id
+              locationName
+              surveyId
+              activationStartTime
+              activationEndTime
+              deviceId
+              microphoneId
+              microphoneOrientationId
+              microphoneHeight
+              distanceToClutterMeters
+              clutterTypeId
+              distanceToWater
+              waterType
+              percentClutterMethod
+              habitatTypeId
+              stationaryAcousticValuesBySaSurveyId{
+                nodes{
+                  wavFileName
+                  recordingTime
+                  softwareId
+                  speciesId
+                  manualId
+                }
+              }
+            }
+          }
+        }
+      }
+    }'))
+
+    # Execute GRTS GQL Query
+    grts_dat  = cli$exec(qry$queries$grtsIds)
+    grts_json = fromJSON(grts_dat, flatten = TRUE)
+
+    proj_id_df  = as.data.frame(grts_json$data$allSurveys$nodes)
+    acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes)
+
+    # Build wave files dataframe or raise error message if survey has no data
+    if (dim(acc_events)[1] == 0){
+      message (paste0('This survey has no Sationary acoustic data present: ', survey))
+    }else{
+      wav_files = data.frame()
+      for (x in 1:dim(acc_events)[1]){
+        wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
+        id       = acc_events[x,]$id
+        wav_int_files['stationary_acoustic_values_id'] = id
+        if (dim(wav_files)[1] <1){
+          wav_files = wav_int_files
+        }else {
+          wav_files = rbind(wav_files, wav_int_files)
+        }
+      }
+
+      # Rename and select from the 3 tables
+      source('lambda/rename_raw_acoustic.R')
+      proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
+      wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
+                                                       'manual_id', 'stationary_acoustic_values_id')]
+      acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
+                                                        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
+                                                        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id',
+                                                        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
+
+      # Set values for survey, project, and grts ids in dataframe
+      wav_files_rn[,'survey_id']    = survey
+      wav_files_rn[,'project_id']   = project_id
+      wav_files_rn[,'grts_cell_id'] = proj_id_df$grtsId
+
+      # Merge wav files dataframe and accoustic events dataframe for all data
+      wav_n_acc = merge(wav_files_rn, acc_events_rn, by= 'stationary_acoustic_values_id')
+
+      # Iteratively combine the wav_n_acc dataframes together for each new survey
+      all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
+    }
   }
+  # Return the combined data in the format of the acoustic stationary bulk upload template form
+  return (all_wav_n_acc)
+}
 
 
 
