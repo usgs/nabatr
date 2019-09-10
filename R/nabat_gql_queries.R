@@ -124,4 +124,43 @@ get_projects = function(token, username){
 
 
 
+#' @title Get a project's Accoustic Surveys as Acoustic Bulk Upload format
+#'
+#' @description
+#' Returns all surveys within a single project (project_id)
+#' @param token String token created from get_nabat_gql_token function
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
+#' @param project_id Numeric or String a project id from
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' get_project_surveys = get_projects(username   = 'NABat_Username',
+#'                                    token      = 'generated-nabat-gql-token',
+#'                                    project_id = 'number or string of a number')
+#'
+#' @export
+get_project_surveys = function(token, username, project_id){
+  # Create cli
+  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  cli = GraphqlClient$new(url = url,
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
+                                                             'X-email-address' = username)))
+  qry <- Query$new()
+  qry$query('allSurveys',
+            paste0('{allSurveys (filter :{projectId:{equalTo:',as.numeric(project_id),'}}){
+                       nodes{
+                         id
+                         projectId
+                         grtsId
+                       }
+                     }
+                   }'))
+  survey_dat  = cli$exec(qry$queries$allSurveys)
+  survey_json = fromJSON(survey_dat, flatten = TRUE)
+  survey_df   = as.data.frame(survey_json)
+  return (survey_df)
+  }
+
+
+
 
