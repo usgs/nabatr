@@ -129,7 +129,7 @@ get_projects = function(token, username){
 
 
 
-#' @title Get a project's Stationary Accoustic Surveys
+#' @title Get a project's Stationary Acoustic Surveys
 #'
 #' @description
 #' Returns all surveys within a single project (project_id)
@@ -282,7 +282,7 @@ get_acoustic_bulk_df = function(token, username, survey_df, project_id){
       wav_files_rn[,'project_id']   = project_id
       wav_files_rn[,'grts_cell_id'] = proj_id_df$grtsId
 
-      # Merge wav files dataframe and accoustic events dataframe for all data
+      # Merge wav files dataframe and acoustic events dataframe for all data
       wav_n_acc = merge(wav_files_rn, acc_events_rn, by= 'stationary_acoustic_values_id')
 
       # Iteratively combine the wav_n_acc dataframes together for each new survey

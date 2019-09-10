@@ -2,7 +2,7 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_project_surveys}
 \alias{get_project_surveys}
-\title{Get a project's Stationary Accoustic Surveys}
+\title{Get a project's Stationary Acoustic Surveys}
 \usage{
 get_project_surveys(token, username, project_id)
 }
