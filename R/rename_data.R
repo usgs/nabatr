@@ -28,7 +28,6 @@ rename_survey_df = function(survey_df){
 }
 
 rename_acoustic_df = function(acoustic_df){
-
   names(acoustic_df)[names(acoustic_df) == 'projectId']     = 'project_id'
   names(acoustic_df)[names(acoustic_df) == 'recordingTime'] = 'recording_time'
   names(acoustic_df)[names(acoustic_df) == 'grtsId']        = 'grts_cell_id'
@@ -54,7 +53,6 @@ rename_acoustic_df = function(acoustic_df){
   names(acoustic_df)[names(acoustic_df) == 'deviceByDeviceId.deviceTypeByDeviceTypeId.model']                        = 'device_model'
   names(acoustic_df)[names(acoustic_df) == 'microphoneByMicrophoneId.microphoneTypeByMicrophoneTypeId.model']        = 'microphone_model'
   names(acoustic_df)[names(acoustic_df) == 'microphoneByMicrophoneId.microphoneTypeByMicrophoneTypeId.manufacturer'] = 'microphone_manufacturer'
-
   names(acoustic_df)[names(acoustic_df) == 'speciesId'] = 'auto_id'
   names(acoustic_df)[names(acoustic_df) == 'manualId']  = 'manual_id'
   names(acoustic_df)[names(acoustic_df) == 'id1']       = 'location_id'
@@ -64,7 +62,6 @@ rename_acoustic_df = function(acoustic_df){
   names(acoustic_df)[names(acoustic_df) == 'clutterTypeId']           = 'clutter_type_id'
   names(acoustic_df)[names(acoustic_df) == 'habitatTypeId']           = 'habitat_type_id'
   names(acoustic_df)[names(acoustic_df) == 'softwareId']              = 'software_id'
-
   row.names(acoustic_df) = c()
   return (acoustic_df)
 }
