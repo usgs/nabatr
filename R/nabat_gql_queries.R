@@ -269,7 +269,6 @@ get_acoustic_bulk_df = function(token, username, survey_df, project_id){
       }
 
       # Rename and select from the 3 tables
-      source('lambda/rename_raw_acoustic.R')
       proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
       wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
                                                        'manual_id', 'stationary_acoustic_values_id')]
