@@ -20,7 +20,7 @@ Returns all surveys within a single project (project_id)
 }
 \examples{
 
-get_acoustic_bulk_df = get_project_acoustic_df(username   = 'NABat_Username',
+acoustic_bulk_df = get_acoustic_bulk_df(username   = 'NABat_Username',
                                       token      = 'generated-nabat-gql-token',
                                       survey_df  = 'dataframe from output of get_project_surveys()',
                                       project_id = 'number or string of a number')

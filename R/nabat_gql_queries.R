@@ -89,8 +89,8 @@ get_nabat_gql_token = function(username, password = NULL){
 #'
 #' @description
 #' Returns all projects that the user has permissions to view
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param token String token created from get_nabat_gql_token function
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -139,8 +139,8 @@ get_projects = function(token, username){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' survey_df = get_project_surveys(username   = 'NABat_Username',
-#'                                 token      = 'generated-nabat-gql-token',
+#' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
+#'                                 username   = 'NABat_Username',
 #'                                 project_id = 'number or string of a number')
 #'
 #' @export
@@ -182,13 +182,19 @@ get_project_surveys = function(token, username, project_id){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' get_acoustic_bulk_df = get_project_acoustic_df(username   = 'NABat_Username',
+#' acoustic_bulk_df = get_acoustic_bulk_df(username   = 'NABat_Username',
 #'                                       token      = 'generated-nabat-gql-token',
 #'                                       survey_df  = 'dataframe from output of get_project_surveys()',
 #'                                       project_id = 'number or string of a number')
 #'
 #' @export
 get_acoustic_bulk_df = function(token, username, survey_df, project_id){
+
+  # Create cli using NABat prod url and ghql library
+  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  cli = GraphqlClient$new(url = url,
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
+                                                             'X-email-address' = username)))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
