@@ -10,9 +10,13 @@ Description: R Tools for Accessing and Manipulating North American Bat Monitorin
 Imports:
     httr (>= 1.0.0),
     xml2,
+    jsonlite,
+    plyr,
     rgdal,
     sp
+DevPackage:
+    ropensci/ghql,
 License: CC0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1

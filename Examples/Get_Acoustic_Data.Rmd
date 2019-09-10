@@ -1,0 +1,50 @@
+---
+title: "Get_Acoustic_Data"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+### Explore your stationary acoustic NABat data using this Rmd example
+
+Download, this package
+```{r}
+if(!require(devtools)){install.packages(devtools)}
+devtools::install_github("talbertc-usgs/nabatr")
+library(nabatr)
+```
+
+Get a Graphical QL token for NABat Database
+```{r}
+username_ = 'NABat_Username'
+token_ = get_nabat_gql_token(username = username_)
+# If not using R-Studio and you aren't prompted for a password use this:
+# token_ = get_nabat_gql_token(username = username_, password = 'your-password')
+```
+
+Get Project dataframe which contains all of your acoustic stationary 
+  projects in the NABat Database
+```{r}
+project_df_ = nabatr::get_projects(token    = token_, 
+                                  username = username_)
+project_df_
+```
+
+Get all Acoustic Stationary Surveys within a single Project set with project_id_
+```{r}
+project_id_ = 'project_id from project_df'
+survey_df_ = nabatr::get_project_surveys(username   = username_,
+                                        token      = token_,
+                                        project_id = project_id_)
+survey_df_
+```
+
+Get all Acoustic Stationary Survey wav file data.  Format: Acoustic Stationary Bulk Upload Template
+```{r}
+acoustic_bulk_df_ = nabatr::get_acoustic_bulk_df(token      = token_, 
+                                                username   = username_, 
+                                                survey_df  = survey_df_,
+                                                project_id = project_id_)
+acoustic_bulk_df_
+```
