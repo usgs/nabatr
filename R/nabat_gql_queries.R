@@ -39,7 +39,7 @@ bats_df =  read.csv('data/bat_species.csv')
 #' @examples
 #'
 #' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
-#' -- Will prompt for password
+#' -- Prompts for password
 #
 #' @export
 #'
@@ -93,7 +93,8 @@ get_nabat_gql_token = function(username, password = NULL){
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
-#' project_df = get_projects(username = 'NABat_Username', token = 'generated-nabat-gql-token')
+#' project_df = get_projects(username = 'NABat_Username',
+#'                           token    = 'generated-nabat-gql-token')
 #'
 #' @export
 #'
@@ -118,7 +119,7 @@ get_projects = function(token, username){
   # Build dataframe of project data to return
   proj_dat  = cli$exec(qry$queries$projIds)
   proj_json = fromJSON(proj_dat, flatten = TRUE)
-  proj_df   = as.data.frame(proj_json)
+  proj_df   = rename_project_df(as.data.frame(proj_json))
   return (proj_df)
 }
 
@@ -134,9 +135,9 @@ get_projects = function(token, username){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' project_surveys_df = get_project_surveys(username   = 'NABat_Username',
-#'                                    token      = 'generated-nabat-gql-token',
-#'                                    project_id = 'number or string of a number')
+#' surveys_df = get_project_surveys(username   = 'NABat_Username',
+#'                                  token      = 'generated-nabat-gql-token',
+#'                                  project_id = 'number or string of a number')
 #'
 #' @export
 get_project_surveys = function(token, username, project_id){
@@ -156,7 +157,7 @@ get_project_surveys = function(token, username, project_id){
                    }'))
   survey_dat  = cli$exec(qry$queries$allSurveys)
   survey_json = fromJSON(survey_dat, flatten = TRUE)
-  survey_df   = as.data.frame(survey_json)
+  survey_df   = rename_survey_df(as.data.frame(survey_json))
   return (survey_df)
   }
 
