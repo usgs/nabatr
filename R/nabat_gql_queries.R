@@ -134,13 +134,12 @@ get_projects = function(token, username){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' get_project_surveys = get_projects(username   = 'NABat_Username',
+#' project_surveys_df = get_project_surveys(username   = 'NABat_Username',
 #'                                    token      = 'generated-nabat-gql-token',
 #'                                    project_id = 'number or string of a number')
 #'
 #' @export
 get_project_surveys = function(token, username, project_id){
-  # Create cli
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),

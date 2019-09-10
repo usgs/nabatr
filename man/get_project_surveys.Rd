@@ -18,7 +18,7 @@ Returns all surveys within a single project (project_id)
 }
 \examples{
 
-get_project_surveys = get_projects(username   = 'NABat_Username',
+project_surveys_df = get_project_surveys(username   = 'NABat_Username',
                                    token      = 'generated-nabat-gql-token',
                                    project_id = 'number or string of a number')
 
