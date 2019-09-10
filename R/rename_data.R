@@ -20,9 +20,9 @@ rename_project_df = function(project_df){
 }
 
 rename_survey_df = function(survey_df){
-  names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.id']     = 'project_id'
+  names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.id']        = 'survey_id'
   names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.projectId'] = 'project_id'
-  names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.grtsId']        = 'grts_cell_id'
+  names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.grtsId']    = 'grts_cell_id'
   row.names(survey_df) = c()
   return (survey_df)
 }
