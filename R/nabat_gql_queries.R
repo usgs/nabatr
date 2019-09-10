@@ -183,9 +183,9 @@ get_project_surveys = function(token, username, project_id){
 #' @examples
 #'
 #' acoustic_bulk_df = get_acoustic_bulk_df(username   = 'NABat_Username',
-#'                                       token      = 'generated-nabat-gql-token',
-#'                                       survey_df  = 'dataframe from output of get_project_surveys()',
-#'                                       project_id = 'number or string of a number')
+#'                                         token      = 'generated-nabat-gql-token',
+#'                                         survey_df  = 'dataframe from output of get_project_surveys()',
+#'                                         project_id = 'number or string of a number')
 #'
 #' @export
 get_acoustic_bulk_df = function(token, username, survey_df, project_id){
@@ -255,6 +255,7 @@ get_acoustic_bulk_df = function(token, username, survey_df, project_id){
     if (dim(acc_events)[1] == 0){
       message (paste0('This survey has no Sationary acoustic data present: ', survey))
     }else{
+      message (paste0('Compiling stationary acoustic data for survey: ', survey))
       wav_files = data.frame()
       for (x in 1:dim(acc_events)[1]){
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
