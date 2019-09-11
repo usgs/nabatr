@@ -15,11 +15,13 @@
 #'
 #' @description Creates
 #'
-#' @param acoustic_bulk_df String it will prompt you for your password
+#' @param acoustic_bulk_df Dataframe acoustic bulk dataframe from output of get_acoustic_bulk()
 #' @keywords species, bats, NABat
 #' @examples
 #'
-#' get_observed_nights
+#' nightly_observed_list = nabatr::get_observed_nights(acoustic_bulk_df)
+#' manual_nights_df = nightly_observed_list$auto_nightly_df
+#' auto_nights_df   = nightly_observed_list$manual_nightly_df
 #
 #' @export
 #'
