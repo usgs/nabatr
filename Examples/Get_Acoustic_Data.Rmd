@@ -42,9 +42,9 @@ survey_df_
 
 Get all Acoustic Stationary Survey wav file data.  Format: Acoustic Stationary Bulk Upload Template
 ```{r}
-acoustic_bulk_df_ = nabatr::get_acoustic_bulk_df(token      = token_, 
+acoustic_bulk_ = nabatr::get_acoustic_bulk_(token      = token_, 
                                                 username   = username_, 
                                                 survey_df  = survey_df_,
                                                 project_id = project_id_)
-acoustic_bulk_df_
+acoustic_bulk_
 ```
