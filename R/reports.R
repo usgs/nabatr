@@ -24,10 +24,13 @@
 project_dir = getwd()
 
 #' @export
-project_dir2 = thisfile()
+project_dir2 = rprojroot::thisfile()
 
 #' @export
 root = rprojroot::is_r_package
+
+#' @export
+project_dir3 = rprojroot::find_root(has_file("DESCRIPTION"))
 
 
 #' @title Build Report .html file for Acoustic Stationary Project Data
@@ -71,7 +74,7 @@ get_acoustic_stationary_report = function(token,
   template = paste0(project_dir, '/data/templates/acoustic_stationary_report.Rmd')
   print (project_dir)
   print (project_dir2)
-  print (root)
+  print (project_dir3)
 
   # Get survey dataframe
   survey_df = nabatr::get_project_surveys(username   = username,
