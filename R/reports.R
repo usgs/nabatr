@@ -56,6 +56,21 @@ get_acoustic_stationary_report = function(token,
 }
 
 
+#' @title Read in GRTS lookup csv for CONUS
+#'
+#' @description
+#' Reads in dataframe that contains all of the GRTS cells and their
+#' 4 corners to build shapefiles from.  Projection: WGS84 and extent: CONUS
+#' @keywords species, bats, NABat, grts, CONUS
+#' @examples
+#'
+#' nabatr::grts_coords
+#
+#' @export
+#'
+grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
+
+
 
 #' @title Build leaflet map for Acoustic Stationary report in CONUS
 #'
@@ -82,9 +97,6 @@ get_acoustic_stationary_report = function(token,
 #' @export
 #'
 get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
-
-  # Read in GRTS lookup csv for CONUS
-  grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 
   # Create grts_template_df dataframe and merge with grts_coords
   grts_template_df = data.frame(GRTS_ID = all_grts)
