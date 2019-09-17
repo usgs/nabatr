@@ -138,9 +138,9 @@ get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
                                                                    'border-radius' = '5px',
                                                                    'padding' = '5px 5px 5px 5px'))) # padding order is top, right, bottom, left
   }
-  # Add image to map
-  rr = tags$div(HTML('<img border="0" alt="NABat Website" src="nabat_logo.png" width="150" height="50">'))
-  m = m %>% addControl(rr, position = "bottomleft")
+  # # Add image to map
+  # rr = tags$div(HTML('<img border="0" alt="NABat Website" src="nabat_logo.png" width="150" height="50">'))
+  # m = m %>% addControl(rr, position = "bottomleft")
 
   # Add title to map
   map_title = tags$style(HTML(".leaflet-control.map-title {
