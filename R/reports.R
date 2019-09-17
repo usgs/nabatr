@@ -84,7 +84,7 @@ get_acoustic_stationary_report = function(token,
 get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
 
   # Read in GRTS lookup csv for CONUS
-  grts_coords = read.csv('../data/GRTS_coords_CONUS.csv')
+  grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 
   # Create grts_template_df dataframe and merge with grts_coords
   grts_template_df = data.frame(GRTS_ID = all_grts)
