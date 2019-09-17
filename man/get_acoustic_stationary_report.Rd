@@ -4,21 +4,21 @@
 \alias{get_acoustic_stationary_report}
 \title{Build Report .html file for Acoustic Stationary Project Data}
 \usage{
-get_acoustic_stationary_report(token, output_dir, project_id,
-  file_name = NULL, project_df = NULL, survey_df = NULL,
+get_acoustic_stationary_report(token, username, project_id, output_dir,
+  file_name = "report.html", survey_df = NULL,
   acoustic_bulk_df = NULL, manual_nights_df = NULL,
   auto_nights_df = NULL)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
 
-\item{output_dir}{String output directory to save report .html file}
+\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 
 \item{project_id}{String or Integer project id from NABat ex: 105 or '105'}
 
-\item{file_name}{(optional) String output file name ex: 'my_report.html'}
+\item{output_dir}{String output directory to save report .html file ex: /path/to/directory}
 
-\item{project_df}{(optional) Dataframe from running get_projects()}
+\item{file_name}{(optional) String output file name ex: 'my_report.html' ex: my_report.html}
 
 \item{survey_df}{(optional) Dataframe from running get_project_surveys()}
 
@@ -35,8 +35,10 @@ This function can run with these outputs or without.
 }
 \examples{
 
-get_acoustic_stationary_report(username = 'NABat_Username')
--- Prompts for password
+get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
+                               output_dir = '/path/to/your/output/directory',
+                               file_name  = 'report.html'
+                               project_id = 'number or string of a number')
 }
 \keyword{GQL}
 \keyword{NABat,}

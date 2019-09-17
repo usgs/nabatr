@@ -21,10 +21,10 @@
 #' and get_observed_nights() this function will create a report .html file to an output_dir.
 #' This function can run with these outputs or without.
 #' @param token String token created from get_nabat_gql_token function
-#' @param output_dir String output directory to save report .html file
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param project_id String or Integer project id from NABat ex: 105 or '105'
-#' @param file_name (optional) String output file name ex: 'my_report.html'
-#' @param project_df (optional) Dataframe from running get_projects()
+#' @param output_dir String output directory to save report .html file ex: /path/to/directory
+#' @param file_name (optional) String output file name ex: 'my_report.html' ex: my_report.html
 #' @param survey_df (optional) Dataframe from running get_project_surveys()
 #' @param acoustic_bulk_df (optional) Dataframe from running get_acoustic_bulk_wavs()
 #' @param manual_nights_df (optional) Dataframe from running get_observed_nights()
@@ -32,27 +32,51 @@
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
-#' get_acoustic_stationary_report(username = 'NABat_Username')
-#' -- Prompts for password
+#' get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
+#'                                output_dir = '/path/to/your/output/directory',
+#'                                file_name  = 'report.html'
+#'                                project_id = 'number or string of a number')
 #
 #' @export
 #'
 get_acoustic_stationary_report = function(token,
-                                          output_dir,
+                                          username,
                                           project_id,
-                                          file_name = NULL,
-                                          project_df = NULL,
+                                          output_dir,
+                                          file_name = 'report.html',
                                           survey_df = NULL,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
 
+  # Get survey dataframe
+  survey_df = nabatr::get_project_surveys(username   = username,
+                                           token      = token,
+                                           project_id = project_id)
+
+  # Get stationary acoustic bulk upload format dataframe
+  acoustic_bulk_df = nabatr::get_acoustic_bulk_wavs(token      = token,
+                                                     username   = username,
+                                                     survey_df  = survey_df,
+                                                     project_id = project_id)
+
+  # Get Acoustic stationary acoustic bulk dataframe
+  nightly_observed_list = nabatr::get_observed_nights(acoustic_bulk_df)
+  manual_nights_df = nightly_observed_list$auto_nightly_df
+  auto_nights_df   = nightly_observed_list$manual_nightly_df
+
+  # Build leaflet map
+  grts_map = get_grts_leaflet_map(project_id     = project_id,
+                                  all_grts       = unique(survey_df$grts_cell_id),
+                                  grts_with_data = unique(auto_nights_df$GRTS))
+
   # Specifiy template in data directory
-  template = ('data/templates/acoustic_stationary_report.Rmd')
-
-  rmarkdown::render(input = template,
-                    output_file = paste0(output_dir, file_name))
-
+  template = paste0(getwd(), '/data/templates/acoustic_stationary_report.Rmd')
+  message(paste0("Checking report template location: ", template))
+  rmarkdown::render(input       = template,
+                    output_file = paste0(output_dir, '/', file_name))
+  # Return the location of the downloaded report
+  return(template)
 }
 
 
@@ -102,7 +126,6 @@ get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
   grts_template_df = data.frame(GRTS_ID = all_grts)
   grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
 
-  polys = SpatialPolygons(list())
   # Creating map with an Imagery layer
   m = leaflet() %>% addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
                              attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
