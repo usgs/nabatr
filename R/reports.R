@@ -62,7 +62,7 @@ get_acoustic_stationary_report = function(token,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
-  template = paste0(reports_dir, '../data/templates/acoustic_stationary_report.Rmd')
+  template = paste0(reports_dir, '/../data/templates/acoustic_stationary_report.Rmd')
   print (template)
 
   # Get survey dataframe
