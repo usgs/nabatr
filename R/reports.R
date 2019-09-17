@@ -11,6 +11,8 @@
 # Created: 2019-9-6
 #############################################################################
 
+test_df = data.frame(current_working_dir = getwd())
+
 #' @title Build Report .html file for Acoustic Stationary Project Data
 #'
 #' @import rmarkdown
@@ -44,11 +46,14 @@ get_acoustic_stationary_report = function(token,
                                           project_id,
                                           output_dir,
                                           file_name = 'report.html',
-                                          template = '/data/templates/acoustic_stationary_report.Rmd',
+                                          template = './data/templates/acoustic_stationary_report.Rmd',
                                           survey_df = NULL,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
+
+  print (test_df)
+  print (getwd())
 
   # Get survey dataframe
   survey_df = nabatr::get_project_surveys(username   = username,
