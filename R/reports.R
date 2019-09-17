@@ -23,11 +23,18 @@
 #'
 project_dir = getwd()
 
+#' @export
+project_dir2 = thisfile()
+
+#' @export
+root = rprojroot::is_r_package
+
 
 #' @title Build Report .html file for Acoustic Stationary Project Data
 #'
 #' @import rmarkdown
 #' @import leaflet
+#' @import rprojroot
 #'
 #' @description
 #' Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
@@ -62,7 +69,9 @@ get_acoustic_stationary_report = function(token,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
   template = paste0(project_dir, '/data/templates/acoustic_stationary_report.Rmd')
-  print (template)
+  print (project_dir)
+  print (project_dir2)
+  print (root)
 
   # Get survey dataframe
   survey_df = nabatr::get_project_surveys(username   = username,
