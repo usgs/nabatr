@@ -2,49 +2,194 @@
 title: "Get_Acoustic_Data"
 output:
   html_document: default
-  pdf_document: default
-  word_document: default
 ---
 
 ### Explore your stationary acoustic NABat data using this Rmd example
 
-Download, this package
+
+First, let's download these packages
 ```{r}
-if(!require(devtools)){install.packages(devtools)}
+# Install devtools
+if(!require(devtools)){install.packages('devtools')}
+
+# Install ghql and nabatr packages using devtools
+devtools::install_github("ropensci/ghql")
 devtools::install_github("talbertc-usgs/nabatr")
 library(nabatr)
 ```
 
 Get a Graphical QL token for NABat Database
 ```{r}
+# Enter your NABat username here
 username_ = 'NABat_Username'
 token_ = get_nabat_gql_token(username = username_)
-# If not using R-Studio and you aren't prompted for a password use this:
+
+# If you are not using R-Studio and are not prompted for a password use this code below
+#  to manually add in your password with the password variable:
 # token_ = get_nabat_gql_token(username = username_, password = 'your-password')
 ```
 
 Get Project dataframe which contains all of your acoustic stationary 
   projects in the NABat Database
 ```{r}
+# Get your projects lookup table
 project_df_ = nabatr::get_projects(token    = token_, 
                                   username = username_)
+# Display your projects lookup table
 project_df_
 ```
 
 Get all Acoustic Stationary Surveys within a single Project set with project_id_
 ```{r}
-project_id_ = 'project_id from project_df'
+# Fill in project id using the project_df_ lookup table
+project_id_ = 283
+
+# Get survey dataframe 
 survey_df_ = nabatr::get_project_surveys(username   = username_,
                                         token      = token_,
                                         project_id = project_id_)
+# Display survey dataframe
 survey_df_
 ```
 
 Get all Acoustic Stationary Survey wav file data.  Format: Acoustic Stationary Bulk Upload Template
 ```{r}
-acoustic_bulk_ = nabatr::get_acoustic_bulk_(token      = token_, 
-                                                username   = username_, 
-                                                survey_df  = survey_df_,
-                                                project_id = project_id_)
-acoustic_bulk_
+# Get stationary acoustic bulk upload format dataframe
+acoustic_bulk_df_ = nabatr::get_acoustic_bulk_wavs(token      = token_, 
+                                                   username   = username_, 
+                                                   survey_df  = survey_df_,
+                                                   project_id = project_id_)
+# Display stationary acoustic bulk upload format dataframe
+acoustic_bulk_df_
 ```
+
+Use the Acoustic Stationary acoustic bulk dataframe to build a dataframe for auto and manual species 
+  id data
+```{r}
+nightly_observed_list = nabatr::get_observed_nights(acoustic_bulk_df_)
+
+manual_nights_df_ = nightly_observed_list$auto_nightly_df
+auto_nights_df_   = nightly_observed_list$manual_nightly_df
+  
+manual_nights_df_
+auto_nights_df_
+```
+
+Setup a leaflet map to show 
+```{r}
+library(leaflet)
+library(htmlwidgets)
+library(htmltools)
+
+get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
+  grts_coords = read.csv('../data/GRTS_coords_CONUS.csv')
+
+  grts_template_df = data.frame(GRTS_ID = all_grts)
+  grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
+  
+  polys = SpatialPolygons(list())
+  m = leaflet() %>% addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
+          attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+          group = "World Imagery")
+  count = 0
+  
+  for (grts_cell in all_grts_cells){
+    
+    if (is.null(grts_with_data)){
+      color_ = '#2fff00'
+      color_2 = 'green'
+    }else {
+      if (grts_cell %in% has_data_grts_cells){
+        color_  = '#2fff00'
+        color_2 = 'green'
+      } else { 
+        color_  = '#ff0000'
+        color_2 = 'red'
+      }
+    }
+    
+    content = paste0(as.character(grts_cell))
+    content_popup = paste0('<b style = "color:',color_2,';" >GRTS cell</b>', '<br> <div style = "color:', color_2, ';" >', content, '</div>')
+    
+    
+    this_row = subset(grts_df,grts_df$GRTS_ID == grts_cell)
+    ll1 = as.numeric(rev(as.character(strsplit(as.character(this_row$lowerleft),',')[[1]])))
+    ll2 = as.numeric(rev(as.character(strsplit(as.character(this_row$upperleft),',')[[1]])))
+    ll3 = as.numeric(rev(as.character(strsplit(as.character(this_row$upperright),',')[[1]])))
+    ll4 = as.numeric(rev(as.character(strsplit(as.character(this_row$lowerright),',')[[1]])))
+    lngs = c(ll1[1],ll2[1],ll3[1],ll4[1])
+    lats = c(ll1[2],ll2[2],ll3[2],ll4[2])
+    m = m %>% addPolygons(lat = lats, lng = lngs, popup = content_popup, 
+                          color = color_, weight = 1.5, opacity = 1, group = color_,
+                          label = content, 
+                          labelOptions = labelOptions(style = list('font-size' = '14px',
+                                                                   'color' = color_2,
+                                                                   'box-shadow' = '3px 3px rgba(0,0,0,0.25)',
+                                                                   'border-color' = 'rgba(0,0,0,0.5)',
+                                                                   'border-radius' = '5px',
+                                                                   'padding' = '5px 5px 5px 5px'))) # top, right, bottom, left
+  }
+  # setwd("/Users/Kenns/projects/r/nabat/nabat_r_colin/NABatR/data/templates/")
+  print (getwd())
+  # Add image to map
+  # rr = tags$div(HTML('<a href="https://sciencebase.usgs.gov/nabat/#/home"><img border="0" alt="NABat Website" src="/Users/Kenns/projects/r/nabat/nabat_r_colin/NABatR/data/templates/nabat_logo.png" width="150" height="50"></a>'))
+  rr = tags$div(HTML('<img border="0" alt="NABat Website" src="nabat_logo.png" width="150" height="50">'))
+  m = m %>% addControl(rr, position = "bottomleft")
+  getwd()
+  
+  # Add title to map
+  map_title = tags$style(HTML(".leaflet-control.map-title { 
+                          transform: translate(-50%,15%);
+                          position: fixed !important;
+                          left: 50%;
+                          text-align: center;
+                          padding-left: 15px; 
+                          padding-right: 15px;
+                          padding-top: 10px; 
+                          padding-bottom: 10px; 
+                          background: rgba(255,255,255,0.5);
+                          font-weight: bold;
+                          font-size: 20px;
+                          text: black;
+                          border-radius: 8px;
+                          }"))
+
+  title = tags$div(map_title, HTML(paste0("Acoustic Stationary GRTS Cells for Project: "),project_id))
+  m = m %>% addControl(title, position = "topleft", className="map-title")
+  
+  # Return leaflet map with GRTS cells
+  return (m)
+}
+
+grts_map = get_grts_leaflet_map(project_id     = project_id_,
+                                all_grts       = unique(survey_df_$grts_cell_id),
+                                grts_with_data = unique(auto_nights_df_$GRTS))
+grts_map
+htmlwidgets::saveWidget(grts_map, file="/users/kenns/downloads/grts_map_testing.html")
+
+# grts_map_all = get_grts_leaflet_map(project_id = project_id_,
+                     # all_grts = unique(survey_df_$grts_cell_id))
+# grts_map_all
+```
+
+
+```{r}
+  
+# Specifiy template in data directory
+template = ('../data/templates/acoustic_stationary_report.Rmd')
+
+project_name = subset(project_df_, project_df_$project_id == project_id_)$project_name
+file_name    = 'report_test.html'
+output_dir   = '/users/kenns/downloads/'
+rmarkdown::render(input = template,
+                  output_file = paste0(output_dir, file_name))
+```
+
+
+
+
+
+
+
+
+

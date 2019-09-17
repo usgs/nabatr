@@ -55,7 +55,6 @@
 54,ANPAEPFU,,,"Antrozous pallidus, Eptesicus fuscus","Pallid bat, Big brown bat",ANPAEPFU
 55,EPFULANO,,,"Eptesicus fuscus, Lasionycteris noctivagans","Big brown bat, Silver-haired bat",EPFULANO
 56,LABLPAHE,,,"Lasiurus blossevillii, Parastrellus hesperus","Western red bat, Canyon bat",LABLPAHE
-57,LABLPAHE,,,"Lasiurus borealis, Perimyotis subflavus","Eastern red bat, Tri-colored bat",LABLPAHE
 58,LABOMYLU,,,"Lasiurus borealis, Myotis lucifugus","Eastern red bat, Little brown bat",LABOMYLU
 59,LABOLASE,,,"Lasiurus borealis, Lasiurus seminolus","Eastern red bat, Seminole bat",LABOLASE
 60,LANOTABR,,,"Lasiurus noctivagans, Tadarida brasiliensis","Silver-haired bat, Mexican free-tailed bat",LANOTABR
@@ -64,3 +63,22 @@
 63,MYCAMYYU,,,"Myotis californicus, Myotis yumanensis","California bat, Yuma bat",MYCAMYYU
 64,NOTBAT,,,Not a bat,Not a bat,NOTBAT
 65,NoID,,,,Bat but no grouping or user-defined category applies,NoID
+57,LABOPESU,,,"Lasiurus borealis, Perimyotis subflavus","Eastern red bat, Tri-colored bat",LABOPESU
+66,"25k",,,,Various species with pulses that have a minimum frequency of approximately 15–25 kHz.,"25k"
+67,"40k",,,,Various species with pulses that have a minimum frequency in the range of 35–45 kHz.,"40k"
+68,"40kMyo",,,,Various species of Myotis with pulses that have a minimum frequency in the range of 35–40 kHz.,"40kMyo"
+69,LowF,,,,Various species with pulses having a minimum frequency lower than ~30 kHz.,LowF
+70,HighF,,,,Various species with pulses having a minimum frequency higher than ~30 kHz.,HighF
+71,"25k",,,,Various species with pulses that have a minimum frequency of approximately 15–25 kHz.,"25k"
+72,"40k",,,,Various species with pulses that have a minimum frequency in the range of 35–45 kHz.,"40k"
+73,"40kMyo",,,,Various species of Myotis with pulses that have a minimum frequency in the range of 35–40 kHz.,"40kMyo"
+74,LowF,,,,Various species with pulses having a minimum frequency lower than ~30 kHz.,LowF
+75,HighF,,,,Various species with pulses having a minimum frequency higher than ~30 kHz.,HighF
+76,LACILANO,,,"Lasiurus cinereus, Lasionycteris noctivagans","Hoary bat, Silver-haired bat",LACILANO
+77,MYCIMYVO,,,"Myotis ciliolabrum, Myotis volans","Western small-footed myotis, Long-legged bat",MYCIMYVO
+78,LACILANO,,,"Lasiurus cinereus, Lasionycteris noctivagans","Hoary bat, Silver-haired bat",LACILANO
+79,MYCIMYVO,,,"Myotis ciliolabrum, Myotis volans","Western small-footed myotis, Long-legged bat",MYCIMYVO
+80,LESP,,Leptonycteris,,,
+81,LUSO,,Myotis,Myotis lucifugus/Myotis sodalis,Little brown bat/Indiana bat,
+82,MYAR,,Myotis,Myotis auriculus,Southwestern myotis,
+83,NYSP,,Nyctinomops,,,

@@ -177,13 +177,13 @@ get_project_surveys = function(token, username, project_id){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' acoustic_bulk_df = get_acoustic_bulk(username   = 'NABat_Username',
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(username   = 'NABat_Username',
 #'                                         token      = 'generated-nabat-gql-token',
 #'                                         survey_df  = 'dataframe from output of get_project_surveys()',
 #'                                         project_id = 'number or string of a number')
 #'
 #' @export
-get_acoustic_bulk = function(token, username, survey_df, project_id){
+get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
 
   # Create cli using NABat prod url and ghql library
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
