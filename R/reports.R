@@ -24,7 +24,7 @@
 project_dir = getwd()
 
 #' @export
-project_dir2 = rprojroot::thisfile()
+project_dir2 = find_root_file('R', "acoustic_stationary_report.Rmd", criterion = has_file('DESCRIPTION'))
 
 #' @export
 root = rprojroot::is_r_package
