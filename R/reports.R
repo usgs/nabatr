@@ -21,14 +21,13 @@
 #'
 #' @export
 #'
-reports_dir = getwd()
+project_dir = getwd()
 
 
 #' @title Build Report .html file for Acoustic Stationary Project Data
 #'
 #' @import rmarkdown
 #' @import leaflet
-#' @import here
 #'
 #' @description
 #' Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
@@ -62,7 +61,7 @@ get_acoustic_stationary_report = function(token,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
-  template = paste0(reports_dir, '/../data/templates/acoustic_stationary_report.Rmd')
+  template = paste0(project_dir, '/data/templates/acoustic_stationary_report.Rmd')
   print (template)
 
   # Get survey dataframe
