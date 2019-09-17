@@ -44,6 +44,7 @@ get_acoustic_stationary_report = function(token,
                                           project_id,
                                           output_dir,
                                           file_name = 'report.html',
+                                          template = '/data/templates/acoustic_stationary_report.Rmd',
                                           survey_df = NULL,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
@@ -71,7 +72,6 @@ get_acoustic_stationary_report = function(token,
                                   grts_with_data = unique(auto_nights_df$GRTS))
 
   # Specifiy template in data directory
-  template = paste0(getwd(), '/data/templates/acoustic_stationary_report.Rmd')
   message(paste0("Checking report template location: ", template))
   rmarkdown::render(input       = template,
                     output_file = paste0(output_dir, '/', file_name))
