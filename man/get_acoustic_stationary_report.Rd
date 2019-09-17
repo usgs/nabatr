@@ -5,9 +5,8 @@
 \title{Build Report .html file for Acoustic Stationary Project Data}
 \usage{
 get_acoustic_stationary_report(token, username, project_id, output_dir,
-  file_name = "report.html",
-  template = "./data/templates/acoustic_stationary_report.Rmd",
-  survey_df = NULL, acoustic_bulk_df = NULL, manual_nights_df = NULL,
+  file_name = "report.html", survey_df = NULL,
+  acoustic_bulk_df = NULL, manual_nights_df = NULL,
   auto_nights_df = NULL)
 }
 \arguments{

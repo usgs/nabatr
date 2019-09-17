@@ -11,6 +11,19 @@
 # Created: 2019-9-6
 #############################################################################
 
+
+#' @title current directory for reports.R
+#'
+#' @description
+#' current directory to use for finding files within package
+#' @keywords dir, directory
+#' @examples
+#'
+#' @export
+#'
+reports_dir = getwd()
+
+
 #' @title Build Report .html file for Acoustic Stationary Project Data
 #'
 #' @import rmarkdown
@@ -45,20 +58,12 @@ get_acoustic_stationary_report = function(token,
                                           project_id,
                                           output_dir,
                                           file_name = 'report.html',
-                                          template = './data/templates/acoustic_stationary_report.Rmd',
                                           survey_df = NULL,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
-
-  print ('testing here package')
-  print (here::here())
-  print (here::here('acoustic_stationary_report.Rmd'))
-
-
-  print ('testing dirname(sys.frame(1)$ofile)')
-  script.dir = dirname(sys.frame(1)$ofile)
-  print(script.dir)
+  template = paste0(reports_dir, '../data/templates/acoustic_stationary_report.Rmd')
+  print (template)
 
   # Get survey dataframe
   survey_df = nabatr::get_project_surveys(username   = username,
