@@ -52,8 +52,8 @@ get_acoustic_stationary_report = function(token,
                                           auto_nights_df = NULL){
 
   print ('testing here package')
-  print (here())
-  print (here('acoustic_stationary_report.Rmd'))
+  print (here::here())
+  print (here::here('acoustic_stationary_report.Rmd'))
 
   # Get survey dataframe
   survey_df = nabatr::get_project_surveys(username   = username,
