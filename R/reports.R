@@ -55,6 +55,11 @@ get_acoustic_stationary_report = function(token,
   print (here::here())
   print (here::here('acoustic_stationary_report.Rmd'))
 
+
+  print ('testing dirname(sys.frame(1)$ofile)')
+  script.dir = dirname(sys.frame(1)$ofile)
+  print(script.dir)
+
   # Get survey dataframe
   survey_df = nabatr::get_project_surveys(username   = username,
                                            token      = token,
