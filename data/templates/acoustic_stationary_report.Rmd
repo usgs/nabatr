@@ -33,24 +33,29 @@ g-table-intro h4 {
 }
 </style>
 
-
-<a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='nabat_logo.png' /></a>
+<a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='`r nabat_png`' /></a>
 
 # NABat Interactive Acoustic Report: **`r project_id`**
 #### **Project**:  `r project_id`
+`r nabat_png`
 
 ### Locations of all the acoustic data for this project
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 grts_map
+
+# This needs to point to the src that is paste0(getOption('nabat_path'), '/data/templates/nabat_logo.png'))
+# <a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='data/nabat_logo.png' /></a>
 ```
 
 
 
 
 
-build dynamic plotly plots
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# build dynamic plotly plots 
+
+
 # # GRTS = unique(auto_nights_df_$GRTS)
 # 
 # library(plotly)
@@ -180,9 +185,8 @@ build dynamic plotly plots
 # #   layout(width = 1000, height = plot_dims$rows*200)
 ```
 
-build with ggplot2? and then conver to nabat
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-
+# build with ggplot2? and then conver to nabat
 
 ```
 
