@@ -75,7 +75,7 @@ get_nabat_gql_token = function(username, password = NULL){
 
   if (is.null(error)){
     token = strsplit(bearer, 'Bearer ')[[1]][2]
-    message("Returning a GQL token for NABAT.")
+    message("Returning a GQL token for NABat.")
     # Return token
     return (token)
   } else {
