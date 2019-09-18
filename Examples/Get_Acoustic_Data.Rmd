@@ -23,7 +23,6 @@ Get a Graphical QL token for NABat Database
 # Enter your NABat username here
 username_ = 'NABat_Username'
 token_ = get_nabat_gql_token(username = username_)
-
 # If you are not using R-Studio and are not prompted for a password use this code below
 #  to manually add in your password with the password variable:
 # token_ = get_nabat_gql_token(username = username_, password = 'your-password')
@@ -63,8 +62,7 @@ acoustic_bulk_df_ = nabatr::get_acoustic_bulk_wavs(token      = token_,
 acoustic_bulk_df_
 ```
 
-Use the Acoustic Stationary acoustic bulk dataframe to build a dataframe for auto and manual species 
-  id data
+Use the Acoustic Stationary acoustic bulk dataframe to build a dataframe for auto and manual species id data
 ```{r}
 # Get Acoustic stationary acoustic bulk dataframe
 nightly_observed_list = nabatr::get_observed_nights(acoustic_bulk_df_)
@@ -79,14 +77,22 @@ auto_nights_df_
 
 Setup a leaflet map to show 
 ```{r}
-grts_map = get_grts_leaflet_map(project_id     = 283,
-                           all_grts       = unique(survey_df_$grts_cell_id),
-                           grts_with_data = unique(auto_nights_df_$GRTS))
+grts_map = get_grts_leaflet_map(project_id     = project_id_,
+                                all_grts       = unique(survey_df_$grts_cell_id),
+                                grts_with_data = unique(auto_nights_df_$GRTS))
 # Display the grts map
 grts_map
 ```
 
+build report
+```{r}
+get_acoustic_stationary_report(token      = token_,
+                               username   = username_,
+                               output_dir = '/Users/kenns/Downloads',
+                               file_name  = 'report123.html',
+                               project_id = project_id_)
 
+```
 
 
 
