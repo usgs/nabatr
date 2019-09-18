@@ -21,9 +21,12 @@ and all_grts must be in CONUS.
 }
 \examples{
 
+\dontrun{
 map = get_grts_leaflet_map(project_id     = 283,
                            all_grts       = unique(survey_df_$grts_cell_id),
                            grts_with_data = unique(auto_nights_df_$GRTS))
+}
+
 }
 \keyword{GQL}
 \keyword{NABat,}

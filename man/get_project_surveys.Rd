@@ -18,9 +18,11 @@ Returns all surveys within a single project (project_id)
 }
 \examples{
 
+\dontrun{
 survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
                                 username   = 'NABat_Username',
                                 project_id = 'number or string of a number')
+}
 
 }
 \keyword{GQL,}

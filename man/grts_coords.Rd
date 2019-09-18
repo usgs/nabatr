@@ -14,7 +14,10 @@ Reads in dataframe that contains all of the GRTS cells and their
 }
 \examples{
 
+\dontrun{
 nabatr::grts_coords
+}
+
 }
 \keyword{CONUS}
 \keyword{NABat,}

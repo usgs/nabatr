@@ -16,8 +16,10 @@ Returns all projects that the user has permissions to view
 }
 \examples{
 
+\dontrun{
 project_df = get_projects(username = 'NABat_Username',
                           token    = 'generated-nabat-gql-token')
+}
 
 }
 \keyword{GQL}

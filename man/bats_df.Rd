@@ -13,7 +13,10 @@ Reads in dataframe for NABat species lookup table
 }
 \examples{
 
+\dontrun{
 nabatr::bats_df
+}
+
 }
 \keyword{NABat}
 \keyword{bats,}

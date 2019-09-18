@@ -35,10 +35,13 @@ This function can run with these outputs or without.
 }
 \examples{
 
+\dontrun{
 get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
                                output_dir = '/path/to/your/output/directory',
                                file_name  = 'report.html'
                                project_id = 'number or string of a number')
+}
+
 }
 \keyword{GQL}
 \keyword{NABat,}
