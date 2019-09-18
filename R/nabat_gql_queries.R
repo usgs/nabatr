@@ -18,8 +18,10 @@
 #' @keywords species, bats, NABat
 #' @examples
 #'
+#' \dontrun{
 #' nabatr::bats_df
-#
+#' }
+#'
 #' @export
 #'
 bats_df =  read.csv('data/bat_species.csv')
@@ -33,9 +35,11 @@ bats_df =  read.csv('data/bat_species.csv')
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' \dontrun{
 #' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
 #' -- Prompts for password
-#
+#' }
+#'
 #' @export
 #'
 get_nabat_gql_token = function(username, password = NULL){
@@ -58,7 +62,6 @@ get_nabat_gql_token = function(username, password = NULL){
       error
     }
   }'
-
   # Finalize json request
   pbody = list(query = query, variables = variables)
   # POST to url
@@ -67,11 +70,18 @@ get_nabat_gql_token = function(username, password = NULL){
   rm(password, variables, pbody)
   # Extract token
   content = content(res)
+  error  = content$data$login$error
   bearer = content$data$login$token
-  token = strsplit(bearer, 'Bearer ')[[1]][2]
 
-  # Return token
-  return (token)
+  if (is.null(error)){
+    token = strsplit(bearer, 'Bearer ')[[1]][2]
+    message("Returning a GQL token for NABAT.")
+    # Return token
+    return (token)
+  } else {
+    # Post message with error for user
+    message(paste0("Error: ", error))
+  }
 }
 
 
@@ -89,8 +99,10 @@ get_nabat_gql_token = function(username, password = NULL){
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' \dontrun{
 #' project_df = get_projects(username = 'NABat_Username',
 #'                           token    = 'generated-nabat-gql-token')
+#' }
 #'
 #' @export
 #'
@@ -134,9 +146,11 @@ get_projects = function(token, username){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
+#' \dontrun{
 #' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
 #'                                 username   = 'NABat_Username',
 #'                                 project_id = 'number or string of a number')
+#' }
 #'
 #' @export
 get_project_surveys = function(token, username, project_id){
@@ -177,10 +191,12 @@ get_project_surveys = function(token, username, project_id){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
+#' \dontrun{
 #' acoustic_bulk_df = get_acoustic_bulk_wavs(username   = 'NABat_Username',
 #'                                         token      = 'generated-nabat-gql-token',
 #'                                         survey_df  = 'dataframe from output of get_project_surveys()',
 #'                                         project_id = 'number or string of a number')
+#' }
 #'
 #' @export
 get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
