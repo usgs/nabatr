@@ -11,28 +11,6 @@
 # Created: 2019-9-6
 #############################################################################
 
-
-#' @title current directory for reports.R
-#'
-#' @description
-#' current directory to use for finding files within package
-#' @keywords dir, directory
-#' @examples
-#'
-#' @export
-#'
-project_dir = getwd()
-
-#' @export
-project_dir2 = find_root_file('R', "acoustic_stationary_report.Rmd", criterion = has_file('DESCRIPTION'))
-
-#' @export
-root = rprojroot::is_r_package
-
-#' @export
-project_dir3 = rprojroot::find_root(has_file("DESCRIPTION"))
-
-
 #' @title Build Report .html file for Acoustic Stationary Project Data
 #'
 #' @import rmarkdown
@@ -55,11 +33,14 @@ project_dir3 = rprojroot::find_root(has_file("DESCRIPTION"))
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' \dontrun{
 #' get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
+#'                                username   = 'NABat_Username',
 #'                                output_dir = '/path/to/your/output/directory',
-#'                                file_name  = 'report.html'
+#'                                file_name  = 'report.html',
 #'                                project_id = 'number or string of a number')
-#
+#' }
+#'
 #' @export
 #'
 get_acoustic_stationary_report = function(token,
@@ -71,24 +52,26 @@ get_acoustic_stationary_report = function(token,
                                           acoustic_bulk_df = NULL,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
-  template = paste0(project_dir, '/data/templates/acoustic_stationary_report.Rmd')
-  print (project_dir)
-  print (project_dir2)
-  print (project_dir3)
+
+  # Locate template to use for buliding the report
+  template = paste0(getOption('nabat_path'), '/data/templates/acoustic_stationary_report.Rmd')
+
+  # Set NABat logo image location
+  nabat_png = paste0(getOption('nabat_path'), '/data/templates/nabat_logo.png')
 
   # Get survey dataframe
-  survey_df = nabatr::get_project_surveys(username   = username,
+  survey_df = get_project_surveys(username   = username,
                                            token      = token,
                                            project_id = project_id)
 
   # Get stationary acoustic bulk upload format dataframe
-  acoustic_bulk_df = nabatr::get_acoustic_bulk_wavs(token      = token,
+  acoustic_bulk_df = get_acoustic_bulk_wavs(token      = token,
                                                      username   = username,
                                                      survey_df  = survey_df,
                                                      project_id = project_id)
 
   # Get Acoustic stationary acoustic bulk dataframe
-  nightly_observed_list = nabatr::get_observed_nights(acoustic_bulk_df)
+  nightly_observed_list = get_observed_nights(acoustic_bulk_df)
   manual_nights_df = nightly_observed_list$auto_nightly_df
   auto_nights_df   = nightly_observed_list$manual_nightly_df
 
@@ -114,8 +97,10 @@ get_acoustic_stationary_report = function(token,
 #' @keywords species, bats, NABat, grts, CONUS
 #' @examples
 #'
+#' \dontrun{
 #' nabatr::grts_coords
-#
+#' }
+#'
 #' @export
 #'
 grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
@@ -140,10 +125,12 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' \dontrun{
 #' map = get_grts_leaflet_map(project_id     = 283,
 #'                            all_grts       = unique(survey_df_$grts_cell_id),
 #'                            grts_with_data = unique(auto_nights_df_$GRTS))
-#
+#' }
+#'
 #' @export
 #'
 get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
@@ -153,7 +140,7 @@ get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
   grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
 
   # Creating map with an Imagery layer
-  m = leaflet() %>% addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
+  m = leaflet(width = '100%') %>% addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
                              attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
                              group = "World Imagery")
   # Loop through all all_grts, create a polygon for each, and add to the leaflet map m
@@ -203,25 +190,24 @@ get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
   # rr = tags$div(HTML('<img border="0" alt="NABat Website" src="nabat_logo.png" width="150" height="50">'))
   # m = m %>% addControl(rr, position = "bottomleft")
 
-  # Add title to map
-  map_title = tags$style(HTML(".leaflet-control.map-title {
-                              transform: translate(-50%,15%);
-                              position: fixed !important;
-                              left: 50%;
-                              text-align: center;
-                              padding-left: 15px;
-                              padding-right: 15px;
-                              padding-top: 10px;
-                              padding-bottom: 10px;
-                              background: rgba(255,255,255,0.5);
-                              font-weight: bold;
-                              font-size: 20px;
-                              text: black;
-                              border-radius: 8px;
-  }"))
-
-  title = tags$div(map_title, HTML(paste0("Acoustic Stationary GRTS Cells for Project: "),project_id))
-  m = m %>% addControl(title, position = "topleft", className="map-title")
+  # # Add title to map
+  # map_title = tags$style(HTML(".leaflet-control.map-title {
+  #                             transform: translate(-50%,15%);
+  #                             # position: fixed !important;
+  #                             left: 50%;
+  #                             text-align: center;
+  #                             padding-left: 15px;
+  #                             padding-right: 15px;
+  #                             padding-top: 10px;
+  #                             padding-bottom: 10px;
+  #                             background: rgba(255,255,255,0.5);
+  #                             font-weight: bold;
+  #                             font-size: 20px;
+  #                             text: black;
+  #                             border-radius: 8px;
+  # }"))
+  # title = tags$div(map_title, HTML(paste0("Acoustic Stationary GRTS Cells for Project: "),project_id))
+  # m = m %>% addControl(title, position = "topleft", className="map-title")
 
   # Return leaflet map m with GRTS cells
   return (m)
