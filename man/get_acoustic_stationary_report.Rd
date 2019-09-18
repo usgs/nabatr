@@ -37,8 +37,9 @@ This function can run with these outputs or without.
 
 \dontrun{
 get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
+                               username   = 'NABat_Username',
                                output_dir = '/path/to/your/output/directory',
-                               file_name  = 'report.html'
+                               file_name  = 'report.html',
                                project_id = 'number or string of a number')
 }
 
