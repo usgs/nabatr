@@ -53,11 +53,17 @@ get_acoustic_stationary_report = function(token,
                                           manual_nights_df = NULL,
                                           auto_nights_df = NULL){
 
-  # Locate template to use for buliding the report
-  template = paste0(getOption('nabat_path'), '/data/templates/acoustic_stationary_report.Rmd')
+  template  = system.file("templates", "acoustic_stationary_report.Rmd", package = "nabatr")
+  nabat_png = system.file("templates", "nabat_logo.png", package = "nabatr")
 
-  # Set NABat logo image location
-  nabat_png = paste0(getOption('nabat_path'), '/data/templates/nabat_logo.png')
+  message(template)
+  message(nabat_png)
+
+  # # Locate template to use for buliding the report
+  # template = paste0(getOption('nabat_path'), '/data/templates/acoustic_stationary_report.Rmd')
+  #
+  # # Set NABat logo image location
+  # nabat_png = paste0(getOption('nabat_path'), '/data/templates/nabat_logo.png')
 
   # Get survey dataframe
   survey_df = get_project_surveys(username   = username,
