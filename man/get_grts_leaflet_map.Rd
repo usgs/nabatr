@@ -4,11 +4,9 @@
 \alias{get_grts_leaflet_map}
 \title{Build leaflet map for Acoustic Stationary report in CONUS}
 \usage{
-get_grts_leaflet_map(project_id, all_grts, grts_with_data = NULL)
+get_grts_leaflet_map(all_grts, grts_with_data = NULL)
 }
 \arguments{
-\item{project_id}{String or Integer project id from NABat ex: 105 or '105'}
-
 \item{all_grts}{String Vector all grts cell ids found from the survey_df dataframe by running
 unique(survey_df$)}
 
@@ -22,8 +20,7 @@ and all_grts must be in CONUS.
 \examples{
 
 \dontrun{
-map = get_grts_leaflet_map(project_id     = 283,
-                           all_grts       = unique(survey_df_$grts_cell_id),
+map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
                            grts_with_data = unique(auto_nights_df_$GRTS))
 }
 
