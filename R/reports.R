@@ -82,8 +82,7 @@ get_acoustic_stationary_report = function(token,
   auto_nights_df   = nightly_observed_list$manual_nightly_df
 
   # Build leaflet map
-  grts_map = get_grts_leaflet_map(project_id     = project_id,
-                                  all_grts       = unique(survey_df$grts_cell_id),
+  grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df$grts_cell_id),
                                   grts_with_data = unique(auto_nights_df$GRTS))
 
   # Specifiy template in data directory
@@ -124,7 +123,6 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 #' Builds a leaflet map using a vector list of grts cells to add to a leaflet map.  Shows
 #' where the project's grts cells live spatially.  Keep in mind that the project_id
 #' and all_grts must be in CONUS.
-#' @param project_id String or Integer project id from NABat ex: 105 or '105'
 #' @param all_grts String Vector all grts cell ids found from the survey_df dataframe by running
 #' unique(survey_df$)
 #' @param grts_with_data (optional) String Vector or NULL
@@ -132,14 +130,13 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 #' @examples
 #'
 #' \dontrun{
-#' map = get_grts_leaflet_map(project_id     = 283,
-#'                            all_grts       = unique(survey_df_$grts_cell_id),
+#' map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
 #'                            grts_with_data = unique(auto_nights_df_$GRTS))
 #' }
 #'
 #' @export
 #'
-get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
+get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 
   # Create grts_template_df dataframe and merge with grts_coords
   grts_template_df = data.frame(GRTS_ID = all_grts)
@@ -190,31 +187,11 @@ get_grts_leaflet_map = function(project_id, all_grts, grts_with_data = NULL){
                                                                    'box-shadow' = '3px 3px rgba(0,0,0,0.25)',
                                                                    'border-color' = 'rgba(0,0,0,0.5)',
                                                                    'border-radius' = '5px',
-                                                                   'padding' = '5px 5px 5px 5px'))) # padding order is top, right, bottom, left
+                                                                   'padding' = '5px 5px 5px 5px')))# padding order is top, right, bottom, left
   }
-  # # Add image to map
-  # rr = tags$div(HTML('<img border="0" alt="NABat Website" src="nabat_logo.png" width="150" height="50">'))
-  # m = m %>% addControl(rr, position = "bottomleft")
+  # Add legend to leaflet map
+  m = m %>% addLegend('bottomright',labels = c('Has survey data', 'No survey data'), colors = c('#2fff00', '#ff0000'), opacity =1)
 
-  # # Add title to map
-  # map_title = tags$style(HTML(".leaflet-control.map-title {
-  #                             transform: translate(-50%,15%);
-  #                             # position: fixed !important;
-  #                             left: 50%;
-  #                             text-align: center;
-  #                             padding-left: 15px;
-  #                             padding-right: 15px;
-  #                             padding-top: 10px;
-  #                             padding-bottom: 10px;
-  #                             background: rgba(255,255,255,0.5);
-  #                             font-weight: bold;
-  #                             font-size: 20px;
-  #                             text: black;
-  #                             border-radius: 8px;
-  # }"))
-  # title = tags$div(map_title, HTML(paste0("Acoustic Stationary GRTS Cells for Project: "),project_id))
-  # m = m %>% addControl(title, position = "topleft", className="map-title")
-
-  # Return leaflet map m with GRTS cells
+  # Return the leaflet map
   return (m)
   }
