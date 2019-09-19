@@ -86,9 +86,9 @@ get_observed_nights = function(acoustic_bulk_df){
           auto_night_row$site_name = location
           auto_night_row$observed_night = date
           for (s in species){
-            auto_species_count = dim(subset(night_data_at_location, night_data_at_location$auto_species == s))[1]
+            auto_species_count   = dim(subset(night_data_at_location, night_data_at_location$auto_species == s))[1]
             manual_species_count = dim(subset(night_data_at_location, night_data_at_location$manual_species == s))[1]
-            auto_night_row[,s] = auto_species_count
+            auto_night_row[,s]   = auto_species_count
             manual_night_row[,s] = manual_species_count
           }
 
@@ -104,6 +104,6 @@ get_observed_nights = function(acoustic_bulk_df){
       }
     }
   }
-  return(list('auto_nightly_df' = auto_project_data,
-              'manual_nightly_df'    = manual_project_data))
+  return(list('auto_nightly_df'   = auto_project_data,
+              'manual_nightly_df' = manual_project_data))
 }
