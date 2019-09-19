@@ -35,9 +35,8 @@ g-table-intro h4 {
 
 <a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='`r nabat_png`' /></a>
 
-# NABat Interactive Acoustic Report: **`r project_id`**
+# NABat Interactive Stationary Acoustic Report: **`r project_id`**
 #### **Project**:  `r project_id`
-`r nabat_png`
 
 ### Locations of all the acoustic data for this project
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
@@ -47,7 +46,29 @@ grts_map
 # <a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='data/nabat_logo.png' /></a>
 ```
 
+### Automatic software detection of Stationary Acoustic Data
+<br>
+```{r, echo=FALSE}
+dt_auto = (auto_nights_df[,c(1:9)])
+dt_auto = dt_auto[order(dt_auto$GRTS, dt_auto$site_id),]
+kable(dt_auto) %>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
+  scroll_box(height='400px', width = '100%')
+```
+<br>
+<br>
 
+### Manual detection of Stationary Acoustic Data
+
+<br>
+```{r, echo=FALSE}
+# dt_man = (manual_nights_df[,c(1:9)])
+dt_man = manual_nights_df
+dt_man = dt_man[order(dt_man$GRTS, dt_man$site_id),]
+kable(dt_man) %>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
+  scroll_box(height='400px', width = '100%')
+```
 
 
 
