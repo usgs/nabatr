@@ -294,7 +294,7 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       wav_files_rn[,'grts_cell_id'] = proj_id_df$grtsId
 
       # Merge wav files dataframe and acoustic events dataframe for all data
-      wav_n_acc = merge(wav_files_rn, acc_events_rn, by= 'stationary_acoustic_values_id')
+      wav_n_acc = merge(wav_files_rn, acc_events_rn, by = 'stationary_acoustic_values_id')
 
       # Iteratively combine the wav_n_acc dataframes together for each new survey
       all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
