@@ -104,6 +104,8 @@ get_observed_nights = function(acoustic_bulk_df){
       }
     }
   }
+  manual_project_data = manual_project_data[order(manual_project_data$GRTS, manual_project_data$site_id),]
+  auto_project_data   = auto_project_data[order(auto_project_data$GRTS, auto_project_data$site_id),]
   return(list('auto_nightly_df'   = auto_project_data,
               'manual_nightly_df' = manual_project_data))
 }
