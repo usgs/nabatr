@@ -74,136 +74,136 @@ kable(dt_man) %>%
 
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# build dynamic plotly plots 
+# build dynamic plotly plots
 
 
-# # GRTS = unique(auto_nights_df_$GRTS)
-# 
-# library(plotly)
-# library(RColorBrewer)
-# library(ggplot2)
-# 
-# build_grts_plots = function(ordered_combined_data){
-# 
-#     # sites
-#     grts_id = unique(ordered_combined_data$GRTS)
-#     sites = unique(ordered_combined_data$site_id)
-#     
-#     # Clean data at GRTS level to remove any species that aren't at this GRTS cell
-#     species_grts_df = select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type'))
-#     species_present_grts = names(species_grts_df[,colSums(species_grts_df) > 0])
-#     
-#     # Clean data to include headers
-#     cleaned_grts_df = select(ordered_combined_data, c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', species_present_grts))
-#     
-#     # Build color palette to use for all sites in this grts cell
-#     n = length(species_present_grts)
-#     color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
-#     color_palette_op = colorRampPalette(c("#82caff", "#fff0c7", "#d6a7a3"))(n)
-#     color_palette_df = data.frame(colors = color_palette, op_colors = color_palette_op, species = species_present_grts)
-#     
-#     site_count_list = list()
-#     for (site in sites){
-#       # Subset data on a site level within a GRTS cell
-#       cleaned_site_df = subset(cleaned_grts_df, cleaned_grts_df$site_id == site)
-#       cleaned_site_df$opacity = ifelse(cleaned_site_df$type == 'automatic', 1, .5)
-#       cleaned_site_df$x_names = paste0(cleaned_site_df$observed_night,'_', cleaned_site_df$type)
-#       dates = as.character(cleaned_site_df$observed_night)
-#       
-#       # # Clean data again at site level to remove any species that aren't at this site
-#       # species_site_df = select(cleaned_site_df, -c('GRTS', 'site_id', 'site_name', 'observed_night'))
-#       # species_present_site = names(species_site_df[,colSums(species_site_df) > 0])
-#       # cleaned_site_df = select(cleaned_site_df, c('GRTS', 'site_id', 'site_name', 'observed_night', species_present_site))
-#       
-#       plotly_ = FALSE
-#       count = 0
-#       width_ = .1
-# 
-#       for (name in species_present_grts){
-#         count = count + 1
-#         species_counts = cleaned_site_df[,name]
-#         color = as.character(subset(color_palette_df, species == name)$colors)
-#         opac_color = as.character(subset(color_palette_df, species == name)$op_colors)
-#         
-#         this_color = rep(c(color, opac_color), length(species_counts)/2)
-#         
-#         if (plotly_ == FALSE){
-#           plotly_ = TRUE
-#           p_species = plot_ly(x = species_counts, y = cleaned_site_df$x_names, type = 'bar', orientation = 'h',
-#                               name = name, text = site, legendgroup = site,
-#                               marker = list(color = color,
-#                                             line = list(color = 'black',
-#                                                         width = width_)))
-#         }else{
-#           p_species = p_species %>% add_trace(x = species_counts, name = name,
-#                                               text = site, legendgroup = site,
-#                               marker = list(color = color,
-#                                             line = list(color = 'black',
-#                                                         width = width_)))
-#         }
-#       }
-#       m = list(l = 50,
-#                r = 50,
-#                b = 100,
-#                t = 50,
-#                pad = 4)
-#       p_species_final = p_species %>%
-#             layout(barmode = 'stack',
-#                     xaxis = list(title = "Counts"),
-#                     yaxis = list(title = "Observed Night"),
-#                     title = paste0(site),
-#                     autosize = F,
-#                     # width = 800,
-#                     # height = 500,
-#                     margin = m
-#             )
-#       
-#     }
-#     # p_species_final %>%  add_annotations(
-#     #   text = site,
-#     #   x = 0.5,
-#     #   y = 1,
-#     #   yref = "paper",
-#     #   xref = "paper",
-#     #   xanchor = "middle",
-#     #   yanchor = "top",
-#     #   showarrow = FALSE,
-#     #   font = list(size = 22))
-#     return (p_species_final)
-# }
+# GRTS = unique(auto_nights_df_$GRTS)
+
+library(plotly)
+library(RColorBrewer)
+library(ggplot2)
+
+build_grts_plots = function(ordered_combined_data){
+
+    # sites
+    grts_id = unique(ordered_combined_data$GRTS)
+    sites = unique(ordered_combined_data$site_id)
+
+    # Clean data at GRTS level to remove any species that aren't at this GRTS cell
+    species_grts_df = select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type'))
+    species_present_grts = names(species_grts_df[,colSums(species_grts_df) > 0])
+
+    # Clean data to include headers
+    cleaned_grts_df = select(ordered_combined_data, c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', species_present_grts))
+
+    # Build color palette to use for all sites in this grts cell
+    n = length(species_present_grts)
+    color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+    color_palette_op = colorRampPalette(c("#82caff", "#fff0c7", "#d6a7a3"))(n)
+    color_palette_df = data.frame(colors = color_palette, op_colors = color_palette_op, species = species_present_grts)
+
+    site_count_list = list()
+    for (site in sites){
+      # Subset data on a site level within a GRTS cell
+      cleaned_site_df = subset(cleaned_grts_df, cleaned_grts_df$site_id == site)
+      cleaned_site_df$opacity = ifelse(cleaned_site_df$type == 'automatic', 1, .5)
+      cleaned_site_df$x_names = paste0(cleaned_site_df$observed_night,'_', cleaned_site_df$type)
+      dates = as.character(cleaned_site_df$observed_night)
+
+      # # Clean data again at site level to remove any species that aren't at this site
+      # species_site_df = select(cleaned_site_df, -c('GRTS', 'site_id', 'site_name', 'observed_night'))
+      # species_present_site = names(species_site_df[,colSums(species_site_df) > 0])
+      # cleaned_site_df = select(cleaned_site_df, c('GRTS', 'site_id', 'site_name', 'observed_night', species_present_site))
+
+      plotly_ = FALSE
+      count = 0
+      width_ = .1
+
+      for (name in species_present_grts){
+        count = count + 1
+        species_counts = cleaned_site_df[,name]
+        color = as.character(subset(color_palette_df, species == name)$colors)
+        opac_color = as.character(subset(color_palette_df, species == name)$op_colors)
+
+        this_color = rep(c(color, opac_color), length(species_counts)/2)
+
+        if (plotly_ == FALSE){
+          plotly_ = TRUE
+          p_species = plot_ly(x = species_counts, y = cleaned_site_df$x_names, type = 'bar', orientation = 'h',
+                              name = name, text = site, legendgroup = site,
+                              marker = list(color = color,
+                                            line = list(color = 'black',
+                                                        width = width_)))
+        }else{
+          p_species = p_species %>% add_trace(x = species_counts, name = name,
+                                              text = site, legendgroup = site,
+                              marker = list(color = color,
+                                            line = list(color = 'black',
+                                                        width = width_)))
+        }
+      }
+      m = list(l = 50,
+               r = 50,
+               b = 100,
+               t = 50,
+               pad = 4)
+      p_species_final = p_species %>%
+            layout(barmode = 'stack',
+                    xaxis = list(title = "Counts"),
+                    yaxis = list(title = "Observed Night"),
+                    title = paste0(site),
+                    autosize = F,
+                    # width = 800,
+                    # height = 500,
+                    margin = m
+            )
+
+    }
+    # p_species_final %>%  add_annotations(
+    #   text = site,
+    #   x = 0.5,
+    #   y = 1,
+    #   yref = "paper",
+    #   xref = "paper",
+    #   xanchor = "middle",
+    #   yanchor = "top",
+    #   showarrow = FALSE,
+    #   font = list(size = 22))
+    return (p_species_final)
+}
 
 
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# 
-# # re-order dataframe by site_id, then observed_night
-# ordered_grts_df_auto = auto_nights_df_[order(auto_nights_df_$site_id, auto_nights_df_$observed_night),]
-# ordered_grts_df_auto = select(ordered_grts_df_auto, -c('25k','NoID'))
-# ordered_grts_df_auto$type = 'automatic'
-# ordered_grts_df_man = manual_nights_df_[order(manual_nights_df_$site_id, manual_nights_df_$observed_night),]
-# ordered_grts_df_man = select(ordered_grts_df_man, -c('25k','NoID'))
-# ordered_grts_df_man$type  = 'manual'
-# 
-# combined_data = rbind(ordered_grts_df_auto, ordered_grts_df_man)
-# ordered_combined_data_ = combined_data[order(combined_data$site_id, combined_data$observed_night),]
-# 
-# split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
-# # split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
-# plot_list = lapply(split_list[1:9],  build_grts_plots)
-# 
-# # invisible(lapply(plot_list, print))
-# 
-# subplot(plot_list, nrows = length(plot_list)) %>%
-#   layout(height = length(plot_list) * 500, width = 800)
-# 
-# 
-# # subplot(plot_list, nrows = 3) %>%
-# #   layout(width = 800, height = 800)
-# 
-# # subplot(plot_list, nrows = rows, heights= heights, widths=widths,
-# #         margin=.01 ,shareY = F) %>%
-# #   layout(width = 1000, height = plot_dims$rows*200)
+
+# re-order dataframe by site_id, then observed_night
+ordered_grts_df_auto = auto_nights_df_[order(auto_nights_df_$site_id, auto_nights_df_$observed_night),]
+ordered_grts_df_auto = select(ordered_grts_df_auto, -c('25k','NoID'))
+ordered_grts_df_auto$type = 'automatic'
+ordered_grts_df_man = manual_nights_df_[order(manual_nights_df_$site_id, manual_nights_df_$observed_night),]
+ordered_grts_df_man = select(ordered_grts_df_man, -c('25k','NoID'))
+ordered_grts_df_man$type  = 'manual'
+
+combined_data = rbind(ordered_grts_df_auto, ordered_grts_df_man)
+ordered_combined_data_ = combined_data[order(combined_data$site_id, combined_data$observed_night),]
+
+split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
+# split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
+plot_list = lapply(split_list[1:9],  build_grts_plots)
+
+# invisible(lapply(plot_list, print))
+
+subplot(plot_list, nrows = length(plot_list)) %>%
+  layout(height = length(plot_list) * 500, width = 800)
+
+
+# subplot(plot_list, nrows = 3) %>%
+#   layout(width = 800, height = 800)
+
+# subplot(plot_list, nrows = rows, heights= heights, widths=widths,
+#         margin=.01 ,shareY = F) %>%
+#   layout(width = 1000, height = plot_dims$rows*200)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
