@@ -33,7 +33,7 @@ Get Project dataframe which contains all of your acoustic stationary
 ```{r}
 # Get your projects lookup table
 project_df_ = nabatr::get_projects(token    = token_, 
-                                  username = username_)
+                                   username = username_)
 # Display your projects lookup table
 project_df_
 ```
@@ -41,12 +41,12 @@ project_df_
 Get all Acoustic Stationary Surveys within a single Project set with project_id_
 ```{r}
 # Fill in project id using the project_df_ lookup table
-project_id_ = 283
+project_id_ = 284
 
 # Get survey dataframe 
 survey_df_ = nabatr::get_project_surveys(username   = username_,
-                                        token      = token_,
-                                        project_id = project_id_)
+                                         token      = token_,
+                                         project_id = project_id_)
 # Display survey dataframe
 survey_df_
 ```
@@ -77,8 +77,7 @@ auto_nights_df_
 
 Setup a leaflet map to show 
 ```{r}
-grts_map = get_grts_leaflet_map(project_id     = project_id_,
-                                all_grts       = unique(survey_df_$grts_cell_id),
+grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
                                 grts_with_data = unique(auto_nights_df_$GRTS))
 # Display the grts map
 grts_map
@@ -86,12 +85,12 @@ grts_map
 
 build report
 ```{r}
+proj = 284
 get_acoustic_stationary_report(token      = token_,
                                username   = username_,
-                               output_dir = '/Users/kenns/Downloads',
-                               file_name  = 'report123.html',
-                               project_id = project_id_)
-
+                               output_dir = '/path/to/Downloads',
+                               file_name  = paste0('report_',proj,'.html'),
+                               project_id = proj)
 ```
 
 
