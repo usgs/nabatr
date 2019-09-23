@@ -62,26 +62,21 @@ kable(dt_auto) %>%
 
 <br>
 ```{r, echo=FALSE}
-# dt_man = (manual_nights_df[,c(1:9)])
-dt_man = manual_nights_df
+dt_man = (manual_nights_df[,c(1:9)])
+# dt_man = manual_nights_df
 dt_man = dt_man[order(dt_man$GRTS, dt_man$site_id),]
 kable(dt_man) %>%
   kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
   scroll_box(height='400px', width = '100%')
 ```
 
-
-
-
+### Observed night plots for manual and automatic stationary acoustic data at each GRTS Site
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # build dynamic plotly plots
 
-
-# GRTS = unique(auto_nights_df_$GRTS)
-
-library(plotly)
-library(RColorBrewer)
-library(ggplot2)
+# library(plotly)
+# library(RColorBrewer)
+# library(ggplot2)
 
 build_grts_plots = function(ordered_combined_data){
 
@@ -155,33 +150,20 @@ build_grts_plots = function(ordered_combined_data){
                     autosize = F,
                     # width = 800,
                     # height = 500,
-                    margin = m
-            )
-
+                    margin = m)
     }
-    # p_species_final %>%  add_annotations(
-    #   text = site,
-    #   x = 0.5,
-    #   y = 1,
-    #   yref = "paper",
-    #   xref = "paper",
-    #   xanchor = "middle",
-    #   yanchor = "top",
-    #   showarrow = FALSE,
-    #   font = list(size = 22))
     return (p_species_final)
 }
-
-
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
 # re-order dataframe by site_id, then observed_night
-ordered_grts_df_auto = auto_nights_df_[order(auto_nights_df_$site_id, auto_nights_df_$observed_night),]
+ordered_grts_df_auto = auto_nights_df[order(auto_nights_df$site_id, auto_nights_df$observed_night),]
 ordered_grts_df_auto = select(ordered_grts_df_auto, -c('25k','NoID'))
 ordered_grts_df_auto$type = 'automatic'
-ordered_grts_df_man = manual_nights_df_[order(manual_nights_df_$site_id, manual_nights_df_$observed_night),]
+
+ordered_grts_df_man = manual_nights_df[order(manual_nights_df$site_id, manual_nights_df$observed_night),]
 ordered_grts_df_man = select(ordered_grts_df_man, -c('25k','NoID'))
 ordered_grts_df_man$type  = 'manual'
 
@@ -190,9 +172,7 @@ ordered_combined_data_ = combined_data[order(combined_data$site_id, combined_dat
 
 split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
 # split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
-plot_list = lapply(split_list[1:9],  build_grts_plots)
-
-# invisible(lapply(plot_list, print))
+plot_list = lapply(split_list[1:5],  build_grts_plots)
 
 subplot(plot_list, nrows = length(plot_list)) %>%
   layout(height = length(plot_list) * 500, width = 800)
@@ -207,8 +187,7 @@ subplot(plot_list, nrows = length(plot_list)) %>%
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# build with ggplot2? and then conver to nabat
-
+# build with ggplot2?
 ```
 
 
