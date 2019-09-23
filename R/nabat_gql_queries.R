@@ -59,13 +59,13 @@ get_nabat_gql_token = function(username, password = NULL){
   query = 'mutation loging($l:LoginInput!){
     login(input:$l){
       token
-      error
     }
   }'
   # Finalize json request
   pbody = list(query = query, variables = variables)
   # POST to url
   res = POST(url, body = pbody, encode="json")
+  print (res)
   # Remove variables with Password
   rm(password, variables, pbody)
   # Extract token
