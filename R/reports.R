@@ -59,27 +59,28 @@ get_acoustic_stationary_report = function(token,
   message(template)
   message(nabat_png)
 
-  # # Locate template to use for buliding the report
-  # template = paste0(getOption('nabat_path'), '/data/templates/acoustic_stationary_report.Rmd')
-  #
-  # # Set NABat logo image location
-  # nabat_png = paste0(getOption('nabat_path'), '/data/templates/nabat_logo.png')
-
   # Get survey dataframe
   survey_df = get_project_surveys(username   = username,
-                                           token      = token,
-                                           project_id = project_id)
+                                  token      = token,
+                                  project_id = project_id)
 
   # Get stationary acoustic bulk upload format dataframe
   acoustic_bulk_df = get_acoustic_bulk_wavs(token      = token,
-                                                     username   = username,
-                                                     survey_df  = survey_df,
-                                                     project_id = project_id)
+                                            username   = username,
+                                            survey_df  = survey_df,
+                                            project_id = project_id)
 
   # Get Acoustic stationary acoustic bulk dataframe
   nightly_observed_list = get_observed_nights(acoustic_bulk_df)
-  manual_nights_df = nightly_observed_list$auto_nightly_df
-  auto_nights_df   = nightly_observed_list$manual_nightly_df
+  manual_nights_df      = nightly_observed_list$auto_nightly_df
+  auto_nights_df        = nightly_observed_list$manual_nightly_df
+
+  if (dim(manual_nights_df)[1] == 0  && dim(auto_nights_df)[1] == 0){
+    message('Error, this project has no data to build a report with')
+    return('Failed')
+  }
+
+
 
   # Build leaflet map
   grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df$grts_cell_id),
@@ -152,8 +153,8 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 
     # Setting color to green or red based on if the grts cell has data or not
     if (is.null(grts_with_data)){
-      color_ = '#2fff00'
-      color_2 = 'green'
+      color_ = '#ff0000'
+      color_2 = 'red'
     }else {
       if (grts_cell %in% grts_with_data){
         color_  = '#2fff00'
