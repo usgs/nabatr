@@ -14,10 +14,6 @@
 # https://github.com/USGS-R/sbtools/blob/869282738eeea73225c8cc388ca4d189aa987899/R/item_get_wfs.R
 #############################################################################
 
-library(xml2)
-library(httr)
-library(rgdal)
-
 HASH_DICT <- list(Alaska = '5b7b54efe4b0f5d578846149',
                   Canada = '5b7b559de4b0f5d57884614d',
                   Conus = '5b7b563ae4b0f5d57884615b',
@@ -48,6 +44,7 @@ names(PRIORITY_CUTOFFS)  = c('Alaska', 'Canada', 'Conus', 'Hawaii', 'Mexico', 'P
 #' @keywords bats, NABat, GRTS
 #' @examples
 #'
+#' \dontrun{
 #' library(nabatr)
 #' library(sp)
 #'
@@ -62,7 +59,8 @@ names(PRIORITY_CUTOFFS)  = c('Alaska', 'Canada', 'Conus', 'Hawaii', 'Mexico', 'P
 #'
 #' #' CA_priority_grts = get_grts_data('Conus', query="state_n_1='California'", only_priority=TRUE)
 #' spplot(CA_priority_grts, zcol="lat")
-#
+#' }
+#'
 #' @export
 get_grts_data <- function(grid_frame, query=NULL, only_priority=FALSE){
   grid_frame <- normalize_grid_frame(grid_frame)
@@ -141,13 +139,3 @@ normalize_grid_frame = function(grid_frame){
 
   return(grid_frame)
 }
-
-#
-#
-# examples:
-
-
-
-
-
-

@@ -4,7 +4,7 @@
 \name{bats_df}
 \alias{bats_df}
 \title{NABat species lookup table}
-\format{An object of class \code{data.frame} with 65 rows and 7 columns.}
+\format{An object of class \code{data.frame} with 83 rows and 7 columns.}
 \usage{
 bats_df
 }
@@ -13,7 +13,10 @@ Reads in dataframe for NABat species lookup table
 }
 \examples{
 
+\dontrun{
 nabatr::bats_df
+}
+
 }
 \keyword{NABat}
 \keyword{bats,}

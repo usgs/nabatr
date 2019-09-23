@@ -18,18 +18,15 @@
 #' @keywords species, bats, NABat
 #' @examples
 #'
+#' \dontrun{
 #' nabatr::bats_df
-#
+#' }
+#'
 #' @export
 #'
 bats_df =  read.csv('data/bat_species.csv')
 
 #' @title NABat login to NABAt Database GQL
-#'
-#' @import httr
-#' @import jsonlite
-#' @import ghql
-#' @import plyr
 #'
 #' @description
 #' Get a NABat GQL token to use for queries
@@ -38,9 +35,11 @@ bats_df =  read.csv('data/bat_species.csv')
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' \dontrun{
 #' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
 #' -- Prompts for password
-#
+#' }
+#'
 #' @export
 #'
 get_nabat_gql_token = function(username, password = NULL){
@@ -60,23 +59,29 @@ get_nabat_gql_token = function(username, password = NULL){
   query = 'mutation loging($l:LoginInput!){
     login(input:$l){
       token
-      error
     }
   }'
-
   # Finalize json request
   pbody = list(query = query, variables = variables)
   # POST to url
   res = POST(url, body = pbody, encode="json")
+  print (res)
   # Remove variables with Password
   rm(password, variables, pbody)
   # Extract token
   content = content(res)
+  error  = content$data$login$error
   bearer = content$data$login$token
-  token = strsplit(bearer, 'Bearer ')[[1]][2]
 
-  # Return token
-  return (token)
+  if (is.null(error)){
+    token = strsplit(bearer, 'Bearer ')[[1]][2]
+    message("Returning a GQL token for NABat.")
+    # Return token
+    return (token)
+  } else {
+    # Post message with error for user
+    message(paste0("Error: ", error))
+  }
 }
 
 
@@ -94,8 +99,10 @@ get_nabat_gql_token = function(username, password = NULL){
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' \dontrun{
 #' project_df = get_projects(username = 'NABat_Username',
 #'                           token    = 'generated-nabat-gql-token')
+#' }
 #'
 #' @export
 #'
@@ -139,9 +146,11 @@ get_projects = function(token, username){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
+#' \dontrun{
 #' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
 #'                                 username   = 'NABat_Username',
 #'                                 project_id = 'number or string of a number')
+#' }
 #'
 #' @export
 get_project_surveys = function(token, username, project_id){
@@ -182,13 +191,15 @@ get_project_surveys = function(token, username, project_id){
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
-#' acoustic_bulk_df = get_acoustic_bulk_df(username   = 'NABat_Username',
+#' \dontrun{
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(username   = 'NABat_Username',
 #'                                         token      = 'generated-nabat-gql-token',
 #'                                         survey_df  = 'dataframe from output of get_project_surveys()',
 #'                                         project_id = 'number or string of a number')
+#' }
 #'
 #' @export
-get_acoustic_bulk_df = function(token, username, survey_df, project_id){
+get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
 
   # Create cli using NABat prod url and ghql library
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
@@ -283,7 +294,7 @@ get_acoustic_bulk_df = function(token, username, survey_df, project_id){
       wav_files_rn[,'grts_cell_id'] = proj_id_df$grtsId
 
       # Merge wav files dataframe and acoustic events dataframe for all data
-      wav_n_acc = merge(wav_files_rn, acc_events_rn, by= 'stationary_acoustic_values_id')
+      wav_n_acc = merge(wav_files_rn, acc_events_rn, by = 'stationary_acoustic_values_id')
 
       # Iteratively combine the wav_n_acc dataframes together for each new survey
       all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)

@@ -11,7 +11,12 @@
 # Created: 2019-9-10
 #############################################################################
 
+
 rename_project_df = function(project_df){
+  #' Return the project dataframe renamed with appropriate field headers
+  #'
+  #' @param project_df Dataframe output from get_projects()
+  #'
   names(project_df)[names(project_df) == 'data.allProjects.nodes.id']          = 'project_id'
   names(project_df)[names(project_df) == 'data.allProjects.nodes.projectName'] = 'project_name'
   names(project_df)[names(project_df) == 'data.allProjects.nodes.projectKey']  = 'project_key'
@@ -20,6 +25,10 @@ rename_project_df = function(project_df){
 }
 
 rename_survey_df = function(survey_df){
+  #' Return the survey dataframe renamed with appropriate field headers
+  #'
+  #' @param survey_df Dataframe output from get_project_surveys()
+  #'
   names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.id']        = 'survey_id'
   names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.projectId'] = 'project_id'
   names(survey_df)[names(survey_df) == 'data.allSurveys.nodes.grtsId']    = 'grts_cell_id'
@@ -28,6 +37,10 @@ rename_survey_df = function(survey_df){
 }
 
 rename_acoustic_df = function(acoustic_df){
+  #' Return the acoustic dataframe renamed with appropriate field headers
+  #'
+  #' @param acoustic_df Dataframe output from get_acoustic_bulk_df()
+  #'
   names(acoustic_df)[names(acoustic_df) == 'projectId']     = 'project_id'
   names(acoustic_df)[names(acoustic_df) == 'recordingTime'] = 'recording_time'
   names(acoustic_df)[names(acoustic_df) == 'grtsId']        = 'grts_cell_id'

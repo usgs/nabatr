@@ -16,8 +16,11 @@ Get a NABat GQL token to use for queries
 }
 \examples{
 
+\dontrun{
 nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
 -- Prompts for password
+}
+
 }
 \keyword{GQL}
 \keyword{NABat,}

@@ -20,6 +20,7 @@ Optionally you can supply a query string in CQL format (see: https://docs.geoser
 }
 \examples{
 
+\dontrun{
 library(nabatr)
 library(sp)
 
@@ -33,6 +34,8 @@ spplot(two_counties, zcol='own_STATE')
 
 #' CA_priority_grts = get_grts_data('Conus', query="state_n_1='California'", only_priority=TRUE)
 spplot(CA_priority_grts, zcol="lat")
+}
+
 }
 \keyword{GRTS}
 \keyword{NABat,}
