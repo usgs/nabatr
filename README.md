@@ -19,7 +19,8 @@ To install the toolbox in R run the following commands in a R terminal
 
 ```R
 if(!require(devtools)){install.packages(devtools)}
-devtools::install_github("talbertc-usgs/nabatr")
+devtools::install_github("ropensci/ghql")
+devtools::install_github("ennsk/nabatr", build_vignettes = TRUE)
 library(nabatr)
 ```
 
