@@ -25,6 +25,9 @@ library(nabatr)
 ```
 
 ## See Vignettes for examples
+```
+??nabatr
+```
 
 
 ## Disclaimer
