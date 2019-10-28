@@ -306,4 +306,78 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
 
 
 
+#' @title Get Bat banding data for States
+#'
+#' @description
+#' Returns a dataframe of all the bat banding data from that/those states
+#' @param token String token created from get_nabat_gql_token function
+#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
+#' @param project_id Numeric or String a project id
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' \dontrun{
+#' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
+#'                                 username   = 'NABat_Username',
+#'                                 project_id = 'number or string of a number')
+#' }
+#'
+#' @export
+get_nabat_banding_by_states = function(token, username, states){
+  # Create cli using NABat prod url and ghql library
+  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  cli = GraphqlClient$new(url = url,
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
+      'X-email-address' = username)))
+  final_df = data.frame()
+  states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
+    'Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico',
+    'New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont',
+    'Virginia','Washington','West Virgina','Wisconsin','Wyoming')
+
+  for (state in states){
+    if (state %in% states_check){
+      qry = Query$new()
+      print (state)
+      qry$query('bandingData',
+        paste0('{ allBatbandings (filter :{state:{equalTo:"',state,'"}}) {
+          nodes{
+          observers
+          captureId
+          date
+          siteDescr
+          state
+          countyName
+          countyName
+          xCoordCentroid
+          yCoordCentroid
+          xySource
+          species
+          markRecapture
+          unknownBandId
+          sex
+          age
+          reproduction
+          forearmLength
+          weight
+          progrm
+          }
+        }
+      }'))
+      proj_dat  = cli$exec(qry$queries$bandingData)
+      proj_json = fromJSON(proj_dat, flatten = TRUE)
+      proj_df   = as.data.frame(proj_json)
+      names(proj_df) = substring(names(proj_df), 27)
+
+      if (dim(final_df)[1]==0){
+        final_df = proj_df
+      }else {
+        final_df = rbind(final_df, proj_df)
+      }
+    }else{
+      message(paste0('Error: Spelling for this state is incorrect.. ', states))
+    }
+  }
+  return(final_df)
+}
 

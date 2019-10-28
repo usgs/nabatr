@@ -13,7 +13,8 @@
 
 #' @title Observed nightly observations for NABat stationary acoustic data
 #'
-#' @description Creates
+#' @description Creates a list with two dataframes (manual and automatic) nightly count
+#' data at each site id.
 #'
 #' @param acoustic_bulk_df Dataframe acoustic bulk dataframe from output of get_acoustic_bulk()
 #' @keywords species, bats, NABat
@@ -31,6 +32,7 @@ get_observed_nights = function(acoustic_bulk_df){
   species_df  = bats_df
   species     = species_df$species_code
   surveys_    = unique(acoustic_bulk_df$survey_id)
+  project_id  = unique(acoustic_bulk_df$project_id)
 
   auto_project_data = data.frame()
   manual_project_data = data.frame()
@@ -41,6 +43,7 @@ get_observed_nights = function(acoustic_bulk_df){
 
     GRTS_id = unique(ex_grts_df$grts_cell_id)
 
+    print (paste0('GRTS id: ', GRTS_id, ' and survey id: ', survey_))
     print (unique(ex_grts_df$auto_id))
 
     # Add columns auto_species and manual_species
@@ -82,9 +85,11 @@ get_observed_nights = function(acoustic_bulk_df){
           manual_night_row$site_id = paste0(GRTS_id,'_',location)
           manual_night_row$site_name = location
           manual_night_row$observed_night = date
+          manual_night_row$project_id = project_id
           auto_night_row$site_id = paste0(GRTS_id,'_',location)
           auto_night_row$site_name = location
           auto_night_row$observed_night = date
+          auto_night_row$project_id = project_id
           for (s in species){
             auto_species_count   = dim(subset(night_data_at_location, night_data_at_location$auto_species == s))[1]
             manual_species_count = dim(subset(night_data_at_location, night_data_at_location$manual_species == s))[1]
@@ -107,13 +112,15 @@ get_observed_nights = function(acoustic_bulk_df){
   if (dim(manual_project_data)[1] == 0){
     message('emtpy manual observed night dataframe')
   } else{
-    manual_project_data = manual_project_data[order(manual_project_data$GRTS, manual_project_data$site_id),]
+    manual_project_data = manual_project_data[order(manual_project_data$GRTS, manual_project_data$site_id),] %>%
+      mutate(type = 'manual') %>% move_col(type, observed_night)
   }
 
   if (dim(auto_project_data)[1] == 0){
     message('emtpy automatic observed night dataframe')
   } else{
-    auto_project_data = auto_project_data[order(auto_project_data$GRTS, auto_project_data$site_id),]
+    auto_project_data = auto_project_data[order(auto_project_data$GRTS, auto_project_data$site_id),] %>%
+      mutate(type = 'auto') %>% move_col(type, observed_night)
   }
 
   return(list('auto_nightly_df'   = auto_project_data,

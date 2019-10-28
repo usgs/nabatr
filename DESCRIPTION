@@ -18,9 +18,12 @@ Imports:
     htmlwidgets,
     leaflet,
     rmarkdown,
-    rprojroot
+    rprojroot,
+    dplyr
 DevPackage:
     ropensci/ghql
+Suggests: knitr
+VignetteBuilder: knitr
 Depends: R (>= 3.3.0)
 License: CC0
 Encoding: UTF-8

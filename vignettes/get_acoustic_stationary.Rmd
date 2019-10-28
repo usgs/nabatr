@@ -1,0 +1,69 @@
+---
+title: "Get acoustic stationary NABat Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get acoustic stationary NABat Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+### Get a Graphical QL token for NABat Database
+```
+library(nabatr)
+# Enter your NABat username here
+username_ = 'NABat_Username'
+token_ = get_nabat_gql_token(username = username_)
+token_
+
+# If you are not using R-Studio and are not prompted for a password use this code below
+#  to manually add in your password with the password variable:
+# token_ = get_nabat_gql_token(username = username_, password = 'your-password')
+```
+
+### Get Project dataframe which contains all of your acoustic stationary projects in the NABat Database
+```
+# Get your projects lookup table
+project_df_ = get_projects(token    = token_, 
+                           username = username_)
+# Display your projects lookup table
+project_df_
+
+```
+
+### Get all Acoustic Stationary Surveys within a single Project set with project_id_
+```
+# Fill in project id using the project_df_ lookup table
+project_id_ = 33 # Set equal to project id
+
+# Get survey dataframe 
+survey_df_ = get_project_surveys(username   = username_,
+                                 token      = token_,
+                                 project_id = project_id_)
+# Display survey dataframe
+survey_df_
+```
+
+### Get all Acoustic Stationary Survey wav file data.  Format: Acoustic Stationary Bulk Upload Template
+```
+# Get stationary acoustic bulk upload format dataframe
+acoustic_bulk_df_ = get_acoustic_bulk_wavs(token      = token_, 
+                                           username   = username_, 
+                                           survey_df  = survey_df_,
+                                           project_id = project_id_)
+# Display stationary acoustic bulk upload format dataframe
+acoustic_bulk_df_
+```
+
+### Use the Acoustic Stationary acoustic bulk dataframe to build a dataframe for auto and manual species id data
+```
+# Get Acoustic stationary acoustic bulk dataframe
+nightly_observed_list_ = get_observed_nights(acoustic_bulk_df_)
+
+auto_nights_df_ = nightly_observed_list_$auto_nightly_df
+manual_nights_df_  = nightly_observed_list_$manual_nightly_df
+  
+# Display the two dataframes
+manual_nights_df_
+auto_nights_df_
+```

@@ -46,31 +46,93 @@ grts_map
 # <a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='data/nabat_logo.png' /></a>
 ```
 
-### Automatic software detection of Stationary Acoustic Data
+### Auto Species at GRTS (wide)
 <br>
 ```{r, echo=FALSE}
-dt_auto = (auto_nights_df[,c(1:9)])
-dt_auto = dt_auto[order(dt_auto$GRTS, dt_auto$site_id),]
-kable(dt_auto) %>%
-  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
-  scroll_box(height='400px', width = '100%')
-```
-<br>
-<br>
-
-### Manual detection of Stationary Acoustic Data
-
-<br>
-```{r, echo=FALSE}
-dt_man = (manual_nights_df[,c(1:9)])
-# dt_man = manual_nights_df
-dt_man = dt_man[order(dt_man$GRTS, dt_man$site_id),]
-kable(dt_man) %>%
+# Pie chart with all species and their percentages
+df = auto_species_totals_w$species_grts_df
+kable(df) %>%
   kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
   scroll_box(height='400px', width = '100%')
 ```
 
-### Observed night plots for manual and automatic stationary acoustic data at each GRTS Site
+### Manual Species at GRTS (wide)
+<br>
+```{r, echo=FALSE}
+# Pie chart with all species and their percentages
+df = manual_species_totals_w$species_grts_df
+kable(df) %>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
+  scroll_box(height='400px', width = '100%')
+```
+
+### AUTO Species at Project 
+<br>
+```{r, echo=FALSE}
+# Pie chart with all species and their percentages
+df = auto_species_totals_w$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
+
+color_count = dim(auto_species_totals_w$species_grts_df)[1] -3
+# pie_colors  = colorRampPalette(c("#0f4f7e", "#FFE9AB", "#821206"))(color_count)
+pie_colors  = rainbow(color_count)
+
+df_p = plot_ly(data = df, values = df$species_totals, type = 'pie', width='100%',
+                               marker = list(colors = pie_colors,
+                                             line = list(color = 'white', width = 1)),
+                               text = df$names,
+                               textposition = 'auto',
+                               showlegend = FALSE,
+                               textinfo = 'text+percent+value')
+df_p
+```
+
+### AUTO Species at Project 
+<br>
+```{r, echo=FALSE}
+# Pie chart with all species and their percentages
+df = manual_species_totals_w$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
+
+color_count = dim(manual_species_totals_w$species_grts_df)[1] -3
+# pie_colors  = colorRampPalette(c("#0f4f7e", "#FFE9AB", "#821206"))(color_count)
+pie_colors  = rainbow(color_count)
+
+df_p = plot_ly(data = df, values = df$species_totals, type = 'pie', width='100%',
+                               marker = list(colors = pie_colors,
+                                             line = list(color = 'white', width = 1)),
+                               text = df$names,
+                               textposition = 'auto',
+                               showlegend = FALSE,
+                               textinfo = 'text+percent+value')
+df_p
+```
+
+### Auto Species at GRTS (long)
+<br>
+```{r, echo=FALSE}
+# Pie chart with all species and their percentages
+df = auto_species_totals_l
+kable(df) %>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
+  scroll_box(height='400px', width = '100%')
+```
+
+### Manual Species at GRTS (long)
+<br>
+```{r, echo=FALSE}
+# Pie chart with all species and their percentages
+df = manual_species_totals_l
+kable(df) %>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
+  scroll_box(height='400px', width = '100%')
+```
+
+
+
+
+
+
+### Observed night plot for stationary acoustic data
+
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # build dynamic plotly plots
 
@@ -79,17 +141,16 @@ kable(dt_man) %>%
 # library(ggplot2)
 
 build_grts_plots = function(ordered_combined_data){
-
     # sites
     grts_id = unique(ordered_combined_data$GRTS)
     sites = unique(ordered_combined_data$site_id)
 
     # Clean data at GRTS level to remove any species that aren't at this GRTS cell
-    species_grts_df = select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type'))
+    species_grts_df = dplyr::select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type'))
     species_present_grts = names(species_grts_df[,colSums(species_grts_df) > 0])
 
     # Clean data to include headers
-    cleaned_grts_df = select(ordered_combined_data, c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', species_present_grts))
+    cleaned_grts_df = dplyr::select(ordered_combined_data, c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', species_present_grts))
 
     # Build color palette to use for all sites in this grts cell
     n = length(species_present_grts)
@@ -106,9 +167,9 @@ build_grts_plots = function(ordered_combined_data){
       dates = as.character(cleaned_site_df$observed_night)
 
       # # Clean data again at site level to remove any species that aren't at this site
-      # species_site_df = select(cleaned_site_df, -c('GRTS', 'site_id', 'site_name', 'observed_night'))
+      # species_site_df = dplyr::select(cleaned_site_df, -c('GRTS', 'site_id', 'site_name', 'observed_night'))
       # species_present_site = names(species_site_df[,colSums(species_site_df) > 0])
-      # cleaned_site_df = select(cleaned_site_df, c('GRTS', 'site_id', 'site_name', 'observed_night', species_present_site))
+      # cleaned_site_df = dplyr::select(cleaned_site_df, c('GRTS', 'site_id', 'site_name', 'observed_night', species_present_site))
 
       plotly_ = FALSE
       count = 0
@@ -160,11 +221,11 @@ build_grts_plots = function(ordered_combined_data){
 
 # re-order dataframe by site_id, then observed_night
 ordered_grts_df_auto = auto_nights_df[order(auto_nights_df$site_id, auto_nights_df$observed_night),]
-ordered_grts_df_auto = select(ordered_grts_df_auto, -c('25k','NoID'))
+ordered_grts_df_auto = dplyr::select(ordered_grts_df_auto, -c('25k','NoID'))
 ordered_grts_df_auto$type = 'automatic'
 
 ordered_grts_df_man = manual_nights_df[order(manual_nights_df$site_id, manual_nights_df$observed_night),]
-ordered_grts_df_man = select(ordered_grts_df_man, -c('25k','NoID'))
+ordered_grts_df_man = dplyr::select(ordered_grts_df_man, -c('25k','NoID'))
 ordered_grts_df_man$type  = 'manual'
 
 combined_data = rbind(ordered_grts_df_auto, ordered_grts_df_man)
@@ -172,7 +233,7 @@ ordered_combined_data_ = combined_data[order(combined_data$site_id, combined_dat
 
 split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
 # split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
-plot_list = lapply(split_list[1:5],  build_grts_plots)
+plot_list = lapply(split_list[1],  build_grts_plots)
 
 subplot(plot_list, nrows = length(plot_list)) %>%
   layout(height = length(plot_list) * 500, width = 800)
