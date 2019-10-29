@@ -133,6 +133,7 @@ get_species_counts_wide = function(nightly_df){
 #' @description
 #' Extracting unique species found for manual or automatic nights acoustic data
 #'
+#' @export
 #'
 get_species_counts_long = function(nights_df, filter = FALSE){
   # Money pipe for manual or auto nights_df to get sums for each year at each site
@@ -160,6 +161,38 @@ get_species_counts_long = function(nights_df, filter = FALSE){
   } else{
     return(proj_all_counts)
   }
+}
+
+#' @title Build a Long Species count Dataframe at GRTS level for Manual and Automatic
+#'
+#' @description
+#' Extracting unique species found for manual or automatic nights acoustic data
+#'
+#' @export
+#'
+get_all_species_counts_long = function(auto_nights_df, manual_nights_df, fil = TRUE){
+  # Filter out all species columns that don't have any data if filter == TRUE
+
+  # MANUAL
+  manual_species_totals_l = get_species_counts_long(manual_nights_df, filter=fil)
+  # AUTOMATIC
+  auto_species_totals_l   = get_species_counts_long(auto_nights_df, filter=fil)
+
+  # COMBINED (in order to combine them we need to make sure columns matchup)
+  auto_diff = setdiff(names(auto_species_totals_l), names(manual_species_totals_l))
+  manual_diff = setdiff(names(manual_species_totals_l), names(auto_species_totals_l))
+
+  # Add fields manual doesn't have (from auto)
+  for (missing_field in auto_diff){
+    manual_species_totals_l[,missing_field] = as.integer(0)
+  }
+  # Add fields auto doesn't have (from manua)
+  for (missing_field in manual_diff){
+    auto_species_totals_l[,missing_field] = as.integer(0)
+  }
+
+  all_species_totals_l_l = rbind(auto_species_totals_l, manual_species_totals_l)
+  return(all_species_totals_l_l)
 }
 
 

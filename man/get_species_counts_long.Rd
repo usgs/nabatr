@@ -2,9 +2,9 @@
 % Please edit documentation in R/species_counts.R
 \name{get_species_counts_long}
 \alias{get_species_counts_long}
-\title{Get}
+\title{Build a Long Species count Dataframe at GRTS level}
 \usage{
-get_species_counts_long(nights_df)
+get_species_counts_long(nights_df, filter = FALSE)
 }
 \description{
 Extracting unique species found for manual or automatic nights acoustic data

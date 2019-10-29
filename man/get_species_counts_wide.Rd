@@ -2,7 +2,7 @@
 % Please edit documentation in R/species_counts.R
 \name{get_species_counts_wide}
 \alias{get_species_counts_wide}
-\title{Build a Species count Dataframe}
+\title{Build a Wide Species count Dataframe}
 \usage{
 get_species_counts_wide(nightly_df)
 }
