@@ -6,8 +6,7 @@
 \usage{
 get_acoustic_stationary_report(token, username, project_id, output_dir,
   file_name = "report.html", survey_df = NULL,
-  acoustic_bulk_df = NULL, manual_nights_df = NULL,
-  auto_nights_df = NULL)
+  acoustic_bulk_df = NULL, nightly_observed_list = NULL)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}

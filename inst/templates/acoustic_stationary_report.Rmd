@@ -146,7 +146,7 @@ build_grts_plots = function(ordered_combined_data){
     sites = unique(ordered_combined_data$site_id)
 
     # Clean data at GRTS level to remove any species that aren't at this GRTS cell
-    species_grts_df = dplyr::select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type'))
+    species_grts_df = dplyr::select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', 'project_id'))
     species_present_grts = names(species_grts_df[,colSums(species_grts_df) > 0])
 
     # Clean data to include headers

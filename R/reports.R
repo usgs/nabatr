@@ -16,6 +16,8 @@
 #' @import rmarkdown
 #' @import leaflet
 #' @import rprojroot
+#' @import kableExtra
+#' @import plotly
 #'
 #' @description
 #' Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
@@ -50,45 +52,64 @@ get_acoustic_stationary_report = function(token,
                                           file_name = 'report.html',
                                           survey_df = NULL,
                                           acoustic_bulk_df = NULL,
-                                          manual_nights_df = NULL,
-                                          auto_nights_df = NULL){
+                                          nightly_observed_list = NULL){
 
   template  = system.file("templates", "acoustic_stationary_report.Rmd", package = "nabatr")
   nabat_png = system.file("templates", "nabat_logo.png", package = "nabatr")
 
-  message(template)
-  message(nabat_png)
+  # Check to see if output_dir exists
+  if (dir.exists(output_dir)){
+    message(template)
+    message(nabat_png)
 
-  # Get survey dataframe
-  survey_df = get_project_surveys(username   = username,
-                                  token      = token,
-                                  project_id = project_id)
+    # Get survey dataframe
+    if (is.null(survey_df)){
+      survey_df = get_project_surveys(username   = username,
+        token      = token,
+        project_id = project_id)
+    }
 
-  # Get stationary acoustic bulk upload format dataframe
-  acoustic_bulk_df = get_acoustic_bulk_wavs(token      = token,
-                                            username   = username,
-                                            survey_df  = survey_df,
-                                            project_id = project_id)
+    # Get stationary acoustic bulk upload format dataframe
+    if (is.null(acoustic_bulk_df)){
+      acoustic_bulk_df = get_acoustic_bulk_wavs(token      = token,
+        username   = username,
+        survey_df  = survey_df,
+        project_id = project_id)
+    }
 
-  # Get Acoustic stationary acoustic bulk dataframe
-  nightly_observed_list = get_observed_nights(acoustic_bulk_df)
-  manual_nights_df      = nightly_observed_list$auto_nightly_df
-  auto_nights_df        = nightly_observed_list$manual_nightly_df
+    # Get Acoustic stationary acoustic bulk dataframe
+    if(is.null(nightly_observed_list)){
+      nightly_observed_list = get_observed_nights(acoustic_bulk_df)
+    }
 
-  if (dim(manual_nights_df)[1] == 0  && dim(auto_nights_df)[1] == 0){
-    message('Error, this project has no data to build a report with')
-    return('Failed')
+    manual_nights_df      = nightly_observed_list$auto_nightly_df
+    auto_nights_df        = nightly_observed_list$manual_nightly_df
+
+    if (dim(manual_nights_df)[1] == 0  && dim(auto_nights_df)[1] == 0){
+      message('Error, this project has no data to build a report with')
+      return('Failed')
+    }
+
+    # Build maps using grts found in survey_df and auto_nights_df
+    grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df$grts_cell_id),
+                                    grts_with_data = unique(auto_nights_df$GRTS))
+
+    # MANUAL
+    manual_species_totals_l = get_species_counts_long(manual_nights_df)
+    manual_species_totals_w   = get_species_counts_wide(manual_nights_df) # List of 2 dfs
+    # AUTOMATIC
+    auto_species_totals_l   = get_species_counts_long(auto_nights_df)
+    auto_species_totals_w   = get_species_counts_wide(auto_nights_df) # List of 2 dfs
+
+
+    # Specifiy template in data directory
+    message(paste0("Checking report template location: ", template))
+    rmarkdown::render(input       = template,
+                      output_file = paste0(output_dir, '/', file_name))
+    # Return the location of the downloaded report
+    return(template)
+  } else{
+    message('Failed to find output directory: ', output_dir)
   }
-
-  # Build leaflet map
-  grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df$grts_cell_id),
-                                  grts_with_data = unique(auto_nights_df$GRTS))
-
-  # Specifiy template in data directory
-  message(paste0("Checking report template location: ", template))
-  rmarkdown::render(input       = template,
-                    output_file = paste0(output_dir, '/', file_name))
-  # Return the location of the downloaded report
-  return(template)
 }
 
