@@ -8,7 +8,7 @@ vignette: >
 ---
 
 
-### Get a Graphical QL token for NABat Database
+### Get a Graphical QL (GQL) token for NABat Database
 ```
 library(nabatr)
 # Enter your NABat username here
@@ -16,7 +16,7 @@ username_ = 'NABat_Username'
 token_ = get_nabat_gql_token(username = username_)
 token_
 
-# If you are not using R-Studio and are not prompted for a password use this code below
+# If you are not using R-Studio or are not prompted for a password use this code below
 #  to manually add in your password with the password variable:
 # token_ = get_nabat_gql_token(username = username_, password = 'your-password')
 ```
@@ -68,7 +68,7 @@ manual_nights_df_
 auto_nights_df_
 ```
 
-### Extracting unique species found for manual and automatic nights acoustic data in LONG format
+### Extracting unique species found for manual and automatic nights acoustic data in long format
 ```
 # Individual species totals for either Manual or Automatic
 manual_species_totals_l_ = get_species_counts_long(manual_nights_df_, filter=TRUE)
