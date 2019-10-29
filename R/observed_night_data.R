@@ -122,6 +122,8 @@ get_observed_nights = function(acoustic_bulk_df){
     auto_project_data = auto_project_data[order(auto_project_data$GRTS, auto_project_data$site_id),] %>%
       mutate(type = 'auto') %>% move_col(type, observed_night)
   }
+  row.names(auto_project_data) = c()
+  row.names(manual_project_data) = c()
 
   return(list('auto_nightly_df'   = auto_project_data,
               'manual_nightly_df' = manual_project_data))
