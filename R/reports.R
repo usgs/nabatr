@@ -16,7 +16,6 @@
 #' @import rmarkdown
 #' @import leaflet
 #' @import rprojroot
-#' @import kable
 #'
 #' @description
 #' Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),

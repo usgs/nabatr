@@ -67,3 +67,13 @@ manual_nights_df_  = nightly_observed_list_$manual_nightly_df
 manual_nights_df_
 auto_nights_df_
 ```
+
+### Extracting unique species found for manual and automatic nights acoustic data in LONG format
+```
+# Individual species totals for either Manual or Automatic
+manual_species_totals_l_ = get_species_counts_long(manual_nights_df_, filter=TRUE)
+auto_species_totals_l_   = get_species_counts_long(auto_nights_df_, filter=TRUE)
+
+# Both Manual and Automatic species totals 
+all_species_totals_l_l_ = get_all_species_counts_long(auto_nights_df_, manual_nights_df_, fil = TRUE)
+```
