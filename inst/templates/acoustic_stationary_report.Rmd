@@ -247,10 +247,21 @@ subplot(plot_list, nrows = length(plot_list)) %>%
 #   layout(width = 1000, height = plot_dims$rows*200)
 ```
 
+### Manual species counts
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# build with ggplot2?
+
+data = manual_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k')
+pm = plot_ly(x = data$names, y = data$species_totals) %>% layout(title = paste0('NABat Project ', project_id, ' manual Species counts'))
+pm
 ```
 
+### Automatic species counts
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+data = auto_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k')
+pa = plot_ly(x = data$names, y = data$species_totals) %>% layout(title = paste0('NABat Project ', project_id, ' automatic Species counts'))
+pa
+```
 
 
 
