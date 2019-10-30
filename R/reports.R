@@ -82,8 +82,8 @@ get_acoustic_stationary_report = function(token,
       nightly_observed_list = get_observed_nights(acoustic_bulk_df)
     }
 
-    manual_nights_df      = nightly_observed_list$auto_nightly_df
-    auto_nights_df        = nightly_observed_list$manual_nightly_df
+    manual_nights_df      = nightly_observed_list$manual_nightly_df
+    auto_nights_df        = nightly_observed_list$auto_nightly_df
 
     if (dim(manual_nights_df)[1] == 0  && dim(auto_nights_df)[1] == 0){
       message('Error, this project has no data to build a report with')
@@ -95,12 +95,13 @@ get_acoustic_stationary_report = function(token,
                                     grts_with_data = unique(auto_nights_df$GRTS))
 
     # MANUAL
-    manual_species_totals_l = get_species_counts_long(manual_nights_df)
-    manual_species_totals_w   = get_species_counts_wide(manual_nights_df) # List of 2 dfs
+    manual_species_totals_l  = get_species_counts_long(manual_nights_df)
+    manual_species_totals_w  = get_species_counts_wide(manual_nights_df) # List of 2 dfs
+    manual_species_grts_df_w = manual_species_totals_w$species_grts_df
     # AUTOMATIC
-    auto_species_totals_l   = get_species_counts_long(auto_nights_df)
-    auto_species_totals_w   = get_species_counts_wide(auto_nights_df) # List of 2 dfs
-
+    auto_species_totals_l  = get_species_counts_long(auto_nights_df)
+    auto_species_totals_w  = get_species_counts_wide(auto_nights_df) # List of 2 dfs
+    auto_species_grts_df_w = auto_species_totals_w$species_grts_df
 
     # Specifiy template in data directory
     message(paste0("Checking report template location: ", template))
