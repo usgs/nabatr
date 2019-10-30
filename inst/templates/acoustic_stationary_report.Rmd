@@ -86,7 +86,7 @@ df_p = plot_ly(data = df, values = df$species_totals, type = 'pie', width='100%'
 df_p
 ```
 
-### AUTO Species at Project 
+### MANUAL Species at Project 
 <br>
 ```{r, echo=FALSE}
 # Pie chart with all species and their percentages
