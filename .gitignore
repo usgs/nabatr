@@ -4,6 +4,7 @@
 .DS_Store
 .Renviron
 Examples/dev_sink.Rmd
+inst/templates/sink_report.Rmd
 manuscript/RJwrapper.log
 manuscript/RJwrapper.aux
 manuscript/RJwrapper.out
