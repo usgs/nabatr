@@ -18,6 +18,7 @@
 #' @import rprojroot
 #' @import kableExtra
 #' @import plotly
+#' @import stringr
 #'
 #' @description
 #' Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
@@ -105,6 +106,38 @@ get_acoustic_stationary_report = function(token,
     auto_species_totals_l  = get_species_counts_long(auto_nights_df)
     auto_species_totals_w  = get_species_counts_wide(auto_nights_df) # List of 2 dfs
     auto_species_grts_df_w = auto_species_totals_w$species_grts_df
+
+    # Re-order dataframe by site_id, then observed_night
+    ordered_grts_df_auto = auto_nights_df[order(auto_nights_df$site_id, auto_nights_df$observed_night),]
+    ordered_grts_df_auto = dplyr::select(ordered_grts_df_auto, -c('25k', 'NoID', 'HighF'))
+    ordered_grts_df_auto$type = 'automatic'
+
+    ordered_grts_df_man = manual_nights_df[order(manual_nights_df$site_id, manual_nights_df$observed_night),]
+    ordered_grts_df_man = dplyr::select(ordered_grts_df_man, -c('25k', 'NoID', 'HighF'))
+    ordered_grts_df_man$type  = 'manual'
+
+    combined_data = rbind(ordered_grts_df_auto, ordered_grts_df_man)
+    ordered_combined_data_ = combined_data[order(combined_data$site_id, combined_data$observed_night),]
+    row.names(ordered_combined_data_) = NULL
+    # Add factor to GRTS to retain order for building out plots in report
+    ordered_combined_data_$GRTS = factor(ordered_combined_data_$GRTS, levels = unique(ordered_combined_data_$GRTS))
+    ordered_combined_data_$site_id = factor(ordered_combined_data_$site_id, levels = unique(ordered_combined_data_$site_id))
+
+    # Create the list of dataframes to use for plotting
+    if (nightly_plots_type == 'grts'){
+      # By GRTS
+      split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
+      num_plots = length(split_list)
+      plot_list = lapply(split_list[1],  build_grts_plot, type = 'grts')
+    }
+
+    if (nightly_plots_type == 'sites'){
+      # By sites
+      split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
+      num_plots = length(split_list)
+      plot_list = lapply(split_list[1],  build_grts_plot, type = 'sites')
+    }
+
 
     # Specifiy template in data directory
     message(paste0("Checking report template location: ", template))

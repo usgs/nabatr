@@ -60,9 +60,10 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
   grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
 
   # Creating map with an Imagery layer
-  m = leaflet(width = '100%') %>% addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
-    attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    group = "World Imagery")
+  m = leaflet(width = '100%') %>% #addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
+    #attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    #group = "World Imagery")
+    addTiles()
   # Loop through all all_grts, create a polygon for each, and add to the leaflet map m
   count = 0
   for (grts_cell in all_grts){
@@ -72,8 +73,8 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
       color_2 = 'red'
     }else {
       if (grts_cell %in% grts_with_data){
-        color_  = '#2fff00'
-        color_2 = 'green'
+        color_  = '#198a00'
+        color_2 = '#198a00'
       } else {
         color_  = '#ff0000'
         color_2 = 'red'
@@ -107,7 +108,7 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 
   }
   # Add legend to leaflet map
-  m = m %>% addLegend('bottomright',labels = c('Has survey data', 'No survey data'), colors = c('#2fff00', '#ff0000'), opacity =1)
+  m = m %>% addLegend('bottomright',labels = c('Has survey data', 'No survey data'), colors = c('#198a00', '#ff0000'), opacity =1)
 
   # Return the leaflet map
   return (m)
