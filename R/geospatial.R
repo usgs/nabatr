@@ -60,7 +60,7 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
   grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
 
   # Creating map with an Imagery layer
-  m = leaflet(width = '100%') %>% #addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
+  m = leaflet() %>% #addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
     #attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
     #group = "World Imagery")
     addTiles()

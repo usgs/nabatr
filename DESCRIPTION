@@ -19,7 +19,12 @@ Imports:
     leaflet,
     rmarkdown,
     rprojroot,
-    dplyr
+    dplyr,
+    plotly,
+    officer,
+    magrittr,
+    rJava,
+    mapview
 DevPackage:
     ropensci/ghql
 Suggests: knitr

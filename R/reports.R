@@ -50,13 +50,15 @@ get_acoustic_stationary_report = function(token,
                                           username,
                                           project_id,
                                           output_dir,
+                                          output_type = 'html',
                                           project_name = NULL,
                                           project_description = NULL,
                                           file_name = 'report.html',
                                           nightly_plots_type = 'grts',
                                           survey_df = NULL,
                                           acoustic_bulk_df = NULL,
-                                          nightly_observed_list = NULL){
+                                          nightly_observed_list = NULL,
+                                          num_plots = NULL){
 
   template  = system.file("templates", "acoustic_stationary_report.Rmd", package = "nabatr")
   nabat_png = system.file("templates", "nabat_logo.png", package = "nabatr")
@@ -65,6 +67,12 @@ get_acoustic_stationary_report = function(token,
   if (dir.exists(output_dir)){
     message(template)
     message(nabat_png)
+
+    # Get Project dataframe
+    project_df = get_projects(token    = token,
+                              username = username)
+    this_project_id = project_id
+    project_name = subset(project_df, project_df$project_id == this_project_id)$project_name
 
     # Get survey dataframe
     if (is.null(survey_df)){
@@ -123,30 +131,164 @@ get_acoustic_stationary_report = function(token,
     ordered_combined_data_$GRTS = factor(ordered_combined_data_$GRTS, levels = unique(ordered_combined_data_$GRTS))
     ordered_combined_data_$site_id = factor(ordered_combined_data_$site_id, levels = unique(ordered_combined_data_$site_id))
 
+
     # Create the list of dataframes to use for plotting
     if (nightly_plots_type == 'grts'){
       # By GRTS
       split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
-      num_plots = length(split_list)
+      if (is.null(num_plots)){
+        num_plots = length(split_list)}
       plot_list = lapply(split_list[1],  build_grts_plot, type = 'grts')
     }
 
     if (nightly_plots_type == 'sites'){
       # By sites
       split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
-      num_plots = length(split_list)
+      if (is.null(num_plots)){
+        num_plots = length(split_list)}
       plot_list = lapply(split_list[1],  build_grts_plot, type = 'sites')
     }
 
 
     # Specifiy template in data directory
     message(paste0("Checking report template location: ", template))
-    rmarkdown::render(input       = template,
-                      output_file = paste0(output_dir, '/', file_name))
+
+    if (output_type == 'html'){
+      rmarkdown::render(input       = template,
+                        output_file = paste0(output_dir, '/', file_name),
+                        output_format = "html_document")
+    } else if (output_type == 'pdf'){
+      rmarkdown::render(input       = template,
+                        output_file = paste0(output_dir, '/', file_name),
+                        output_format = "pdf_document")
+    }
+
+
     # Return the location of the downloaded report
     return(template)
   } else{
     message('Failed to find output directory: ', output_dir)
   }
+}
+
+
+
+#' @title Build Report document in .docx file for Acoustic Stationary Project Data
+#'
+#' @import mapview
+#' @import officer
+#' @import rJava
+#' @import magrittr
+#'
+#'
+#' @export
+#'
+
+build_ac_doc = function(out_dir_, file_name_,
+  title_ = "Implementing NABat on National Wildlife Refuges in the Pacific Northwest Region (R1): Results from 2016 - 2018",
+  by_    = "Jenny Barnett",
+  member_role_org_ = "Zone Inventory and Monitoring Biologist",
+  date_  = format(Sys.time(), "%B %d, %Y"),
+  map = NULL
+){
+
+  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+  # Save out leaflet map as a png using mapview
+  if (is.null(map)){
+    m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
+    map_out_ = paste0(out_dir_, '/intermediate_map.png')
+    mapshot(m, file = map_out_)
+  } else{
+    m = map
+    map_out_ = paste0(out_dir_, '/intermediate_map.png')
+    mapshot(m, file = map_out_)
+  }
+
+  # Font for title
+  bold_face = shortcuts$fp_bold(font.size = 16)
+  par_style = fp_par(text.align = "center")
+
+
+  doc = read_docx() %>%
+
+    # Add title/header
+    # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
+    slip_in_img(src = logo_img_, width = 2, height = .75) %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar( ftext(title_, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    # body_add_par(value = title_, style = "graphic title") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = paste0('By ', by_), style = "centered") %>%
+    body_add_par(value = member_role_org_, style = "centered") %>%
+    body_add_par(value = date_, style = "centered") %>%
+
+    # Add Map
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "GRTS Map", style = "table title") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    slip_in_img(src = map_out_, style = "strong",
+      width = 6, height = 4, pos = "after") %>%
+
+    # Add summary data for project and GRTS cells
+
+    body_add_break() %>%
+
+    # Project Description
+    body_add_par(value = "Project Description", style = "heading 1") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Methods
+    body_add_par(value = "Methods", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal") %>%
+    # Grid all selection
+    body_add_par(value = "Grid all selection", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    # Detector Deployment
+    body_add_par(value = "Detector Deployment", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+
+    # Data Collection and Processing
+    body_add_par(value = "Data Collection and Processing", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+
+    body_add_break() %>%
+
+    # Results and Discussion
+    body_add_par(value = "Results and Discussion", style = "heading 1") %>%
+    # Sampling
+    body_add_par(value = "Sampling", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    # Bat Species Presence
+    body_add_par(value = "Bat Species Presence", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    # Activity Rate
+    body_add_par(value = "Activity Rate", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    # Regional Coordination
+    body_add_par(value = "Regional Coordination", style = "heading 2") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+
+    body_add_break() %>%
+
+    # Summary
+    body_add_par(value = "Summary", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Literature Cited
+    body_add_par(value = "Literature Cited", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal")
+
+
+  print(doc, target = paste0(out_dir_, '/', file_name_))
 }
 
