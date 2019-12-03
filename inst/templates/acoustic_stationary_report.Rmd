@@ -80,7 +80,7 @@ ax = list(title = "",
            showticklabels = FALSE,
            showgrid = FALSE)
 
-df = manual_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
+df = auto_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
 df = df[order(df$species_totals, df$species_totals),]
 df$names = factor(df$names, levels = unique(df$names)[order(df$species_totals, decreasing = TRUE)])
 row.names(df) = NULL
@@ -100,7 +100,7 @@ pm
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
-df = auto_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
+df = manual_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
 df = df[order(df$species_totals, df$species_totals),]
 df$names = factor(df$names, levels = unique(df$names)[order(df$species_totals, decreasing = TRUE)])
 row.names(df) = NULL

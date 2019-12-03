@@ -184,13 +184,12 @@ get_acoustic_stationary_report = function(token,
 #' @export
 #'
 
-build_ac_doc = function(out_dir_, file_name_,
+build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_w, auto_species_grts_df_w,
   title_ = "Implementing NABat on National Wildlife Refuges in the Pacific Northwest Region (R1): Results from 2016 - 2018",
   by_    = "Jenny Barnett",
   member_role_org_ = "Zone Inventory and Monitoring Biologist",
   date_  = format(Sys.time(), "%B %d, %Y"),
-  map = NULL
-){
+  map = NULL){
 
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   # Save out leaflet map as a png using mapview
@@ -202,6 +201,56 @@ build_ac_doc = function(out_dir_, file_name_,
     m = map
     map_out_ = paste0(out_dir_, '/intermediate_map.png')
     mapshot(m, file = map_out_)
+  }
+
+
+  # Build a plot of Manual species
+  ax = list(title = 'Manual Species Detection',
+    zeroline = FALSE,
+    showline = FALSE,
+    showticklabels = FALSE,
+    showgrid = FALSE)
+
+  df = manual_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
+  df = df[order(df$species_totals, df$species_totals),]
+  df$names = factor(df$names, levels = unique(df$names)[order(df$species_totals, decreasing = TRUE)])
+  row.names(df) = NULL
+  n = dim(df)[1]
+  color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+  pm = plot_ly(x = df$names, y = df$species_totals, showlegend = FALSE, colors = color_palette, title = 'Manual Species Detection',
+    text = df$species_totals, textposition = 'outside',
+    textfont=list(family="sans serif",size=12,color="darkgrey")) %>%
+    layout(yaxis = ax)
+
+  plot_man_w_bar = paste0(out_dir_, "/plot_man_w_bar.png")
+  plotly::export(pm, file = plot_man_w_bar)
+
+  #  Build a plot of Auto species
+  ax = list(title = 'Auto Species Detection',
+    zeroline = FALSE,
+    showline = FALSE,
+    showticklabels = FALSE,
+    showgrid = FALSE)
+
+  df = auto_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
+  df = df[order(df$species_totals, df$species_totals),]
+  df$names = factor(df$names, levels = unique(df$names)[order(df$species_totals, decreasing = TRUE)])
+  row.names(df) = NULL
+  n = dim(df)[1]
+  color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+  pm = plot_ly(x = df$names, y = df$species_totals, showlegend = FALSE, colors = color_palette, title = 'Auto Species Detection',
+    text = df$species_totals, textposition = 'outside',
+    textfont=list(family="sans serif",size=12,color="darkgrey")) %>%
+    layout(yaxis = ax)
+
+  plot_auto_w_bar = paste0(out_dir_, "/plot_auto_w_bar.png")
+  plotly::export(pm, file = plot_auto_w_bar)
+
+
+  # Remove files
+  if (file.exists(paste0(out_dir_, '/', file_name_))){
+    print (paste0('Removing ', paste0(out_dir_, '/', file_name_)))
+    file.remove(paste0(out_dir_, '/', file_name_))
   }
 
   # Font for title
@@ -232,30 +281,32 @@ build_ac_doc = function(out_dir_, file_name_,
       width = 6, height = 4, pos = "after") %>%
 
     # Add summary data for project and GRTS cells
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = proj_sum_, style = "Normal") %>%
 
     body_add_break() %>%
 
     # Project Description
     body_add_par(value = "Project Description", style = "heading 1") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
     body_add_break() %>%
 
     # Methods
     body_add_par(value = "Methods", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
     # Grid all selection
     body_add_par(value = "Grid all selection", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
     # Detector Deployment
     body_add_par(value = "Detector Deployment", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
     # Data Collection and Processing
     body_add_par(value = "Data Collection and Processing", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
     body_add_break() %>%
 
@@ -263,32 +314,38 @@ build_ac_doc = function(out_dir_, file_name_,
     body_add_par(value = "Results and Discussion", style = "heading 1") %>%
     # Sampling
     body_add_par(value = "Sampling", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
     # Bat Species Presence
     body_add_par(value = "Bat Species Presence", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    slip_in_img(src = plot_man_w_bar, width = 6, height = 4) %>%
+    slip_in_img(src = plot_auto_w_bar, width = 6, height = 4) %>%
+
     # Activity Rate
     body_add_par(value = "Activity Rate", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
     # Regional Coordination
     body_add_par(value = "Regional Coordination", style = "heading 2") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "toc 2") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
     body_add_break() %>%
 
     # Summary
     body_add_par(value = "Summary", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal") %>%
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
     body_add_break() %>%
 
     # Literature Cited
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "The North American Bat Monitoring Program (NABat) was created to assess continent-wide changes in distribution and abundance of bat species (Loeb et al 2015). It is an international, multi-agency program that ...", style = "Normal")
+    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+
+    print(doc, target = paste0(out_dir_, '/', file_name_))
 
 
-  print(doc, target = paste0(out_dir_, '/', file_name_))
+  file.remove(plot_auto_w_bar)
+  file.remove(plot_man_w_bar)
 }
 

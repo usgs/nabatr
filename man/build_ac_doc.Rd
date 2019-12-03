@@ -4,7 +4,8 @@
 \alias{build_ac_doc}
 \title{Build Report document in .docx file for Acoustic Stationary Project Data}
 \usage{
-build_ac_doc(out_dir_, file_name_,
+build_ac_doc(out_dir_, file_name_, proj_sum_, manual_species_grts_df_w,
+  auto_species_grts_df_w,
   title_ = "Implementing NABat on National Wildlife Refuges in the Pacific Northwest Region (R1): Results from 2016 - 2018",
   by_ = "Jenny Barnett",
   member_role_org_ = "Zone Inventory and Monitoring Biologist",
