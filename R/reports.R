@@ -155,11 +155,13 @@ get_acoustic_stationary_report = function(token,
 
     if (output_type == 'html'){
       rmarkdown::render(input       = template,
-                        output_file = paste0(output_dir, '/', file_name),
+                        output_file = file_name,
+                        output_dir  = output_dir,
                         output_format = "html_document")
     } else if (output_type == 'pdf'){
       rmarkdown::render(input       = template,
-                        output_file = paste0(output_dir, '/', file_name),
+                        output_file = file_name,
+                        output_dir  = output_dir,
                         output_format = "pdf_document")
     }
 
@@ -185,11 +187,11 @@ get_acoustic_stationary_report = function(token,
 #'
 
 build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_w, auto_species_grts_df_w,
-  title_ = "Implementing NABat on National Wildlife Refuges in the Pacific Northwest Region (R1): Results from 2016 - 2018",
-  by_    = "Jenny Barnett",
-  member_role_org_ = "Zone Inventory and Monitoring Biologist",
-  date_  = format(Sys.time(), "%B %d, %Y"),
-  map = NULL){
+                        title_ = "Implementing NABat on National Wildlife Refuges in the Pacific Northwest Region (R1): Results from 2016 - 2018",
+                        by_    = "Jenny Barnett",
+                        member_role_org_ = "Zone Inventory and Monitoring Biologist",
+                        date_  = format(Sys.time(), "%B %d, %Y"),
+                        map = NULL){
 
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   # Save out leaflet map as a png using mapview

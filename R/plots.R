@@ -7,6 +7,7 @@
 #' species with values >0 at that location and then creates a plot to
 #' visualize
 #'
+#' @export
 
 build_grts_plot = function(ordered_combined_data, type = 'sites'){
 
