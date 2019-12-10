@@ -20,6 +20,15 @@ rename_project_df = function(project_df){
   names(project_df)[names(project_df) == 'data.allProjects.nodes.id']          = 'project_id'
   names(project_df)[names(project_df) == 'data.allProjects.nodes.projectName'] = 'project_name'
   names(project_df)[names(project_df) == 'data.allProjects.nodes.projectKey']  = 'project_key'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.description']  = 'project_description'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.mrOwnerEmail']  = 'owner_email'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.sampleFrameId']  = 'sample_frame_id'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.organizationByOwningOrganizationId.name']  = 'organization'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.organizationByOwningOrganizationId.address']  = 'organization_address'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.organizationByOwningOrganizationId.city']  = 'organization_city'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.organizationByOwningOrganizationId.stateProvince']  = 'organization_state_province'
+  names(project_df)[names(project_df) == 'data.allProjects.nodes.organizationByOwningOrganizationId.postalCode']  = 'organization_postal_code'
+
   row.names(project_df) = c()
   return (project_df)
 }
@@ -75,6 +84,8 @@ rename_acoustic_df = function(acoustic_df){
   names(acoustic_df)[names(acoustic_df) == 'clutterTypeId']           = 'clutter_type_id'
   names(acoustic_df)[names(acoustic_df) == 'habitatTypeId']           = 'habitat_type_id'
   names(acoustic_df)[names(acoustic_df) == 'softwareId']              = 'software_id'
+  names(acoustic_df)[names(acoustic_df) == 'location.geojson.type']              = 'location_type'
+
   row.names(acoustic_df) = c()
   return (acoustic_df)
 }
