@@ -186,24 +186,49 @@ get_acoustic_stationary_report = function(token,
 #' @export
 #'
 
-build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_w, auto_species_grts_df_w,
-                        title_ = "Implementing NABat on National Wildlife Refuges in the Pacific Northwest Region (R1): Results from 2016 - 2018",
-                        by_    = "Jenny Barnett",
-                        member_role_org_ = "Zone Inventory and Monitoring Biologist",
-                        date_  = format(Sys.time(), "%B %d, %Y"),
-                        map = NULL){
+build_ac_doc = function(out_dir,
+  file_name,
+  manual_species_grts_df_w,
+  auto_species_grts_df_w,
+  project_df,
+  project_id,
+  cover_photo = NULL,
+  date = format(Sys.time(), "%B %d, %Y"),
+  map = NULL){
 
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+
+  proj_id = project_id
+  project_row_df = subset(project_df, project_df$project_id == proj_id)
+  print (project_row_df)
+
+  title        = project_row_df$project_name
+  by           = project_row_df$owner_email
+  organization = project_row_df$organization
+  description  = project_row_df$project_description
+
   # Save out leaflet map as a png using mapview
   if (is.null(map)){
     m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
-    map_out_ = paste0(out_dir_, '/intermediate_map.png')
+    map_out_ = paste0(out_dir, '/intermediate_map.png')
     mapshot(m, file = map_out_)
   } else{
     m = map
-    map_out_ = paste0(out_dir_, '/intermediate_map.png')
+    map_out_ = paste0(out_dir, '/intermediate_map.png')
     mapshot(m, file = map_out_)
   }
+
+  # Set Methods in 3 sections
+  methods_1 = "Survey units were selected using the NABat master sampling frame, a grid-based system consisting of 10 x 10 km (100 km2) cells spanning Canada, the United States, and Mexico. The NABat master sample frame provides an ordered list of cells that is spatially balanced and randomized by utilizing the generalized random-tessellation stratified (GRTS) survey design algorithm. Using NABat's online cell selection tool, a subset of the master sampling frame was selected by defining the overall geographic scope of this project. Individual cells were then selected for survey based on their GRTS order. These 100 km2 cells serve as the focal analytical unit for NABat analyses and are a biologically appropriate grain size given the nightly range of most bat species (Loeb et al. 2015). "
+  methods_2 ="Recording devices capable of detecting high-frequency bat echolocation calls were placed at 2-4 sites within each GRTS cell selected for survey. Sites were chosen based on guidance provided in Loeb et al. (2015). Factors considered when selecting sites included land ownership, accessibility, minimizing clutter, elevation, and heterogeneity of habitats within the cell. Recording devices were deployed for 4 consecutive nights during the summer maternity season, when bats are most active and most likely to be detected if present in the cell. Detectors were programmed to automatically begin recording 15 minutes prior to sunset and end recording 15 minutes after sunrise. Microphones were elevated ~ 3 m from the ground and oriented in the direction of least clutter to maximize detection (Loeb et al. (2015)). "
+  methods_3 ="Calls files were processed using commercially-available automated identification software. Prior to species identification, non-bat files were scrubbed using a noise filter. Next, the remaining files were identified to species using a regional classifier that only considers the species whose ranges intersect the defined region. Calls that could not be identified to species were labeled either NO ID or with a general category (LowF, HighF, 25k, 40k, etc.). Due to overlap in the characteristics of some bat species' calls and the uncertainty associated with automated ID software, a subset of calls was manually vetted in accordance with Loeb et al. (2015). All call files identified as rare species were manually vetted, as were all calls from species not known to occur in the survey area. For non-rare species known to occur in the survey area, at least one call was manually vetted per point per night to confirm species presence within the survey cell and to estimate detection probability."
+
+  # Set Summary in 2 sections
+  summary_1 = "Ex. Survey efforts will be reported to relevant state biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to include 15 new cells and collaborative efforts with Colorado Parks and Wildlife, USFWS, and Bat Conservation International."
+  summary_2 = "No statistically significant changes in species richness were detected between 2018 and 2019, however, there was a significant decrease in overall activity rate between the two years. Moving forward, these data will help land managers determine priority areas for bat mitigation efforts and provide baseline data to examine habitat associations that may be important for protecting species of federal and state conservation concern."
+
+  # Lit Cited
+  lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research Station. 112 p."
 
 
   # Build a plot of Manual species
@@ -224,7 +249,7 @@ build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_
     textfont=list(family="sans serif",size=12,color="darkgrey")) %>%
     layout(yaxis = ax)
 
-  plot_man_w_bar = paste0(out_dir_, "/plot_man_w_bar.png")
+  plot_man_w_bar = paste0(out_dir, "/plot_man_w_bar.png")
   plotly::export(pm, file = plot_man_w_bar)
 
   #  Build a plot of Auto species
@@ -245,14 +270,31 @@ build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_
     textfont=list(family="sans serif",size=12,color="darkgrey")) %>%
     layout(yaxis = ax)
 
-  plot_auto_w_bar = paste0(out_dir_, "/plot_auto_w_bar.png")
+  plot_auto_w_bar = paste0(out_dir, "/plot_auto_w_bar.png")
   plotly::export(pm, file = plot_auto_w_bar)
+
+  # Set variables for the results text created below
+  number_of_sites = ""
+  number_of_cells = ""
+  selected_year = ""
+  number_of_bat_calls = ""
+  number_of_net_nights = ""
+  number_of_species_detected = ""
+  low_avg_per_night = ""
+  high_avg_per_night = ""
+  median_activity_rate = ""
+  mean_activity_rate = ""
+
+
+  # Text for Results using Project Summary Data
+  results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells," NABat GRTS cells were surveyed in ", selected_year," (Figure 1, Table 1). ", number_of_bat_calls," call files were recorded over ", number_of_net_nights," net nights, and ", number_of_species_detected," species were detected (Figure 1, Table 2). Activity rate (average bat passes per night) ranged from ", low_avg_per_night," to ", high_avg_per_night,", with a median of ", median_activity_rate," and a mean of ", mean_activity_rate," (Figures 3, 4).")
+
 
 
   # Remove files
-  if (file.exists(paste0(out_dir_, '/', file_name_))){
-    print (paste0('Removing ', paste0(out_dir_, '/', file_name_)))
-    file.remove(paste0(out_dir_, '/', file_name_))
+  if (file.exists(paste0(out_dir, '/', file_name))){
+    print (paste0('Removing ', paste0(out_dir, '/', file_name)))
+    file.remove(paste0(out_dir, '/', file_name))
   }
 
   # Font for title
@@ -264,53 +306,60 @@ build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_
 
     # Add title/header
     # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
-    slip_in_img(src = logo_img_, width = 2, height = .75) %>%
+    body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_fpar(fpar( ftext(title_, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
-    # body_add_par(value = title_, style = "graphic title") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = paste0('By ', by_), style = "centered") %>%
-    body_add_par(value = member_role_org_, style = "centered") %>%
-    body_add_par(value = date_, style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    # body_add_par(value = title, style = "graphic title") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = paste0('By ', by), style = "centered") %>%
+    body_add_par(value = organization, style = "centered") %>%
+    body_add_par(value = date, style = "centered") %>%
 
     # Add Map
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = "GRTS Map", style = "table title") %>%
+    # body_add_par(value = "GRTS Map", style = "table title") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
-    slip_in_img(src = map_out_, style = "strong",
-      width = 6, height = 4, pos = "after") %>%
+    body_add_img(src = cover_photo, width = 6, height = 4, style= 'centered') %>%
+
+    # slip_in_img(src = map_out_, style = "strong",
+    # width = 6, height = 4, pos = "after") %>%
 
     # Add summary data for project and GRTS cells
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = proj_sum_, style = "Normal") %>%
 
     body_add_break() %>%
 
     # Project Description
     body_add_par(value = "Project Description", style = "heading 1") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    body_add_par(value = description, style = "Normal") %>%
 
     body_add_break() %>%
 
     # Methods
     body_add_par(value = "Methods", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # Grid all selection
-    body_add_par(value = "Grid all selection", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # Detector Deployment
-    body_add_par(value = "Detector Deployment", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    body_add_par(value = methods_1, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = methods_2, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = methods_3, style = "Normal") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    # # Grid all selection
+    # body_add_par(value = "Grid all selection", style = "heading 2") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    # # Detector Deployment
+    # body_add_par(value = "Detector Deployment", style = "heading 2") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    # # Data Collection and Processing
+    # body_add_par(value = "Data Collection and Processing", style = "heading 2") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
-    # Data Collection and Processing
-    body_add_par(value = "Data Collection and Processing", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-
-    body_add_break() %>%
+  body_add_break() %>%
 
     # Results and Discussion
     body_add_par(value = "Results and Discussion", style = "heading 1") %>%
@@ -335,19 +384,19 @@ build_ac_doc = function(out_dir_, file_name_, proj_sum_, manual_species_grts_df_
     # Summary
     body_add_par(value = "Summary", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    body_add_par(value = summary_1, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = summary_1, style = "Normal") %>%
 
     body_add_break() %>%
 
     # Literature Cited
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    body_add_par(value = lit_cited, style = "Normal") %>%
 
-    print(doc, target = paste0(out_dir_, '/', file_name_))
-
+    print(doc, target = paste0(out_dir, '/', file_name))
 
   file.remove(plot_auto_w_bar)
   file.remove(plot_man_w_bar)
 }
-
