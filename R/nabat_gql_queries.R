@@ -113,6 +113,12 @@ get_projects = function(token, username){
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
                                                              'X-email-address' = username)))
+  # Sample frame lookup
+  sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
+    sample_frame_short = c('Mexico', 'Continental US', 'Hawaii', 'Canada', 'Alaska', 'Puerto Rico'),
+    sample_frame_description = c('Mexico 10x10km Grid', 'Conus (Continental US) 10x10km Grid', 'Hawaii 5x5km Grid', 'Canada 10x10km Grid',
+      'Alaska 10x10km Grid', 'Puerto Rico 5x5km Grid'))
+
   # Set empty Query
   qry = Query$new()
   # Build query for all projects under user
@@ -122,14 +128,25 @@ get_projects = function(token, username){
                          id
                          projectName
                          projectKey
+                         description
+                         mrOwnerEmail
+                         sampleFrameId
+                         organizationByOwningOrganizationId{
+                           name
+                           address
+                           city
+                           stateProvince
+                           postalCode
                          }
+                       }
                        }
                      }'))
 
   # Build dataframe of project data to return
   proj_dat  = cli$exec(qry$queries$projIds)
   proj_json = fromJSON(proj_dat, flatten = TRUE)
-  proj_df   = rename_project_df(as.data.frame(proj_json))
+  proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
+
   # Return dataframe of projects
   return (proj_df)
 }
@@ -204,8 +221,8 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
   # Create cli using NABat prod url and ghql library
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
   cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-                                                             'X-email-address' = username)))
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
+      'X-email-address' = username)))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -219,41 +236,45 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
     qry = Query$new()
     qry$query('grtsIds', paste0('{
       allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
-        nodes{
-          id
-          projectId
-          grtsId
-          stationaryAcousticEventsBySurveyId {
-            nodes{
-              id
-              locationName
-              surveyId
-              activationStartTime
-              activationEndTime
-              deviceId
-              microphoneId
-              microphoneOrientationId
-              microphoneHeight
-              distanceToClutterMeters
-              clutterTypeId
-              distanceToWater
-              waterType
-              percentClutterMethod
-              habitatTypeId
-              stationaryAcousticValuesBySaSurveyId{
-                nodes{
-                  wavFileName
-                  recordingTime
-                  softwareId
-                  speciesId
-                  manualId
-                }
-              }
-            }
-          }
-        }
+      nodes{
+      id
+      projectId
+      grtsId
+      stationaryAcousticEventsBySurveyId {
+      nodes{
+      id
+      locationName
+      surveyId
+      location{
+      geojson
       }
-    }'))
+      activationStartTime
+      activationEndTime
+      deviceId
+      microphoneId
+      microphoneOrientationId
+      microphoneHeight
+      distanceToClutterMeters
+      clutterTypeId
+      distanceToWater
+      waterType
+      percentClutterMethod
+      habitatTypeId
+      stationaryAcousticValuesBySaSurveyId{
+      nodes{
+      wavFileName
+      recordingTime
+      softwareId
+      speciesId
+      manualId
+      }
+      }
+      }
+      }
+      }
+      }
+  }'))
+
 
     # Execute GRTS GQL Query
     grts_dat  = cli$exec(qry$queries$grtsIds)
@@ -268,10 +289,25 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
     }else{
       message (paste0('Compiling stationary acoustic data for survey: ', survey))
       wav_files = data.frame()
+      names_for_acc_events_rn = c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
+        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
+        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id',
+        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')
       for (x in 1:dim(acc_events)[1]){
+
+        if (is.na(unique(acc_events$location))){
+          lon = NA
+          lat = NA
+        }else {
+          lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
+          lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
+          names_for_acc_events_rn = c(names_for_acc_events_rn,'location_type')
+        }
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
         id       = acc_events[x,]$id
         wav_int_files['stationary_acoustic_values_id'] = id
+        wav_int_files['latitude'] = lat
+        wav_int_files['longitude'] = lon
         if (dim(wav_files)[1] <1){
           wav_files = wav_int_files
         }else {
@@ -282,11 +318,8 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       # Rename and select from the 3 tables
       proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
       wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
-                                                       'manual_id', 'stationary_acoustic_values_id')]
-      acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
-                                                        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
-                                                        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id',
-                                                        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
+        'manual_id', 'stationary_acoustic_values_id', 'latitude', 'longitude')]
+      acc_events_rn = rename_acoustic_df(acc_events)[,names_for_acc_events_rn]
 
       # Set values for survey, project, and grts ids in dataframe
       wav_files_rn[,'survey_id']    = survey
