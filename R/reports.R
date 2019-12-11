@@ -387,6 +387,7 @@ build_ac_doc = function(out_dir,
 
   file.remove(plot_auto_w_bar)
   file.remove(plot_man_w_bar)
+  file.remove(map_out_)
 
   return(doc)
 }
