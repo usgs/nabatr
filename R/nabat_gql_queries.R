@@ -289,9 +289,10 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
     }else{
       message (paste0('Compiling stationary acoustic data for survey: ', survey))
       wav_files = data.frame()
+      acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
       names_for_acc_events_rn = c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
         'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
-        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id',
+        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id', 'site_name',
         'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')
       for (x in 1:dim(acc_events)[1]){
 

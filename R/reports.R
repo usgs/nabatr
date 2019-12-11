@@ -348,18 +348,8 @@ build_ac_doc = function(out_dir,
     body_add_par(value = methods_2, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_par(value = methods_3, style = "Normal") %>%
-    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # # Grid all selection
-    # body_add_par(value = "Grid all selection", style = "heading 2") %>%
-    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # # Detector Deployment
-    # body_add_par(value = "Detector Deployment", style = "heading 2") %>%
-    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # # Data Collection and Processing
-    # body_add_par(value = "Data Collection and Processing", style = "heading 2") %>%
-    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
 
-  body_add_break() %>%
+    body_add_break() %>%
 
     # Results and Discussion
     body_add_par(value = "Results and Discussion", style = "heading 1") %>%
@@ -393,10 +383,10 @@ build_ac_doc = function(out_dir,
     # Literature Cited
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = lit_cited, style = "Normal") %>%
-
-    print(doc, target = paste0(out_dir, '/', file_name))
+    body_add_par(value = lit_cited, style = "Normal")
 
   file.remove(plot_auto_w_bar)
   file.remove(plot_man_w_bar)
+
+  return(doc)
 }
