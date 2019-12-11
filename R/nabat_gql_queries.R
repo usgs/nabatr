@@ -241,35 +241,35 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       projectId
       grtsId
       stationaryAcousticEventsBySurveyId {
-      nodes{
-      id
-      locationName
-      surveyId
-      location{
-      geojson
-      }
-      activationStartTime
-      activationEndTime
-      deviceId
-      microphoneId
-      microphoneOrientationId
-      microphoneHeight
-      distanceToClutterMeters
-      clutterTypeId
-      distanceToWater
-      waterType
-      percentClutterMethod
-      habitatTypeId
-      stationaryAcousticValuesBySaSurveyId{
-      nodes{
-      wavFileName
-      recordingTime
-      softwareId
-      speciesId
-      manualId
-      }
-      }
-      }
+        nodes{
+          id
+          locationName
+          surveyId
+          location{
+            geojson
+          }
+          activationStartTime
+          activationEndTime
+          deviceId
+          microphoneId
+          microphoneOrientationId
+          microphoneHeight
+          distanceToClutterMeters
+          clutterTypeId
+          distanceToWater
+          waterType
+          percentClutterMethod
+          habitatTypeId
+          stationaryAcousticValuesBySaSurveyId{
+            nodes{
+              wavFileName
+              recordingTime
+              softwareId
+              speciesId
+              manualId
+            }
+          }
+        }
       }
       }
       }
@@ -290,19 +290,13 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       message (paste0('Compiling stationary acoustic data for survey: ', survey))
       wav_files = data.frame()
       acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
-      names_for_acc_events_rn = c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
-        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
-        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id', 'site_name',
-        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')
       for (x in 1:dim(acc_events)[1]){
-
-        if (is.na(unique(acc_events$location))){
-          lon = NA
-          lat = NA
-        }else {
+        if ('location.geojson.coordinates' %in% names(acc_events)){
           lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
           lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
-          names_for_acc_events_rn = c(names_for_acc_events_rn,'location_type')
+        }else {
+          lon = NA
+          lat = NA
         }
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
         id       = acc_events[x,]$id
@@ -320,7 +314,10 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
       wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
         'manual_id', 'stationary_acoustic_values_id', 'latitude', 'longitude')]
-      acc_events_rn = rename_acoustic_df(acc_events)[,names_for_acc_events_rn]
+      acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
+        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
+        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id', 'site_name',
+        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
 
       # Set values for survey, project, and grts ids in dataframe
       wav_files_rn[,'survey_id']    = survey
