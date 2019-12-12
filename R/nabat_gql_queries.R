@@ -216,7 +216,7 @@ get_project_surveys = function(token, username, project_id){
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
+get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year){
 
   # Create cli using NABat prod url and ghql library
   url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
@@ -331,8 +331,14 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
     }
   }
+
   # Return the combined data in the format of the acoustic stationary bulk upload template form
-  return (all_wav_n_acc)
+  if (is.null(year)){
+    return (all_wav_n_acc)
+  }else {
+    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == year )
+    return(all_wav_n_acc)
+  }
 }
 
 

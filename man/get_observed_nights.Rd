@@ -4,7 +4,7 @@
 \alias{get_observed_nights}
 \title{Observed nightly observations for NABat stationary acoustic data}
 \usage{
-get_observed_nights(acoustic_bulk_df)
+get_observed_nights(acoustic_bulk_df, year = NULL)
 }
 \arguments{
 \item{acoustic_bulk_df}{Dataframe acoustic bulk dataframe from output of get_acoustic_bulk()}
