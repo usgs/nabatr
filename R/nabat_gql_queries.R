@@ -42,7 +42,7 @@ bats_df =  read.csv('data/bat_species.csv')
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username, password = NULL){
+get_nabat_gql_token = function(username, password = NULL, branch = 'prod'){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -52,7 +52,11 @@ get_nabat_gql_token = function(username, password = NULL){
   # Returns a message with username
   message(paste0("Logging into the NABat database as ", username))
   # Prod URL for NABat GQL
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  if (branch == 'prod'){
+    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  }
   # Username and password
   variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
   # Mutation to get token
@@ -106,10 +110,14 @@ get_nabat_gql_token = function(username, password = NULL){
 #'
 #' @export
 #'
-get_projects = function(token, username){
+get_projects = function(token, username, branch ='prod'){
 
   # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  if (branch == 'prod'){
+    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  }
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
                                                              'X-email-address' = username)))
@@ -170,10 +178,14 @@ get_projects = function(token, username){
 #' }
 #'
 #' @export
-get_project_surveys = function(token, username, project_id){
+get_project_surveys = function(token, username, project_id, branch ='prod'){
 
   # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  if (branch == 'prod'){
+    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  }
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
                                                              'X-email-address' = username)))
@@ -216,10 +228,14 @@ get_project_surveys = function(token, username, project_id){
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year){
+get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year, branch = 'prod'){
 
   # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  if (branch == 'prod'){
+    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  }
   cli = GraphqlClient$new(url = url,
     headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
       'X-email-address' = username)))
@@ -360,9 +376,13 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year){
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, username, states){
+get_nabat_banding_by_states = function(token, username, states, branch='prod'){
   # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  if (branch == 'prod'){
+    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  }
   cli = GraphqlClient$new(url = url,
     headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
       'X-email-address' = username)))
