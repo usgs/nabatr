@@ -99,18 +99,16 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod'){
 #' @description
 #' Returns all projects that the user has permissions to view
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
 #' \dontrun{
-#' project_df = get_projects(username = 'NABat_Username',
-#'                           token    = 'generated-nabat-gql-token')
+#' project_df = get_projects(token = 'generated-nabat-gql-token')
 #' }
 #'
 #' @export
 #'
-get_projects = function(token, username, branch ='prod'){
+get_projects = function(token, branch ='prod'){
 
   # Create cli using NABat prod url and ghql library
   if (branch == 'prod'){
@@ -119,8 +117,7 @@ get_projects = function(token, username, branch ='prod'){
     url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
   }
   cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-                                                             'X-email-address' = username)))
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   # Sample frame lookup
   sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
     sample_frame_short = c('Mexico', 'Continental US', 'Hawaii', 'Canada', 'Alaska', 'Puerto Rico'),
@@ -166,19 +163,17 @@ get_projects = function(token, username, branch ='prod'){
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
 #' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-#'                                 username   = 'NABat_Username',
 #'                                 project_id = 'number or string of a number')
 #' }
 #'
 #' @export
-get_project_surveys = function(token, username, project_id, branch ='prod'){
+get_project_surveys = function(token, project_id, branch ='prod'){
 
   # Create cli using NABat prod url and ghql library
   if (branch == 'prod'){
@@ -187,8 +182,7 @@ get_project_surveys = function(token, username, project_id, branch ='prod'){
     url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
   }
   cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-                                                             'X-email-address' = username)))
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   # Set empty Query
   qry = Query$new()
   # Build query for all surveys under user project
@@ -214,21 +208,19 @@ get_project_surveys = function(token, username, project_id, branch ='prod'){
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_acoustic_bulk_wavs(username   = 'NABat_Username',
-#'                                         token      = 'generated-nabat-gql-token',
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
 #'                                         survey_df  = 'dataframe from output of get_project_surveys()',
 #'                                         project_id = 'number or string of a number')
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year, branch = 'prod'){
+get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = 'prod'){
 
   # Create cli using NABat prod url and ghql library
   if (branch == 'prod'){
@@ -237,8 +229,7 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year, 
     url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
   }
   cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-      'X-email-address' = username)))
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -364,19 +355,17 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id, year, 
 #' @description
 #' Returns a dataframe of all the bat banding data from that/those states
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
 #' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-#'                                 username   = 'NABat_Username',
 #'                                 project_id = 'number or string of a number')
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, username, states, branch='prod'){
+get_nabat_banding_by_states = function(token, states, branch='prod'){
   # Create cli using NABat prod url and ghql library
   if (branch == 'prod'){
     url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
@@ -384,8 +373,8 @@ get_nabat_banding_by_states = function(token, username, states, branch='prod'){
     url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
   }
   cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-      'X-email-address' = username)))
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+
   final_df = data.frame()
   states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
     'Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico',
