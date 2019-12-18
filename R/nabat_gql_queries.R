@@ -42,7 +42,7 @@ bats_df =  read.csv('data/bat_species.csv')
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username, password = NULL, branch = 'prod'){
+get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url = NULL){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -51,12 +51,20 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod'){
 
   # Returns a message with username
   message(paste0("Logging into the NABat database as ", username))
-  # Prod URL for NABat GQL
-  if (branch == 'prod'){
-    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
-  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+
+  # When url is not passed in use these two, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
   }
+
   # Username and password
   variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
   # Mutation to get token
@@ -108,14 +116,21 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod'){
 #'
 #' @export
 #'
-get_projects = function(token, branch ='prod'){
+get_projects = function(token, branch ='prod', url = NULL){
 
-  # Create cli using NABat prod url and ghql library
-  if (branch == 'prod'){
-    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
-  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
   }
+
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   # Sample frame lookup
@@ -173,14 +188,21 @@ get_projects = function(token, branch ='prod'){
 #' }
 #'
 #' @export
-get_project_surveys = function(token, project_id, branch ='prod'){
+get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
 
-  # Create cli using NABat prod url and ghql library
-  if (branch == 'prod'){
-    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
-  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
   }
+
   cli = GraphqlClient$new(url = url,
                           headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   # Set empty Query
@@ -220,14 +242,21 @@ get_project_surveys = function(token, project_id, branch ='prod'){
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = 'prod'){
+get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = 'prod', url = NULL){
 
-  # Create cli using NABat prod url and ghql library
-  if (branch == 'prod'){
-    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
-  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
   }
+
   cli = GraphqlClient$new(url = url,
     headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
 
@@ -365,13 +394,21 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = '
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, states, branch='prod'){
-  # Create cli using NABat prod url and ghql library
-  if (branch == 'prod'){
-    url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
-  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-    url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL){
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
   }
+
   cli = GraphqlClient$new(url = url,
     headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
 
