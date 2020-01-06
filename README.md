@@ -26,7 +26,11 @@ library(nabatr)
 
 ## See Vignettes for examples
 ```
+# In Rstudio (pop up in help panel)
 ??nabatr
+
+# Web browser popup
+browseVignettes('nabatr')
 ```
 
 
