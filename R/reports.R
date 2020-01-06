@@ -401,9 +401,9 @@ build_ac_doc = function(out_dir,
     # Literature Cited
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = lit_cited, style = "Normal")
+    body_add_par(value = lit_cited, style = "Normal") %>%
 
-    body_add_break() %>%
+    body_add_break()
 
     # # Bat Species Presence
     # body_add_par(value = "Bat Species Presence", style = "heading 2") %>%
@@ -417,7 +417,7 @@ build_ac_doc = function(out_dir,
     # # Regional Coordination
     # body_add_par(value = "Regional Coordination", style = "heading 2") %>%
     # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # body_add_break() %>%
+    # body_add_break()
 
 
 
