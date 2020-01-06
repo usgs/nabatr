@@ -42,7 +42,7 @@ bats_df =  read.csv('data/bat_species.csv')
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username, password = NULL){
+get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url = NULL){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -51,8 +51,20 @@ get_nabat_gql_token = function(username, password = NULL){
 
   # Returns a message with username
   message(paste0("Logging into the NABat database as ", username))
-  # Prod URL for NABat GQL
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+
+  # When url is not passed in use these two, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
   # Username and password
   variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
   # Mutation to get token
@@ -95,24 +107,38 @@ get_nabat_gql_token = function(username, password = NULL){
 #' @description
 #' Returns all projects that the user has permissions to view
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
 #' \dontrun{
-#' project_df = get_projects(username = 'NABat_Username',
-#'                           token    = 'generated-nabat-gql-token')
+#' project_df = get_projects(token = 'generated-nabat-gql-token')
 #' }
 #'
 #' @export
 #'
-get_projects = function(token, username){
+get_projects = function(token, branch ='prod', url = NULL){
 
-  # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
   cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-                                                             'X-email-address' = username)))
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  # Sample frame lookup
+  sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
+    sample_frame_short = c('Mexico', 'Continental US', 'Hawaii', 'Canada', 'Alaska', 'Puerto Rico'),
+    sample_frame_description = c('Mexico 10x10km Grid', 'Conus (Continental US) 10x10km Grid', 'Hawaii 5x5km Grid', 'Canada 10x10km Grid',
+      'Alaska 10x10km Grid', 'Puerto Rico 5x5km Grid'))
+
   # Set empty Query
   qry = Query$new()
   # Build query for all projects under user
@@ -122,14 +148,25 @@ get_projects = function(token, username){
                          id
                          projectName
                          projectKey
+                         description
+                         mrOwnerEmail
+                         sampleFrameId
+                         organizationByOwningOrganizationId{
+                           name
+                           address
+                           city
+                           stateProvince
+                           postalCode
                          }
+                       }
                        }
                      }'))
 
   # Build dataframe of project data to return
   proj_dat  = cli$exec(qry$queries$projIds)
   proj_json = fromJSON(proj_dat, flatten = TRUE)
-  proj_df   = rename_project_df(as.data.frame(proj_json))
+  proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
+
   # Return dataframe of projects
   return (proj_df)
 }
@@ -141,25 +178,33 @@ get_projects = function(token, username){
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
 #' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-#'                                 username   = 'NABat_Username',
 #'                                 project_id = 'number or string of a number')
 #' }
 #'
 #' @export
-get_project_surveys = function(token, username, project_id){
+get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
 
-  # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
   cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-                                                             'X-email-address' = username)))
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   # Set empty Query
   qry = Query$new()
   # Build query for all surveys under user project
@@ -185,27 +230,35 @@ get_project_surveys = function(token, username, project_id){
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_acoustic_bulk_wavs(username   = 'NABat_Username',
-#'                                         token      = 'generated-nabat-gql-token',
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
 #'                                         survey_df  = 'dataframe from output of get_project_surveys()',
 #'                                         project_id = 'number or string of a number')
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
+get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = 'prod', url = NULL){
 
-  # Create cli using NABat prod url and ghql library
-  url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
   cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token),
-                                                             'X-email-address' = username)))
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -219,41 +272,45 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
     qry = Query$new()
     qry$query('grtsIds', paste0('{
       allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+      nodes{
+      id
+      projectId
+      grtsId
+      stationaryAcousticEventsBySurveyId {
         nodes{
           id
-          projectId
-          grtsId
-          stationaryAcousticEventsBySurveyId {
+          locationName
+          surveyId
+          location{
+            geojson
+          }
+          activationStartTime
+          activationEndTime
+          deviceId
+          microphoneId
+          microphoneOrientationId
+          microphoneHeight
+          distanceToClutterMeters
+          clutterTypeId
+          distanceToWater
+          waterType
+          percentClutterMethod
+          habitatTypeId
+          stationaryAcousticValuesBySaSurveyId{
             nodes{
-              id
-              locationName
-              surveyId
-              activationStartTime
-              activationEndTime
-              deviceId
-              microphoneId
-              microphoneOrientationId
-              microphoneHeight
-              distanceToClutterMeters
-              clutterTypeId
-              distanceToWater
-              waterType
-              percentClutterMethod
-              habitatTypeId
-              stationaryAcousticValuesBySaSurveyId{
-                nodes{
-                  wavFileName
-                  recordingTime
-                  softwareId
-                  speciesId
-                  manualId
-                }
-              }
+              wavFileName
+              recordingTime
+              softwareId
+              speciesId
+              manualId
             }
           }
         }
       }
-    }'))
+      }
+      }
+  }'))
+
 
     # Execute GRTS GQL Query
     grts_dat  = cli$exec(qry$queries$grtsIds)
@@ -268,10 +325,20 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
     }else{
       message (paste0('Compiling stationary acoustic data for survey: ', survey))
       wav_files = data.frame()
+      acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
       for (x in 1:dim(acc_events)[1]){
+        if ('location.geojson.coordinates' %in% names(acc_events)){
+          lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
+          lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
+        }else {
+          lon = NA
+          lat = NA
+        }
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
         id       = acc_events[x,]$id
         wav_int_files['stationary_acoustic_values_id'] = id
+        wav_int_files['latitude'] = lat
+        wav_int_files['longitude'] = lon
         if (dim(wav_files)[1] <1){
           wav_files = wav_int_files
         }else {
@@ -282,11 +349,11 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       # Rename and select from the 3 tables
       proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
       wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
-                                                       'manual_id', 'stationary_acoustic_values_id')]
+        'manual_id', 'stationary_acoustic_values_id', 'latitude', 'longitude')]
       acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
-                                                        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
-                                                        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id',
-                                                        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
+        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
+        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id', 'site_name',
+        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
 
       # Set values for survey, project, and grts ids in dataframe
       wav_files_rn[,'survey_id']    = survey
@@ -300,10 +367,100 @@ get_acoustic_bulk_wavs = function(token, username, survey_df, project_id){
       all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
     }
   }
+
   # Return the combined data in the format of the acoustic stationary bulk upload template form
-  return (all_wav_n_acc)
+  if (is.null(year)){
+    return (all_wav_n_acc)
+  }else {
+    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == year )
+    return(all_wav_n_acc)
+  }
 }
 
 
 
+#' @title Get Bat banding data for States
+#'
+#' @description
+#' Returns a dataframe of all the bat banding data from that/those states
+#' @param token String token created from get_nabat_gql_token function
+#' @param project_id Numeric or String a project id
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' \dontrun{
+#' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
+#'                                 project_id = 'number or string of a number')
+#' }
+#'
+#' @export
+get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL){
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
+  cli = GraphqlClient$new(url = url,
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+
+  final_df = data.frame()
+  states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
+    'Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico',
+    'New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont',
+    'Virginia','Washington','West Virgina','Wisconsin','Wyoming')
+
+  for (state in states){
+    if (state %in% states_check){
+      qry = Query$new()
+      print (state)
+      qry$query('bandingData',
+        paste0('{ allBatbandings (filter :{state:{equalTo:"',state,'"}}) {
+          nodes{
+          observers
+          captureId
+          date
+          siteDescr
+          state
+          countyName
+          countyName
+          xCoordCentroid
+          yCoordCentroid
+          xySource
+          species
+          markRecapture
+          unknownBandId
+          sex
+          age
+          reproduction
+          forearmLength
+          weight
+          progrm
+          }
+        }
+      }'))
+      proj_dat  = cli$exec(qry$queries$bandingData)
+      proj_json = fromJSON(proj_dat, flatten = TRUE)
+      proj_df   = as.data.frame(proj_json)
+      names(proj_df) = substring(names(proj_df), 27)
+
+      if (dim(final_df)[1]==0){
+        final_df = proj_df
+      }else {
+        final_df = rbind(final_df, proj_df)
+      }
+    }else{
+      message(paste0('Error: Spelling for this state is incorrect.. ', states))
+    }
+  }
+  return(final_df)
+}
 

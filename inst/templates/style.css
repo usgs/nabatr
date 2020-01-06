@@ -1,0 +1,131 @@
+#TOC {
+  opacity: 0.75;
+  left: 25px;
+  top: 100px;
+  margin: 25px 0px 20px 0px;
+  width: 250px;
+}
+#TOC:hover {
+  opacity: 1;
+}
+
+.container-fluid {
+  width: 100%;
+}
+
+#nabatLogo {
+  position: fixed;
+  top: 5px;
+  left: 5px;
+  border: 0px;
+  width:250px;
+}
+
+div.col-xs-12.col-sm-4.col-md-3{
+  width:250px;
+}
+
+/*
+.tocify {
+  max-width: 90% !important;
+}
+
+.toc-content {
+  padding-left: 0px !important;
+}
+*/
+
+/*
+div.toc-content.col-xs-12.col-sm-8.col-md-9{
+  left: 0%;
+}
+*/
+
+/*
+.main-container {
+  margin: 0;
+  width: 100%;
+}
+*/
+
+.title{
+  color:black;
+}
+
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  padding-top: 0;
+  padding-bottom: 40px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+
+/* h1 with h2 being h1 and h1 being the place holder for TOC*/
+h1 {
+  color: white;
+  font-size: 1px;
+  margin: 0px;
+}
+
+h2 {
+  color:white;
+  font-size: 1px;
+  margin: 0px;
+}
+
+/* */
+h3 {
+  color: white;
+  font-size: 1px;
+  margin: 0px;
+}
+
+h4 {
+  color:black;
+  font-size: 22px;
+}
+
+/* */
+h5 {
+  color: black;
+  font-size: 16px;
+}
+
+h6 {
+  color:black;
+  font-size: 10px;
+}
+
+
+/**
+h3 {
+  background-color: #D4DAEC;
+  text-indent: 50px;
+  margin: 5px;
+  padding: 5px
+}
+**/
+
+/*
+h3 {
+  background-color: #D4DAEC;
+  text-indent: 10px;
+  margin: 0px;
+  padding: 5px;
+  color:black;
+  font-size: 16px;
+}
+
+h4 {
+  text-indent: 0px;
+}
+*/
+
+g-table-intro h4 {
+  text-indent: 0px;
+}

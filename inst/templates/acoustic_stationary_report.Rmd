@@ -1,44 +1,52 @@
 ---
-# title: NABat Acoustic Report
+title:  "NABat Acoustic Report"
+author: "by [NABat](https://www.nabatmonitoring.org/) - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    css: 'style.css'
+    toc: true
+    toc_float: true
+    toc_depth: 3
 ---
 
-<style>
-body{
-  font-family: 'Oxygen', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  padding-top: 100px;
-  padding-bottom: 40px;
-}
+<a href='https://sciencebase.usgs.gov/nabat/#/home'><img id=nabatLogo src='`r nabat_png`' /></a>
 
-h1,h2,h3,h4 {
-  font-family: 'Raleway', sans-serif;
-}
 
-.main-container { 
-  width: 1000px;
-}
-h3 {
-  background-color: #D4DAEC;
-  text-indent: 50px;
-  margin: 5px;
-  padding: 5px
-}
-h4 {
-  text-indent: 0px;
-}
+<!-- # NABat Interactive Stationary Acoustic Report: **`r project_id`** -->
+<!-- <br><br> -->
 
-g-table-intro h4 {
-  text-indent: 0px;
+
+# Project `r project_id` - Home
+
+<br><br> 
+
+##### **Project**: `r project_id` 
+
+##### **Project Name**: `r project_name`
+
+##### **Project Description**:   GQL lookup for project descrition in Website
+
+##### **Project Summary**:  `r num_plots`
+
+------------
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# Building links to plots (either for sites or grts)
+if(nightly_plots_type == 'grts'){
+  grts_message = '**Links to GRTS Plots**:'
+  grts = as.character(unique(ordered_combined_data_$GRTS))
+} else if (nightly_plots_type == 'sites'){
+  grts_message = '**Links to GRTS Plots**:'
+  grts = as.character(unique(ordered_combined_data_$site_id))
 }
-</style>
+grts_df = data.frame(grts=paste0('[',grts, ']'), grts_lookup=paste0('(#grts', grts, '), '), grts_string = paste0('{#grts', grts, '}'))
+grts_df = grts_df %>% mutate (final = paste0(grts_df$grts,grts_df$grts_lookup))
+# Remove last comma and space
+grts_strng = str_sub(paste(grts_df$final,collapse=""), end = -3)
+```
 
-<a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='`r nabat_png`' /></a>
-
-# NABat Interactive Stationary Acoustic Report: **`r project_id`**
-#### **Project**:  `r project_id`
-
-### Locations of all the acoustic data for this project
+## GRTS Map
+#### GRTS locations
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 grts_map
 
@@ -46,151 +54,875 @@ grts_map
 # <a href='https://sciencebase.usgs.gov/nabat/#/home'><img style="position: absolute; top: 0; left: 30px ; border: 0; width:250px;" src='data/nabat_logo.png' /></a>
 ```
 
-### Automatic software detection of Stationary Acoustic Data
-<br>
+------------
+
+
+## Methods
+
+##### **Methods**:  
+
+##### In general, the project will use stationary point acoustic surveying incolving acoustic bat detectors placed for multiple nights at various features across the landscape. Resulting call files of sufficient quality will be identified to species or species group. Response variables will be detection/non-detection of each species for stationary point surveys.
+
+##### The North American bat monitoring program (NABat) users a master sample approach (Larsen and others 2008) with a grid-based frame. Larsen and others (2008) describe several examples of how this has been completed for other regional and national programs. For NABat, the approach begins by assigning a spatially balanced and randomized ordering of all 10km X 10km units from the finite grid-based sampling frame using the generalized random-tessellation stratified (GRTS) survey design algorithm (Stevens and Olsen 2004). Subsamples of 100-km2 units can then be made following the GRTS order, ensuring both randomization and spatial balance. The NABat protocal recommends monitoring 30 cells during the pilot phase of a project.
+
+------------
+
+## Plots and Tables
+
+### Plot 1.1
+
+##### **Plot 1.1**. NABat GRTS cells (Auto)
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ax = list(title = "",
+           zeroline = FALSE,
+           showline = FALSE,
+           showticklabels = FALSE,
+           showgrid = FALSE)
+
+df = auto_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
+df = df[order(df$species_totals, df$species_totals),]
+df$names = factor(df$names, levels = unique(df$names)[order(df$species_totals, decreasing = TRUE)])
+row.names(df) = NULL
+n = dim(df)[1]
+color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+pm = plot_ly(x = df$names, y = df$species_totals, showlegend = FALSE, colors = color_palette,
+    text = df$species_totals, textposition = 'outside',
+    textfont=list(family="sans serif",size=12,color="darkgrey"),
+    width = '100%') %>% 
+    layout(yaxis = ax)
+pm
+```
+
+### Plot 1.2
+
+##### **Plot 1.2**. NABat GRTS cells (Manual)
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+df = manual_species_grts_df_w %>% subset(names != 'grts_totals' & names != 'NoID' & names != '25k') %>% dplyr::select('names','species_totals')
+df = df[order(df$species_totals, df$species_totals),]
+df$names = factor(df$names, levels = unique(df$names)[order(df$species_totals, decreasing = TRUE)])
+row.names(df) = NULL
+n = dim(df)[1]
+color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+pa = plot_ly(x = df$names, y = df$species_totals, showlegend = FALSE, colors = color_palette,
+  text = df$species_totals, textposition = 'outside',
+  textfont=list(family="sans serif",size=12,color="darkgrey"),
+  width = '100%') %>%
+  layout(yaxis = ax)
+pa
+```
+
+
+
+### Plot 2.1
+
+##### **Plot 2.1**. NABat GRTS cells (Auto)
+
 ```{r, echo=FALSE}
-dt_auto = (auto_nights_df[,c(1:9)])
-dt_auto = dt_auto[order(dt_auto$GRTS, dt_auto$site_id),]
-kable(dt_auto) %>%
+# Pie chart with all species and their percentages
+df = auto_species_totals_w$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
+df = df[order(df$species_totals, df$species_totals),]
+df$species_totals = rev(df$species_totals)
+row.names(df) = NULL
+
+n = dim(df)[1]
+color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+
+df_p = plot_ly(labels = df$names, values = df$species_totals, type = 'pie', width='100%',
+                               marker = list(colors = color_palette,
+                                             line = list(color = 'white', width = 1)),
+                               textposition = 'auto',
+                               showlegend = FALSE,
+                               textinfo = 'label')
+df_p
+```
+
+### Plot 2.2
+
+##### **Plot 2.2**. NABat GRTS cells (Manual)
+
+```{r, echo=FALSE}
+# Pie chart with all species and their percentages
+df = manual_species_totals_w$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
+df = df[order(df$species_totals, df$species_totals),]
+df$species_totals = rev(df$species_totals)
+row.names(df) = NULL
+
+n = dim(df)[1]
+color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
+
+df_p = plot_ly(labels = df$names, values = df$species_totals, type = 'pie', width='100%',
+                               marker = list(colors = color_palette,
+                                             line = list(color = 'white', width = 1)),
+                               textposition = 'auto',
+                               showlegend = FALSE,
+                               textinfo = 'label')
+df_p
+```
+
+
+### Table 1.1
+
+<br>
+
+##### **Table 1.1**. NABat Species Counts at GRTS (Auto)
+
+```{r, echo=FALSE}
+df = auto_species_totals_l
+kable(df) %>%
   kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
   scroll_box(height='400px', width = '100%')
 ```
-<br>
-<br>
 
-### Manual detection of Stationary Acoustic Data
+### Table 1.2
 
 <br>
+
+##### **Table 1.2**. NABat Species Counts at GRTS (Manual)
+
 ```{r, echo=FALSE}
-dt_man = (manual_nights_df[,c(1:9)])
-# dt_man = manual_nights_df
-dt_man = dt_man[order(dt_man$GRTS, dt_man$site_id),]
-kable(dt_man) %>%
+df = manual_species_totals_l
+kable(df) %>%
   kable_styling(bootstrap_options = c('striped', 'hover', 'condensed')) %>%
   scroll_box(height='400px', width = '100%')
 ```
 
-### Observed night plots for manual and automatic stationary acoustic data at each GRTS Site
+
+
+
+## GRTS Species Plots
+
+##### Individual GRTS charts for species Counts
+
+`r if(num_plots >0){paste0('### ',grts[1])}` `r if(num_plots >0){as.character(grts_df$grts_string[1])}`
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# build dynamic plotly plots
-
-# library(plotly)
-# library(RColorBrewer)
-# library(ggplot2)
-
-build_grts_plots = function(ordered_combined_data){
-
-    # sites
-    grts_id = unique(ordered_combined_data$GRTS)
-    sites = unique(ordered_combined_data$site_id)
-
-    # Clean data at GRTS level to remove any species that aren't at this GRTS cell
-    species_grts_df = select(ordered_combined_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type'))
-    species_present_grts = names(species_grts_df[,colSums(species_grts_df) > 0])
-
-    # Clean data to include headers
-    cleaned_grts_df = select(ordered_combined_data, c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', species_present_grts))
-
-    # Build color palette to use for all sites in this grts cell
-    n = length(species_present_grts)
-    color_palette = colorRampPalette(c("#29a4ff", "#ffd25c", "#8a443d"))(n)
-    color_palette_op = colorRampPalette(c("#82caff", "#fff0c7", "#d6a7a3"))(n)
-    color_palette_df = data.frame(colors = color_palette, op_colors = color_palette_op, species = species_present_grts)
-
-    site_count_list = list()
-    for (site in sites){
-      # Subset data on a site level within a GRTS cell
-      cleaned_site_df = subset(cleaned_grts_df, cleaned_grts_df$site_id == site)
-      cleaned_site_df$opacity = ifelse(cleaned_site_df$type == 'automatic', 1, .5)
-      cleaned_site_df$x_names = paste0(cleaned_site_df$observed_night,'_', cleaned_site_df$type)
-      dates = as.character(cleaned_site_df$observed_night)
-
-      # # Clean data again at site level to remove any species that aren't at this site
-      # species_site_df = select(cleaned_site_df, -c('GRTS', 'site_id', 'site_name', 'observed_night'))
-      # species_present_site = names(species_site_df[,colSums(species_site_df) > 0])
-      # cleaned_site_df = select(cleaned_site_df, c('GRTS', 'site_id', 'site_name', 'observed_night', species_present_site))
-
-      plotly_ = FALSE
-      count = 0
-      width_ = .1
-
-      for (name in species_present_grts){
-        count = count + 1
-        species_counts = cleaned_site_df[,name]
-        color = as.character(subset(color_palette_df, species == name)$colors)
-        opac_color = as.character(subset(color_palette_df, species == name)$op_colors)
-
-        this_color = rep(c(color, opac_color), length(species_counts)/2)
-
-        if (plotly_ == FALSE){
-          plotly_ = TRUE
-          p_species = plot_ly(x = species_counts, y = cleaned_site_df$x_names, type = 'bar', orientation = 'h',
-                              name = name, text = site, legendgroup = site,
-                              marker = list(color = color,
-                                            line = list(color = 'black',
-                                                        width = width_)))
-        }else{
-          p_species = p_species %>% add_trace(x = species_counts, name = name,
-                                              text = site, legendgroup = site,
-                              marker = list(color = color,
-                                            line = list(color = 'black',
-                                                        width = width_)))
-        }
-      }
-      m = list(l = 50,
-               r = 50,
-               b = 100,
-               t = 50,
-               pad = 4)
-      p_species_final = p_species %>%
-            layout(barmode = 'stack',
-                    xaxis = list(title = "Counts"),
-                    yaxis = list(title = "Observed Night"),
-                    title = paste0(site),
-                    autosize = F,
-                    # width = 800,
-                    # height = 500,
-                    margin = m)
-    }
-    return (p_species_final)
-}
+if (num_plots > 0){
+  plot_list = lapply(split_list[1],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>% layout(height = length(plot_list) * 500, width = 800)
+  }}
 ```
 
+`r if(num_plots >1){paste0('### ',grts[2])}` `r if(num_plots >1){as.character(grts_df$grts_string[2])}`
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-
-# re-order dataframe by site_id, then observed_night
-ordered_grts_df_auto = auto_nights_df[order(auto_nights_df$site_id, auto_nights_df$observed_night),]
-ordered_grts_df_auto = select(ordered_grts_df_auto, -c('25k','NoID'))
-ordered_grts_df_auto$type = 'automatic'
-
-ordered_grts_df_man = manual_nights_df[order(manual_nights_df$site_id, manual_nights_df$observed_night),]
-ordered_grts_df_man = select(ordered_grts_df_man, -c('25k','NoID'))
-ordered_grts_df_man$type  = 'manual'
-
-combined_data = rbind(ordered_grts_df_auto, ordered_grts_df_man)
-ordered_combined_data_ = combined_data[order(combined_data$site_id, combined_data$observed_night),]
-
-split_list = ordered_combined_data_ %>% split(ordered_combined_data_$site_id)
-# split_list = ordered_combined_data_ %>% split(ordered_combined_data_$GRTS)
-plot_list = lapply(split_list[1:5],  build_grts_plots)
-
-subplot(plot_list, nrows = length(plot_list)) %>%
-  layout(height = length(plot_list) * 500, width = 800)
-
-
-# subplot(plot_list, nrows = 3) %>%
-#   layout(width = 800, height = 800)
-
-# subplot(plot_list, nrows = rows, heights= heights, widths=widths,
-#         margin=.01 ,shareY = F) %>%
-#   layout(width = 1000, height = plot_dims$rows*200)
+if (num_plots > 1){
+  plot_list = lapply(split_list[2],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+  }}
 ```
 
+`r if(num_plots >2){paste0('### ',grts[3])}`  `r if(num_plots >2){as.character(grts_df$grts_string[3])}`
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# build with ggplot2?
+if (num_plots > 2){
+  plot_list = lapply(split_list[3],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+  }}
+```
+
+`r if(num_plots >3){paste0('### ',grts[4])}`  `r if(num_plots >3){as.character(grts_df$grts_string[4])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 3){
+  plot_list = lapply(split_list[4],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >4){paste0('### ',grts[5])}`  `r if(num_plots >4){as.character(grts_df$grts_string[5])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 4){
+  plot_list = lapply(split_list[5],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >5){paste0('### ',grts[6])}`  `r if(num_plots >5){as.character(grts_df$grts_string[6])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 5){
+  plot_list = lapply(split_list[6],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >6){paste0('### ',grts[7])}`  `r if(num_plots >6){as.character(grts_df$grts_string[7])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 6){
+  plot_list = lapply(split_list[7],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >7){paste0('### ',grts[8])}`  `r if(num_plots >7){as.character(grts_df$grts_string[8])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 7){
+  plot_list = lapply(split_list[8],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
 ```
 
 
+`r if(num_plots >8){paste0('### ',grts[9])}`  `r if(num_plots >8){as.character(grts_df$grts_string[9])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 8){
+  plot_list = lapply(split_list[9],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >9){paste0('### ',grts[10])}`  `r if(num_plots >9){as.character(grts_df$grts_string[10])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 9){
+  plot_list = lapply(split_list[10],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >10){paste0('### ',grts[11])}`  `r if(num_plots >10){as.character(grts_df$grts_string[11])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots >10){
+  plot_list = lapply(split_list[11],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >11){paste0('### ',grts[12])}`  `r if(num_plots >11){as.character(grts_df$grts_string[12])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 11){
+  plot_list = lapply(split_list[12],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+
+
+
+
+
+
+
+
+`r if(num_plots >12){paste0('### ',grts[13])}`  `r if(num_plots >12){as.character(grts_df$grts_string[13])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 12){
+  plot_list = lapply(split_list[13],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >13){paste0('### ',grts[14])}`  `r if(num_plots >13){as.character(grts_df$grts_string[14])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 13){
+  plot_list = lapply(split_list[14],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >14){paste0('### ',grts[15])}`  `r if(num_plots >14){as.character(grts_df$grts_string[15])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 14){
+  plot_list = lapply(split_list[15],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >15){paste0('### ',grts[16])}`  `r if(num_plots >15){as.character(grts_df$grts_string[16])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 15){
+  plot_list = lapply(split_list[16],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >16){paste0('### ',grts[17])}`  `r if(num_plots >16){as.character(grts_df$grts_string[17])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 16){
+  plot_list = lapply(split_list[17],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >17){paste0('### ',grts[18])}`  `r if(num_plots >17){as.character(grts_df$grts_string[18])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 17){
+  plot_list = lapply(split_list[18],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >18){paste0('### ',grts[19])}`  `r if(num_plots >18){as.character(grts_df$grts_string[19])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 18){
+  plot_list = lapply(split_list[19],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >19){paste0('### ',grts[20])}`  `r if(num_plots >19){as.character(grts_df$grts_string[20])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 19){
+  plot_list = lapply(split_list[20],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >20){paste0('### ',grts[21])}`  `r if(num_plots >20){as.character(grts_df$grts_string[21])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 20){
+  plot_list = lapply(split_list[21],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >21){paste0('### ',grts[22])}`  `r if(num_plots >21){as.character(grts_df$grts_string[22])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 21){
+  plot_list = lapply(split_list[22],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >22){paste0('### ',grts[23])}`  `r if(num_plots >22){as.character(grts_df$grts_string[23])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 22){
+  plot_list = lapply(split_list[23],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >23){paste0('### ',grts[24])}`  `r if(num_plots >23){as.character(grts_df$grts_string[24])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 23){
+  plot_list = lapply(split_list[24],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >24){paste0('### ',grts[25])}`  `r if(num_plots >24){as.character(grts_df$grts_string[25])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 24){
+  plot_list = lapply(split_list[25],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >25){paste0('### ',grts[26])}`  `r if(num_plots >25){as.character(grts_df$grts_string[26])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 25){
+  plot_list = lapply(split_list[26],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >26){paste0('### ',grts[27])}`  `r if(num_plots >26){as.character(grts_df$grts_string[27])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 26){
+  plot_list = lapply(split_list[27],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >27){paste0('### ',grts[28])}`  `r if(num_plots >27){as.character(grts_df$grts_string[28])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 27){
+  plot_list = lapply(split_list[28],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >28){paste0('### ',grts[29])}`  `r if(num_plots >28){as.character(grts_df$grts_string[29])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 28){
+  plot_list = lapply(split_list[29],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >29){paste0('### ',grts[30])}`  `r if(num_plots >29){as.character(grts_df$grts_string[30])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 29){
+  plot_list = lapply(split_list[30],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >30){paste0('### ',grts[31])}`  `r if(num_plots >30){as.character(grts_df$grts_string[31])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 30){
+  plot_list = lapply(split_list[31],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >31){paste0('### ',grts[32])}`  `r if(num_plots >31){as.character(grts_df$grts_string[32])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 31){
+  plot_list = lapply(split_list[32],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >32){paste0('### ',grts[33])}`  `r if(num_plots >32){as.character(grts_df$grts_string[33])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 32){
+  plot_list = lapply(split_list[33],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >33){paste0('### ',grts[34])}`  `r if(num_plots >33){as.character(grts_df$grts_string[34])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 33){
+  plot_list = lapply(split_list[34],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >34){paste0('### ',grts[35])}`  `r if(num_plots >34){as.character(grts_df$grts_string[35])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 34){
+  plot_list = lapply(split_list[35],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >35){paste0('### ',grts[36])}`  `r if(num_plots >35){as.character(grts_df$grts_string[36])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 35){
+  plot_list = lapply(split_list[36],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >36){paste0('### ',grts[37])}`  `r if(num_plots >36){as.character(grts_df$grts_string[37])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 36){
+  plot_list = lapply(split_list[37],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >37){paste0('### ',grts[38])}`  `r if(num_plots >37){as.character(grts_df$grts_string[38])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 37){
+  plot_list = lapply(split_list[38],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >38){paste0('### ',grts[39])}`  `r if(num_plots >38){as.character(grts_df$grts_string[39])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 38){
+  plot_list = lapply(split_list[39],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >39){paste0('### ',grts[40])}`  `r if(num_plots >39){as.character(grts_df$grts_string[40])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 39){
+  plot_list = lapply(split_list[40],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >40){paste0('### ',grts[41])}`  `r if(num_plots >40){as.character(grts_df$grts_string[41])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 40){
+  plot_list = lapply(split_list[41],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >41){paste0('### ',grts[42])}`  `r if(num_plots >41){as.character(grts_df$grts_string[42])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 41){
+  plot_list = lapply(split_list[42],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >42){paste0('### ',grts[43])}`  `r if(num_plots >42){as.character(grts_df$grts_string[43])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 42){
+  plot_list = lapply(split_list[43],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >43){paste0('### ',grts[44])}`  `r if(num_plots >43){as.character(grts_df$grts_string[44])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 43){
+  plot_list = lapply(split_list[44],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >44){paste0('### ',grts[45])}`  `r if(num_plots >44){as.character(grts_df$grts_string[45])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 44){
+  plot_list = lapply(split_list[45],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >45){paste0('### ',grts[46])}`  `r if(num_plots >45){as.character(grts_df$grts_string[46])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 45){
+  plot_list = lapply(split_list[46],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >46){paste0('### ',grts[47])}`  `r if(num_plots >46){as.character(grts_df$grts_string[47])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 46){
+  plot_list = lapply(split_list[47],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >47){paste0('### ',grts[48])}`  `r if(num_plots >47){as.character(grts_df$grts_string[48])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 47){
+  plot_list = lapply(split_list[48],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >48){paste0('### ',grts[49])}`  `r if(num_plots >48){as.character(grts_df$grts_string[49])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 48){
+  plot_list = lapply(split_list[49],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >49){paste0('### ',grts[50])}`  `r if(num_plots >49){as.character(grts_df$grts_string[50])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 49){
+  plot_list = lapply(split_list[50],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >50){paste0('### ',grts[51])}`  `r if(num_plots >50){as.character(grts_df$grts_string[51])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 50){
+  plot_list = lapply(split_list[51],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >51){paste0('### ',grts[52])}`  `r if(num_plots >51){as.character(grts_df$grts_string[52])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 51){
+  plot_list = lapply(split_list[52],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >52){paste0('### ',grts[53])}`  `r if(num_plots >52){as.character(grts_df$grts_string[53])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 52){
+  plot_list = lapply(split_list[53],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >53){paste0('### ',grts[54])}`  `r if(num_plots >53){as.character(grts_df$grts_string[54])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 53){
+  plot_list = lapply(split_list[54],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >54){paste0('### ',grts[55])}`  `r if(num_plots >54){as.character(grts_df$grts_string[55])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 54){
+  plot_list = lapply(split_list[55],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >55){paste0('### ',grts[56])}`  `r if(num_plots >55){as.character(grts_df$grts_string[56])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 55){
+  plot_list = lapply(split_list[56],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >56){paste0('### ',grts[57])}`  `r if(num_plots >56){as.character(grts_df$grts_string[57])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 56){
+  plot_list = lapply(split_list[57],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >57){paste0('### ',grts[58])}`  `r if(num_plots >57){as.character(grts_df$grts_string[58])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 57){
+  plot_list = lapply(split_list[58],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >58){paste0('### ',grts[59])}`  `r if(num_plots >58){as.character(grts_df$grts_string[59])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 58){
+  plot_list = lapply(split_list[59],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
+
+`r if(num_plots >59){paste0('### ',grts[60])}`  `r if(num_plots >59){as.character(grts_df$grts_string[60])}`
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+if (num_plots > 59){
+  plot_list = lapply(split_list[60],  build_grts_plot, type = nightly_plots_type)
+  if (is.character(plot_list[[1]])){
+    print (paste0(plot_list, ' has no species counted by either auto or manual detection'))
+  }else {
+    subplot(plot_list, nrows = length(plot_list)) %>%
+    layout(height = length(plot_list) * 500, width = 800)
+}}
+```
 
 
 

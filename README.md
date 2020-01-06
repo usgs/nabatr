@@ -19,28 +19,18 @@ To install the toolbox in R run the following commands in a R terminal
 
 ```R
 if(!require(devtools)){install.packages(devtools)}
-devtools::install_github("talbertc-usgs/nabatr")
+devtools::install_github("ropensci/ghql")
+devtools::install_github("ennsk/nabatr", build_vignettes = TRUE)
 library(nabatr)
 ```
 
-## Examples
+## See Vignettes for examples (run in RStudio)
+```
+# RStudio pop up in Help tab
+??nabatr
 
-[Example in R-Markdown](http://htmlpreview.github.io/?https://github.com/talbertc-usgs/NABatR/blob/master/Examples/NABatR_Demo.html)
-
-```r
-library(nabatr)
-library(sp)
-
-examples:
-hawaii_grts = get_grts_data('Hawaii')
-spplot(hawaii_grts, zcol='own_NPS')
-
-florida_grts = get_grts_data('Conus', query="state_n_1='Florida'")
-spplot(florida_grts, zcol="lat")
-
-two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')or(cnty_n_1='Colorado_Jackson'))")
-spplot(two_conties, zcol='own_STATE')
-
+# Web browser popup
+browseVignettes('nabatr')
 ```
 
 

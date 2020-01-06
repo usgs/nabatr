@@ -5,3 +5,5 @@
 ^\.Rproj\.user$
 man-roxygen
 manuscript
+^doc$
+^Meta$
