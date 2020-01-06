@@ -242,7 +242,7 @@ get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = 'prod', url = NULL){
+get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
