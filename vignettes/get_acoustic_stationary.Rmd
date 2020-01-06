@@ -24,8 +24,7 @@ token_
 ### Get Project dataframe which contains all of your acoustic stationary projects in the NABat Database
 ```
 # Get your projects lookup table
-project_df_ = get_projects(token    = token_, 
-                           username = username_)
+project_df_ = get_projects(token = token_)
 # Display your projects lookup table
 project_df_
 
@@ -37,8 +36,7 @@ project_df_
 project_id_ = 33 # Set equal to project id
 
 # Get survey dataframe 
-survey_df_ = get_project_surveys(username   = username_,
-                                 token      = token_,
+survey_df_ = get_project_surveys(token      = token_,
                                  project_id = project_id_)
 # Display survey dataframe
 survey_df_
@@ -48,7 +46,6 @@ survey_df_
 ```
 # Get stationary acoustic bulk upload format dataframe
 acoustic_bulk_df_ = get_acoustic_bulk_wavs(token      = token_, 
-                                           username   = username_, 
                                            survey_df  = survey_df_,
                                            project_id = project_id_)
 # Display stationary acoustic bulk upload format dataframe
