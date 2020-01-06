@@ -327,7 +327,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = '
       wav_files = data.frame()
       acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
       for (x in 1:dim(acc_events)[1]){
-        if ('location.geojson.coordinates' %in% names(acc_events)){
+        if ('location.geojson.coordinates' %in% names(acc_events) & !is.null(acc_events$location.geojson.coordinates[x][[1]])){
           lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
           lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
         }else {
@@ -335,10 +335,14 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = '
           lat = NA
         }
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
-        id       = acc_events[x,]$id
-        wav_int_files['stationary_acoustic_values_id'] = id
-        wav_int_files['latitude'] = lat
-        wav_int_files['longitude'] = lon
+        if (length(wav_int_files)==0){
+          wav_int_files = data.frame()
+        } else{
+          id       = acc_events[x,]$id
+          wav_int_files['stationary_acoustic_values_id'] = id
+          wav_int_files['latitude'] = lat
+          wav_int_files['longitude'] = lon
+        }
         if (dim(wav_files)[1] <1){
           wav_files = wav_int_files
         }else {
