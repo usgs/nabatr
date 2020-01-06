@@ -4,12 +4,10 @@
 \alias{get_nabat_banding_by_states}
 \title{Get Bat banding data for States}
 \usage{
-get_nabat_banding_by_states(token, username, states)
+get_nabat_banding_by_states(token, states, branch = "prod", url = NULL)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
-
-\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 
 \item{project_id}{Numeric or String a project id}
 }
@@ -20,7 +18,6 @@ Returns a dataframe of all the bat banding data from that/those states
 
 \dontrun{
 survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-                                username   = 'NABat_Username',
                                 project_id = 'number or string of a number')
 }
 

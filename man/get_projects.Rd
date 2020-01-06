@@ -4,12 +4,10 @@
 \alias{get_projects}
 \title{Find your NABat Projects}
 \usage{
-get_projects(token, username)
+get_projects(token, branch = "prod", url = NULL)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
-
-\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 }
 \description{
 Returns all projects that the user has permissions to view
@@ -17,8 +15,7 @@ Returns all projects that the user has permissions to view
 \examples{
 
 \dontrun{
-project_df = get_projects(username = 'NABat_Username',
-                          token    = 'generated-nabat-gql-token')
+project_df = get_projects(token = 'generated-nabat-gql-token')
 }
 
 }
