@@ -23,11 +23,12 @@ Imports:
     plotly,
     officer,
     magrittr,
-    rJava,
     mapview
 DevPackage:
     ropensci/ghql
-Suggests: knitr
+Suggests: 
+    knitr,
+    rJava
 VignetteBuilder: knitr
 Depends: R (>= 3.3.0)
 License: CC0
