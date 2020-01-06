@@ -24,9 +24,9 @@ devtools::install_github("ennsk/nabatr", build_vignettes = TRUE)
 library(nabatr)
 ```
 
-## See Vignettes for examples
+## See Vignettes for examples (run in RStudio)
 ```
-# In Rstudio (pop up in help panel)
+# RStudio pop up in Help tab
 ??nabatr
 
 # Web browser popup
