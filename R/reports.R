@@ -277,14 +277,14 @@ build_ac_doc = function(out_dir,
 
   # Set variables for the results text created below
   # Site and Cell Counts
-  number_of_sites = length(unique(acoustic_bulk_df_$site_name))
-  number_of_cells = length(unique(acoustic_bulk_df_$grts_cell_id))
+  number_of_sites = length(unique(acoustic_bulk_df$site_name))
+  number_of_cells = length(unique(acoustic_bulk_df$grts_cell_id))
   # Selected Years - should be 1
-  selected_year = unique(format(as.Date(acoustic_bulk_df_$recording_time), '%Y'))
+  selected_year = unique(format(as.Date(acoustic_bulk_df$recording_time), '%Y'))
   # Total number of bat calls (all recording wav files counted)
-  number_of_bat_calls = length(acoustic_bulk_df_$audio_recording_name)
+  number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of net nights across all sites
-  net_nights_df = acoustic_bulk_df_ %>% mutate(site_date_nights = paste0(acoustic_bulk_df_$site_name, '___', as.Date(acoustic_bulk_df_$recording_time)))
+  net_nights_df = acoustic_bulk_df %>% mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
   number_of_net_nights = length(unique(net_nights_df$site_date_nights))
   # All unique species found for project across both Automatic and manual Ids
   manual_species = subset(manual_species_grts_df_w$names,
@@ -295,10 +295,10 @@ build_ac_doc = function(out_dir,
   number_of_species_detected = length(all_species)
 
   # Calculate some min, max, median, and averages across sites
-  low_avg_per_night = min(plyr::count(acoustic_bulk_df_, 'site_name')$freq)
-  high_avg_per_night = max(plyr::count(acoustic_bulk_df_, 'site_name')$freq)
-  median_activity_rate = median(plyr::count(acoustic_bulk_df_, 'site_name')$freq)
-  mean_activity_rate = round(mean(plyr::count(acoustic_bulk_df_, 'site_name')$freq),0)
+  low_avg_per_night = min(plyr::count(acoustic_bulk_df, 'site_name')$freq)
+  high_avg_per_night = max(plyr::count(acoustic_bulk_df, 'site_name')$freq)
+  median_activity_rate = median(plyr::count(acoustic_bulk_df, 'site_name')$freq)
+  mean_activity_rate = round(mean(plyr::count(acoustic_bulk_df, 'site_name')$freq),0)
 
   # Text for Results using Project Summary Data
   results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells," NABat GRTS cells were surveyed in ",
