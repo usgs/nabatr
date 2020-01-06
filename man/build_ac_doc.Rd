@@ -5,8 +5,9 @@
 \title{Build Report document in .docx file for Acoustic Stationary Project Data}
 \usage{
 build_ac_doc(out_dir, file_name, manual_species_grts_df_w,
-  auto_species_grts_df_w, project_df, project_id, cover_photo = NULL,
-  date = format(Sys.time(), "\%B \%d, \%Y"), map = NULL)
+  auto_species_grts_df_w, project_df, project_id, acoustic_bulk_df,
+  cover_photo = NULL, date = format(Sys.time(), "\%B \%d, \%Y"),
+  map = NULL)
 }
 \description{
 Build Report document in .docx file for Acoustic Stationary Project Data

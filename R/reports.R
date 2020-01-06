@@ -192,6 +192,7 @@ build_ac_doc = function(out_dir,
   auto_species_grts_df_w,
   project_df,
   project_id,
+  acoustic_bulk_df,
   cover_photo = NULL,
   date = format(Sys.time(), "%B %d, %Y"),
   map = NULL){
@@ -205,7 +206,8 @@ build_ac_doc = function(out_dir,
   title        = project_row_df$project_name
   by           = project_row_df$owner_email
   organization = project_row_df$organization
-  description  = project_row_df$project_description
+  # description  = project_row_df$project_description
+  description = "Ex. PURPOSE: Bat occupancy and abundance data in Colorado is less comprehensive than most other groups of mammals in the state. The purpose of a Bureau of Land Management-Royal Gorge Field Office (RGFO) acoustic monitoring project is to produce a statistically sound dataset that will provide a baseline for bat occupancy monitoring that may be utilized as a decision making tool for effective conservation. In addition, the project will participate in the continent-wide effort to create a coordinated bat population monitoring program at a regional and range wide scale that is able to provide inferences regarding changes in distribution and abundance of bat populations. OBJECTIVES: Establish a long-term monitoring program for bats across the RGFO; Utilize a monitoring protocol that will determine a baseline occupancy of bat species across the RGFO and may be used as an index to determine changes of occupancy in the future; Incorporate local data into the continent wide NABat dataset.]"
 
   # Save out leaflet map as a png using mapview
   if (is.null(map)){
@@ -219,13 +221,13 @@ build_ac_doc = function(out_dir,
   }
 
   # Set Methods in 3 sections
-  methods_1 = "Survey units were selected using the NABat master sampling frame, a grid-based system consisting of 10 x 10 km (100 km2) cells spanning Canada, the United States, and Mexico. The NABat master sample frame provides an ordered list of cells that is spatially balanced and randomized by utilizing the generalized random-tessellation stratified (GRTS) survey design algorithm. Using NABat's online cell selection tool, a subset of the master sampling frame was selected by defining the overall geographic scope of this project. Individual cells were then selected for survey based on their GRTS order. These 100 km2 cells serve as the focal analytical unit for NABat analyses and are a biologically appropriate grain size given the nightly range of most bat species (Loeb et al. 2015). "
-  methods_2 ="Recording devices capable of detecting high-frequency bat echolocation calls were placed at 2-4 sites within each GRTS cell selected for survey. Sites were chosen based on guidance provided in Loeb et al. (2015). Factors considered when selecting sites included land ownership, accessibility, minimizing clutter, elevation, and heterogeneity of habitats within the cell. Recording devices were deployed for 4 consecutive nights during the summer maternity season, when bats are most active and most likely to be detected if present in the cell. Detectors were programmed to automatically begin recording 15 minutes prior to sunset and end recording 15 minutes after sunrise. Microphones were elevated ~ 3 m from the ground and oriented in the direction of least clutter to maximize detection (Loeb et al. (2015)). "
-  methods_3 ="Calls files were processed using commercially-available automated identification software. Prior to species identification, non-bat files were scrubbed using a noise filter. Next, the remaining files were identified to species using a regional classifier that only considers the species whose ranges intersect the defined region. Calls that could not be identified to species were labeled either NO ID or with a general category (LowF, HighF, 25k, 40k, etc.). Due to overlap in the characteristics of some bat species' calls and the uncertainty associated with automated ID software, a subset of calls was manually vetted in accordance with Loeb et al. (2015). All call files identified as rare species were manually vetted, as were all calls from species not known to occur in the survey area. For non-rare species known to occur in the survey area, at least one call was manually vetted per point per night to confirm species presence within the survey cell and to estimate detection probability."
+  methods_1 = "Survey units were selected using the NABat master sampling frame, a grid-based system consisting of 10 x 10 km (100 km2) cells spanning Canada, the United States, and Mexico. The NABat master sample frame provides an ordered list of cells that is spatially balanced and randomized by utilizing the generalized random-tessellation stratified (GRTS) survey design algorithm. Using NABat's online cell selection tool, a subset of the master sampling frame was selected by defining the overall geographic scope of this project. Individual cells were then selected for survey based on their GRTS order and available resources. These 100 km2 cells serve as the focal analytical unit for NABat analyses and are a biologically appropriate grain size given the nightly range of most bat species (Loeb et al. 2015). "
+  methods_2 = "Recording devices capable of detecting high-frequency bat echolocation calls were deployed at 2-4 sites within each GRTS cell selected for survey. Sites were chosen based on guidance provided in Loeb et al. (2015). Factors considered when selecting sites included land ownership, accessibility, minimizing clutter, elevation, and heterogeneity of habitats within the cell. Recording devices were deployed for 4 consecutive nights during the summer maternity season when bats are most active and most likely to be detected if present in the cell. Detectors were programmed to record automatically beginning 15 minutes prior to sunset and ending 15 minutes after sunrise. Microphones were elevated ~ 3 m from the ground and oriented in the direction of least clutter to maximize detection (Loeb et al. 2015). "
+  methods_3 = "Calls files were processed using commercially-available automated identification software. Prior to species identification, non-bat files were scrubbed using a noise filter. Next, the remaining files were identified to species using a regional classifier that only considers the species whose ranges intersect the defined region. Calls that could not be identified to species were labeled either NO ID or with a general category (LowF, HighF, 25k, 40k, etc.). Due to overlap in the characteristics of some bat species' calls and the uncertainty associated with automated ID software, a subset of calls was manually vetted in accordance with Loeb et al. (2015). All call files identified as rare species were manually vetted, as were all calls from species not known to occur in the survey area. For non-rare species known to occur in the survey area, at least one call was manually vetted per point per night to confirm species presence within the survey cell and to estimate detection probability."
 
   # Set Summary in 2 sections
-  summary_1 = "Ex. Survey efforts will be reported to relevant state biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to include 15 new cells and collaborative efforts with Colorado Parks and Wildlife, USFWS, and Bat Conservation International."
-  summary_2 = "No statistically significant changes in species richness were detected between 2018 and 2019, however, there was a significant decrease in overall activity rate between the two years. Moving forward, these data will help land managers determine priority areas for bat mitigation efforts and provide baseline data to examine habitat associations that may be important for protecting species of federal and state conservation concern."
+  summary_1 = "Ex. Survey results will be reported to relevant state biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to include 15 new cells and collaborative efforts with Colorado Parks and Wildlife, USFWS, and Bat Conservation International.  "
+  summary_2 = "No statistically significant changes in species richness were detected between 2018 and 2019, however, there was a significant decrease in overall activity rate between the two years. Moving forward, these data will help land managers determine priority areas for bat mitigation efforts and provide baseline data to examine habitat associations that may be important for protecting species of federal and state conservation concern. "
 
   # Lit Cited
   lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research Station. 112 p."
@@ -274,21 +276,37 @@ build_ac_doc = function(out_dir,
   plotly::export(pm, file = plot_auto_w_bar)
 
   # Set variables for the results text created below
-  number_of_sites = ""
-  number_of_cells = ""
-  selected_year = ""
-  number_of_bat_calls = ""
-  number_of_net_nights = ""
-  number_of_species_detected = ""
-  low_avg_per_night = ""
-  high_avg_per_night = ""
-  median_activity_rate = ""
-  mean_activity_rate = ""
+  # Site and Cell Counts
+  number_of_sites = length(unique(acoustic_bulk_df_$site_name))
+  number_of_cells = length(unique(acoustic_bulk_df_$grts_cell_id))
+  # Selected Years - should be 1
+  selected_year = unique(format(as.Date(acoustic_bulk_df_$recording_time), '%Y'))
+  # Total number of bat calls (all recording wav files counted)
+  number_of_bat_calls = length(acoustic_bulk_df_$audio_recording_name)
+  # Total number of net nights across all sites
+  net_nights_df = acoustic_bulk_df_ %>% mutate(site_date_nights = paste0(acoustic_bulk_df_$site_name, '___', as.Date(acoustic_bulk_df_$recording_time)))
+  number_of_net_nights = length(unique(net_nights_df$site_date_nights))
+  # All unique species found for project across both Automatic and manual Ids
+  manual_species = subset(manual_species_grts_df_w$names,
+    manual_species_grts_df_w$names != 'site_totals' & manual_species_grts_df_w$names != 'NoID' & manual_species_grts_df_w$names != '25k')
+  auto_species = subset(auto_species_grts_df_w$names,
+    auto_species_grts_df_w$names != 'site_totals' & auto_species_grts_df_w$names != 'NoID' & auto_species_grts_df_w$names != '25k')
+  all_species = c(auto_species, setdiff(auto_species, manual_species))
+  number_of_species_detected = length(all_species)
 
+  # Calculate some min, max, median, and averages across sites
+  low_avg_per_night = min(plyr::count(acoustic_bulk_df_, 'site_name')$freq)
+  high_avg_per_night = max(plyr::count(acoustic_bulk_df_, 'site_name')$freq)
+  median_activity_rate = median(plyr::count(acoustic_bulk_df_, 'site_name')$freq)
+  mean_activity_rate = round(mean(plyr::count(acoustic_bulk_df_, 'site_name')$freq),0)
 
   # Text for Results using Project Summary Data
-  results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells," NABat GRTS cells were surveyed in ", selected_year," (Figure 1, Table 1). ", number_of_bat_calls," call files were recorded over ", number_of_net_nights," net nights, and ", number_of_species_detected," species were detected (Figure 1, Table 2). Activity rate (average bat passes per night) ranged from ", low_avg_per_night," to ", high_avg_per_night,", with a median of ", median_activity_rate," and a mean of ", mean_activity_rate," (Figures 3, 4).")
-
+  results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells," NABat GRTS cells were surveyed in ",
+    selected_year," (Figure 1, Table 1). ", number_of_bat_calls," call files were recorded over ",
+    number_of_net_nights," net nights, and ", number_of_species_detected,
+    " species were detected (Figure 1, Table 2). Activity rate (average bat passes per night) ranged from ",
+    low_avg_per_night," to ", high_avg_per_night,", with a median of ", median_activity_rate," and a mean of ",
+    mean_activity_rate," (Figures 3, 4).")
 
 
   # Remove files
@@ -343,31 +361,31 @@ build_ac_doc = function(out_dir,
     # Methods
     body_add_par(value = "Methods", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "Site Selection", style = "heading 2") %>%
     body_add_par(value = methods_1, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "Data Collection", style = "heading 2") %>%
     body_add_par(value = methods_2, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "Call Processing/Species Identification", style = "heading 2") %>%
     body_add_par(value = methods_3, style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Results
+    body_add_par(value = "Results", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = results_overview, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_img(src = map_out_, width = 6, height = 4, style= 'centered') %>%
 
     body_add_break() %>%
 
     # Results and Discussion
     body_add_par(value = "Results and Discussion", style = "heading 1") %>%
-    # Sampling
-    body_add_par(value = "Sampling", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # Bat Species Presence
-    body_add_par(value = "Bat Species Presence", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    slip_in_img(src = plot_man_w_bar, width = 6, height = 4) %>%
-    slip_in_img(src = plot_auto_w_bar, width = 6, height = 4) %>%
-
-    # Activity Rate
-    body_add_par(value = "Activity Rate", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
-    # Regional Coordination
-    body_add_par(value = "Regional Coordination", style = "heading 2") %>%
-    body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_img(src = map_out_, width = 6, height = 4, style= 'centered') %>%
+    body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
 
@@ -376,7 +394,7 @@ build_ac_doc = function(out_dir,
     body_add_par(value = "", style = "Normal") %>%
     body_add_par(value = summary_1, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = summary_1, style = "Normal") %>%
+    body_add_par(value = summary_2, style = "Normal") %>%
 
     body_add_break() %>%
 
@@ -384,6 +402,24 @@ build_ac_doc = function(out_dir,
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_par(value = lit_cited, style = "Normal")
+
+    body_add_break() %>%
+
+    # # Bat Species Presence
+    # body_add_par(value = "Bat Species Presence", style = "heading 2") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    # slip_in_img(src = plot_man_w_bar, width = 6, height = 4) %>%
+    # slip_in_img(src = plot_auto_w_bar, width = 6, height = 4) %>%
+    #
+    # # Activity Rate
+    # body_add_par(value = "Activity Rate", style = "heading 2") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    # # Regional Coordination
+    # body_add_par(value = "Regional Coordination", style = "heading 2") %>%
+    # body_add_par(value = "[TODO] - placeholder for text", style = "Normal") %>%
+    # body_add_break() %>%
+
+
 
   file.remove(plot_auto_w_bar)
   file.remove(plot_man_w_bar)
