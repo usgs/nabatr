@@ -242,7 +242,7 @@ build_ac_doc = function(out_dir,
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of net nights across all sites
-  net_nights_df = acoustic_bulk_df %>% mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
+  net_nights_df = acoustic_bulk_df %>% dplyr::mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
   number_of_net_nights = length(unique(net_nights_df$site_date_nights))
   # All unique species found for project across both Automatic and manual Ids
   manual_species = subset(manual_species_grts_df_w$names,
@@ -338,9 +338,9 @@ build_ac_doc = function(out_dir,
 
     # Get detector nights
     this_grts_row = this_row_auto %>% dplyr::select(GRTS) %>%
-      mutate(Detector_Points = detector_points) %>%
-      mutate(Detector_Nights = detector_nights) %>%
-      mutate(Species_Detected = number_species_grts)
+      dplyr::mutate(Detector_Points = detector_points) %>%
+      dplyr::mutate(Detector_Nights = detector_nights) %>%
+      dplyr::mutate(Species_Detected = number_species_grts)
     all_grts_rows = rbind(all_grts_rows, this_grts_row)
   }
   row.names(all_rows_auto) = NULL
@@ -459,7 +459,8 @@ build_ac_doc = function(out_dir,
   leg = list(family = "cambria", size = 16, color = "#6b6b6b")
   # ti = list(title = "Bat Activity rate", titlefont = f)
   x = list(title = "Bat Species", titlefont = l)
-  y = list(title = "No. of Bat Passes (Log Scale)",titlefont = l)
+  y = list(title = "Average No. of Bat Passes",titlefont = l)
+  y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l)
   m = list(t = 70)
 
   fig2_p = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
