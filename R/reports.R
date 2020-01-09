@@ -184,7 +184,7 @@ get_acoustic_stationary_report = function(token,
 #' @import maps
 #' @import maptools
 #' @import sp
-#'
+#' @import flextable
 #'
 #' @export
 #'
