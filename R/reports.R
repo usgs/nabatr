@@ -181,6 +181,9 @@ get_acoustic_stationary_report = function(token,
 #' @import officer
 #' @import rJava
 #' @import magrittr
+#' @import maps
+#' @import maptools
+#' @import sp
 #'
 #'
 #' @export
