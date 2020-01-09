@@ -474,14 +474,14 @@ build_ac_doc = function(out_dir,
   # fig 2a
   fig2_p = fig2_p %>% layout(title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f))
   # fig 2b
-  fig2_p_log = layout(fig2_p, yaxis = y_log, title = list(x = .1, y = 1.3, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
+  fig2_p_log = layout(fig2_p, yaxis = y_log, title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
 
   # Export to a file to be used to upload into the .docx
-  fig2a_f = paste0(out_dir, "fig2a.png")
+  fig2a_f = paste0(out_dir, "/fig2a.png")
   file.remove(fig2a_f)
   plotly::export(fig2_p, file = fig2a_f)
   # Export to a file to be used to upload into the .docx
-  fig2b_f = paste0(out_dir, "fig2b.png")
+  fig2b_f = paste0(out_dir, "/fig2b.png")
   file.remove(fig2b_f)
   plotly::export(fig2_p_log, file = fig2b_f)
 
@@ -496,7 +496,7 @@ build_ac_doc = function(out_dir,
     height = 1000,
     textinfo = 'label+value') %>%
     layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f))
-  fig3_f = paste0(out_dir, "fig3.png")
+  fig3_f = paste0(out_dir, "/fig3.png")
   file.remove(fig3_f)
   plotly::export(pie_species, file = fig3_f)
 
