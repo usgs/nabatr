@@ -288,7 +288,7 @@ build_ac_doc = function(out_dir,
     # Exclude NoID from species calculation
     grts_species_man = get_species_names(this_row_man %>% dplyr::select(-type, -project_id, -GRTS, -year))
     species_length_man = length(grts_species_man)
-    this_row_man['Species Detected'] = species_length_man
+    this_row_man['Species_Detected'] = species_length_man
     this_row_man['all_species'] = paste(grts_species_man, collapse='_')
     all_rows_man = rbind(all_rows_man, this_row_man)
     # AUTO
@@ -296,7 +296,7 @@ build_ac_doc = function(out_dir,
     # Exclude NoID from species calculation
     grts_species_auto = get_species_names(this_row_auto %>% dplyr::select(-type, -project_id, -GRTS, -year))
     species_length_auto = length(grts_species_auto)
-    this_row_auto['Species Detected'] = species_length_auto
+    this_row_auto['Species_Detected'] = species_length_auto
     this_row_auto['all_species'] = paste(grts_species_auto, collapse='_')
     all_rows_auto = rbind(all_rows_auto, this_row_auto)
 
@@ -321,8 +321,8 @@ build_ac_doc = function(out_dir,
     }
 
     table3_row_df = data.frame('GRTS' = rep(grts, length(all_species_names)), stringsAsFactors = FALSE) %>%
-      dplyr::mutate(`Species Detected` = all_species_names) %>%
-      dplyr::mutate(`Method of Species ID` = methods)
+      dplyr::mutate(Species_Detected = all_species_names) %>%
+      dplyr::mutate(Method_of_Species_ID = methods)
 
     table3_df = rbind(table3_df, table3_row_df)
 
@@ -338,9 +338,9 @@ build_ac_doc = function(out_dir,
 
     # Get detector nights
     this_grts_row = this_row_auto %>% dplyr::select(GRTS) %>%
-      mutate(`Detector Points` = detector_points) %>%
-      mutate(`Detector Nights` = detector_nights) %>%
-      mutate(`Species Detected` = number_species_grts)
+      mutate(Detector_Points = detector_points) %>%
+      mutate(Detector_Nights = detector_nights) %>%
+      mutate(Species_Detected = number_species_grts)
     all_grts_rows = rbind(all_grts_rows, this_grts_row)
   }
   row.names(all_rows_auto) = NULL
@@ -389,7 +389,7 @@ build_ac_doc = function(out_dir,
     dplyr::mutate(County = .simpleCap(strsplit(state_county,',')[[1]][2])) %>%
     dplyr::select(-state_county, -x, -y, -center) %>%
     dplyr::left_join(all_grts_rows) %>%
-    dplyr::arrange(State, County, `Species Detected`)
+    dplyr::arrange(State, County, Species_Detected)
 
   # Build flex tables for table 1 and 3
   descr_table1 = paste0("Table 1. NABat GRTS cells surveyed in ",selected_year,". Number of detector points, detector nights, and species detected are shown for each cell.")
@@ -430,7 +430,7 @@ build_ac_doc = function(out_dir,
   all_bat_id_types = data.frame()
   # Get a bat species bat_id_type -- 'Manual ID only'|'Auto ID only'|'At least one manual ID/site'
   for (bat_spc in bat_species){
-    types = unique(subset(table3_df, table3_df$`Species Detected` == subset(bats_df, bats_df$species_code == bat_spc)$species)$`Method of Species ID`)
+    types = unique(subset(table3_df, table3_df$Species_Detected == subset(bats_df, bats_df$species_code == bat_spc)$species)$Method_of_Species_ID)
     if ('Auto, Manual' %in% types){
       this_type = 'At least one manual ID/site'
     }else if('Auto' %in% types & 'Manual' %in% types){
