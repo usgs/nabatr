@@ -26,7 +26,7 @@
 #'
 #' @export
 #'
-grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
+grts_coords = read.csv('data/GRTS_coords_CONUS.csv', stringsAsFactors=FALSE)
 
 
 #' @title Build leaflet map for Acoustic Stationary report in CONUS
