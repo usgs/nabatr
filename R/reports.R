@@ -395,18 +395,18 @@ build_ac_doc = function(out_dir,
   descr_table1 = paste0("Table 1. NABat GRTS cells surveyed in ",selected_year,". Number of detector points, detector nights, and species detected are shown for each cell.")
   descr_table3 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed, ",selected_year,". Years with detections and method of species identification are shown for each species in each cell. ")
   # Table 1
-  ft1 = flextable(grts_df_final)
+  ft1 = flextable::flextable(grts_df_final)
   ft1 = flextable::height(ft1, height =.7, part = 'header')
   ft1 = flextable::width(ft1, width = 1)
-  ft1 = fontsize(ft1, size = 10, part = "all")
+  ft1 = flextable::fontsize(ft1, size = 10, part = "all")
   # Table 3
-  ft3 = flextable(table3_df)
+  ft3 = flextable::flextable(table3_df)
   ft3 = flextable::height(ft3, height =.5, part = 'header')
   ft3 = flextable::width(ft3, width =2)
   ft3 = flextable::merge_v(ft3, j = 'GRTS')
-  ft3 = fontsize(ft3, size = 10, part = "all")
-  ft3 = italic(ft3, j = 2)
-  ft3 = hline(ft3, border = fp_border(width = .75, color = "black"), part = "body")
+  ft3 = flextable::fontsize(ft3, size = 10, part = "all")
+  ft3 = flextable::italic(ft3, j = 2)
+  ft3 = flextable::hline(ft3, border = fp_border(width = .75, color = "black"), part = "body")
   # Figure 1
   # Save out leaflet map as a png using mapview
   if (is.null(map)){
