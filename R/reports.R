@@ -397,7 +397,7 @@ build_ac_doc = function(out_dir,
   # Table 1
   ft1 = flextable::flextable(grts_df_final, col_keys = names(grts_df_final))
   ft1 = flextable::height(ft1, height =.7, part = 'header')
-  ft1 = flextable::width(ft1, width = 1)
+  ft1 = flextable::width(ft1, width = 1.3)
   ft1 = flextable::fontsize(ft1, size = 10, part = "all")
   # Table 3
   ft3 = flextable::flextable(table3_df, col_keys = names(table3_df))
@@ -460,7 +460,7 @@ build_ac_doc = function(out_dir,
   # ti = list(title = "Bat Activity rate", titlefont = f)
   x = list(title = "Bat Species", titlefont = l)
   y = list(title = "Average No. of Bat Passes",titlefont = l)
-  y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l)
+  y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   m = list(t = 70)
 
   fig2_p = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
@@ -474,7 +474,7 @@ build_ac_doc = function(out_dir,
   # fig 2a
   fig2_p = fig2_p %>% layout(title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f))
   # fig 2b
-  fig2_p_log = layout(fig2_p, yaxis = list(type = "log"), title = list(x = .1, y = 1.3, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
+  fig2_p_log = layout(fig2_p, yaxis = y_log, title = list(x = .1, y = 1.3, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
 
   # Export to a file to be used to upload into the .docx
   fig2a_f = paste0(out_dir, "fig2a.png")
