@@ -397,7 +397,7 @@ build_ac_doc = function(out_dir,
   # Table 1
   ft1 = flextable::flextable(grts_df_final, col_keys = names(grts_df_final))
   ft1 = flextable::height(ft1, height =.7, part = 'header')
-  ft1 = flextable::width(ft1, width = 1.3)
+  ft1 = flextable::width(ft1, width = 1.1)
   ft1 = flextable::fontsize(ft1, size = 10, part = "all")
   # Table 3
   ft3 = flextable::flextable(table3_df, col_keys = names(table3_df))
@@ -478,11 +478,9 @@ build_ac_doc = function(out_dir,
 
   # Export to a file to be used to upload into the .docx
   fig2a_f = paste0(out_dir, "/fig2a.png")
-  file.remove(fig2a_f)
   plotly::export(fig2_p, file = fig2a_f)
   # Export to a file to be used to upload into the .docx
   fig2b_f = paste0(out_dir, "/fig2b.png")
-  file.remove(fig2b_f)
   plotly::export(fig2_p_log, file = fig2b_f)
 
   species_counts_df = auto_species_grts_df_w %>% subset(names != 'grts_totals') %>% dplyr::select(names, species_totals)
