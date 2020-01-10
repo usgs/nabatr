@@ -495,7 +495,6 @@ build_ac_doc = function(out_dir,
     textinfo = 'label+value') %>%
     layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f))
   fig3_f = paste0(out_dir, "/fig3.png")
-  file.remove(fig3_f)
   plotly::export(pie_species, file = fig3_f)
 
   # Remove files
