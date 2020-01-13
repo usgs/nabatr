@@ -204,11 +204,12 @@ build_ac_doc = function(out_dir,
   date = format(Sys.time(), "%B %d, %Y"),
   map = NULL){
 
-  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+  print ('Enter Report Function')
 
+  print ('Set Variables')
+  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   proj_id = project_id
   project_row_df = subset(project_df, project_df$project_id == proj_id)
-
   title        = project_row_df$project_name
   by           = project_row_df$owner_email
   organization = project_row_df$organization
@@ -224,14 +225,6 @@ build_ac_doc = function(out_dir,
 
   # Lit Cited
   lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research Station. 112 p."
-
-  # Build a plot of Manual species
-  ax = list(title = 'Manual Species Detection',
-    zeroline = FALSE,
-    showline = FALSE,
-    showticklabels = FALSE,
-    showgrid = FALSE)
-
 
   # Set variables for the results text created below
   # Site and Cell Counts
@@ -252,6 +245,7 @@ build_ac_doc = function(out_dir,
   all_species = c(auto_species, setdiff(auto_species, manual_species))
   number_of_species_detected = length(all_species)
 
+  print ('Calculate min, max, median, mean for sites')
   # Calculate some min, max, median, and averages across sites
   low_avg_per_night = min(plyr::count(acoustic_bulk_df, 'site_name')$freq)
   high_avg_per_night = max(plyr::count(acoustic_bulk_df, 'site_name')$freq)
@@ -282,6 +276,8 @@ build_ac_doc = function(out_dir,
   all_rows_man = data.frame()
   all_grts_rows = data.frame()
   table3_df = data.frame()
+
+  print ('Building dataframes for all GRTS cells')
   for (grts in all_GRTS){
     # MANUAL
     this_row_man = subset(manual_species_totals_l, manual_species_totals_l$GRTS == grts)
@@ -320,6 +316,7 @@ build_ac_doc = function(out_dir,
       methods = c(methods, method)
     }
 
+
     table3_row_df = data.frame('GRTS' = rep(grts, length(all_species_names)), stringsAsFactors = FALSE) %>%
       dplyr::mutate(Species_Detected = all_species_names) %>%
       dplyr::mutate(Method_of_Species_ID = methods)
@@ -343,11 +340,13 @@ build_ac_doc = function(out_dir,
       dplyr::mutate(Species_Detected = number_species_grts)
     all_grts_rows = rbind(all_grts_rows, this_grts_row)
   }
+
   row.names(all_rows_auto) = NULL
   row.names(all_rows_man) = NULL
   row.names(all_grts_rows) = NULL
 
 
+  print ('Build dataframe with center points')
   # Build Dataframe with grts and their center points
   grts_df = data.frame(GRTS_Cell = all_GRTS) %>% dplyr::left_join(grts_coords, by = c('GRTS_Cell'='GRTS_ID')) %>%
     dplyr::select(GRTS_Cell, center) %>% rowwise() %>%
@@ -381,6 +380,7 @@ build_ac_doc = function(out_dir,
     stateNames[indices]
   }
 
+  print ('Build grts_df_final')
   state_county = ll_to_county_state(dplyr::select(grts_df, x, y))
   grts_df['state_county'] = state_county
 
@@ -394,12 +394,15 @@ build_ac_doc = function(out_dir,
   # Build flex tables for table 1 and 3
   descr_table1 = paste0("Table 1. NABat GRTS cells surveyed in ",selected_year,". Number of detector points, detector nights, and species detected are shown for each cell.")
   descr_table3 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed, ",selected_year,". Years with detections and method of species identification are shown for each species in each cell. ")
+
+  print ('Build flextable 1')
   # Table 1
   ft1 = flextable::flextable(grts_df_final, col_keys = names(grts_df_final))
   ft1 = flextable::height(ft1, height =.7, part = 'header')
   ft1 = flextable::width(ft1, width = 1.1)
   ft1 = flextable::fontsize(ft1, size = 10, part = "all")
   # Table 3
+  print ('Build flextable 3')
   ft3 = flextable::flextable(table3_df, col_keys = names(table3_df))
   ft3 = flextable::height(ft3, height =.5, part = 'header')
   ft3 = flextable::width(ft3, width =2)
@@ -407,6 +410,8 @@ build_ac_doc = function(out_dir,
   ft3 = flextable::fontsize(ft3, size = 10, part = "all")
   ft3 = flextable::italic(ft3, j = 2)
   ft3 = flextable::hline(ft3, border = fp_border(width = .75, color = "black"), part = "body")
+
+  print ('Save out map')
   # Figure 1
   # Save out leaflet map as a png using mapview
   if (is.null(map)){
@@ -424,9 +429,11 @@ build_ac_doc = function(out_dir,
   descr_fig2b = paste0("Figure 2b. ",selected_year," bat activity rate (average number of bat passes per night using a logarithmic scale) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   descr_fig3 = paste0("Figure 3. ",selected_year," automatic detections across project.")
 
+  print ('Get all bat species')
   # Get all bat species
   bat_species = grts_all_species[grts_all_species != '25k' & grts_all_species != 'NoID']
 
+  print ('Build bat types df')
   all_bat_id_types = data.frame()
   # Get a bat species bat_id_type -- 'Manual ID only'|'Auto ID only'|'At least one manual ID/site'
   for (bat_spc in bat_species){
@@ -454,6 +461,7 @@ build_ac_doc = function(out_dir,
   bat_id_type = all_bat_id_types$bat_types
   bat_auto_counts = all_bat_id_types$auto_count / length(grts_df_final$GRTS)
 
+  print ('Build plotly fig2')
   f = list(family = "cambria", size = 24, color = "#6b6b6b")
   l = list(family = "cambria", size = 22, color = "#6b6b6b")
   leg = list(family = "cambria", size = 16, color = "#6b6b6b")
@@ -476,6 +484,7 @@ build_ac_doc = function(out_dir,
   # fig 2b
   fig2_p_log = layout(fig2_p, yaxis = y_log, title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
 
+  print ('Save out plotly fig2')
   # Export to a file to be used to upload into the .docx
   fig2a_f = paste0(out_dir, "/fig2a.png")
   plotly::export(fig2_p, file = fig2a_f)
@@ -483,6 +492,7 @@ build_ac_doc = function(out_dir,
   fig2b_f = paste0(out_dir, "/fig2b.png")
   plotly::export(fig2_p_log, file = fig2b_f)
 
+  print ('Building plotly fig3')
   species_counts_df = auto_species_grts_df_w %>% subset(names != 'grts_totals') %>% dplyr::select(names, species_totals)
   col_ = colorRampPalette(c('black', '#337acc'))(length(species_counts_df$names))
 
@@ -494,18 +504,17 @@ build_ac_doc = function(out_dir,
     height = 1000,
     textinfo = 'label+value') %>%
     layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f))
+  print ('Save out plotly fig3')
   fig3_f = paste0(out_dir, "/fig3.png")
   plotly::export(pie_species, file = fig3_f)
 
-  # Remove files
-  if (file.exists(paste0(out_dir, '/', file_name))){
-    print (paste0('Removing ', paste0(out_dir, '/', file_name)))
-    file.remove(paste0(out_dir, '/', file_name))
-  }
+
+  print ('Set bold and par style')
   # Font for title
   bold_face = shortcuts$fp_bold(font.size = 16)
   par_style = fp_par(text.align = "center")
 
+  print ('Begin .docx build')
   doc = read_docx() %>%
     # Add title/header
     # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
@@ -616,6 +625,7 @@ build_ac_doc = function(out_dir,
     body_add_par(value = descr_fig3, style = "Normal") %>%
     slip_in_img(src = fig3_f, width = 6.5, height = 7)
 
+  print ('Clean up and removing files')
   file.remove(map_out_)
   file.remove(fig2a_f)
   file.remove(fig2b_f)
