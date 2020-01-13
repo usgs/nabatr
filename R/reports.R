@@ -406,7 +406,7 @@ build_ac_doc = function(out_dir,
   # Table 1
   ft1 = flextable::flextable(grts_df_final, col_keys = names(grts_df_final))
   ft1 = flextable::height(ft1, height =.7, part = 'header')
-  ft1 = flextable::width(ft1, width = 1.1)
+  ft1 = flextable::width(ft1, width = 1)
   ft1 = flextable::fontsize(ft1, size = 10, part = "all")
   # Table 3
   print ('Build flextable 3')
