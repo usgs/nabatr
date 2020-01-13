@@ -206,6 +206,10 @@ build_ac_doc = function(out_dir,
 
   print ('Enter Report Function')
 
+  if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/'))
+  }
+
   print ('Set Variables')
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   proj_id = project_id
@@ -419,11 +423,11 @@ build_ac_doc = function(out_dir,
   # Save out leaflet map as a png using mapview
   if (is.null(map)){
     m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
-    map_out_ = paste0(out_dir, '/intermediate_map.png')
+    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
     mapshot(m, file = map_out_)
   } else{
     m = map
-    map_out_ = paste0(out_dir, '/intermediate_map.png')
+    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
     mapshot(m, file = map_out_)
   }
 
@@ -489,10 +493,10 @@ build_ac_doc = function(out_dir,
 
   print ('Save out plotly fig2')
   # Export to a file to be used to upload into the .docx
-  fig2a_f = paste0(out_dir, "/fig2a.png")
+  fig2a_f = paste0(out_dir, "/temps/fig2a.png")
   plotly::export(fig2_p, file = fig2a_f)
   # Export to a file to be used to upload into the .docx
-  fig2b_f = paste0(out_dir, "/fig2b.png")
+  fig2b_f = paste0(out_dir, "/temps/fig2b.png")
   plotly::export(fig2_p_log, file = fig2b_f)
 
   print ('Building plotly fig3')
@@ -508,7 +512,7 @@ build_ac_doc = function(out_dir,
     textinfo = 'label+value') %>%
     layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f))
   print ('Save out plotly fig3')
-  fig3_f = paste0(out_dir, "/fig3.png")
+  fig3_f = paste0(out_dir, "/temps/fig3.png")
   plotly::export(pie_species, file = fig3_f)
 
 
@@ -627,12 +631,6 @@ build_ac_doc = function(out_dir,
     # Figure 3
     body_add_par(value = descr_fig3, style = "Normal") %>%
     slip_in_img(src = fig3_f, width = 6.5, height = 7)
-
-  print ('Clean up and removing files')
-  # file.remove(map_out_)
-  # file.remove(fig2a_f)
-  # file.remove(fig2b_f)
-  # file.remove(fig3_f)
 
   return(doc)
 }
