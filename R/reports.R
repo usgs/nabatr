@@ -478,18 +478,17 @@ build_ac_doc = function(out_dir,
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   m = list(t = 70)
 
-  fig2_p = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
+  fig2_p_base = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
     width = 850, height = 650,
-    title = 'Back activity rate',
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = c('#ff8400', '#337acc', '#23992f')) %>% # orange/blue/green
     layout(margin = m, font = leg, xaxis = x, yaxis = y, showlegend = TRUE, autosize=F, bargap = .6,
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
 
   # fig 2a
-  fig2_p = fig2_p %>% layout(title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f))
+  fig2_p = fig2_p_base %>% layout(title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f))
   # fig 2b
-  fig2_p_log = layout(fig2_p, yaxis = y_log, title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
+  fig2_p_log = fig2_p_base %>% layout(yaxis = y_log, title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
 
   print ('Save out plotly fig2')
   # Export to a file to be used to upload into the .docx
