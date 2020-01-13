@@ -315,8 +315,11 @@ build_ac_doc = function(out_dir,
       }
       methods = c(methods, method)
     }
-    print (methods)
 
+    if (is.null(methods)){
+      print (grts)
+      methods = rep('None', length(all_species_names))
+    }
 
     table3_row_df = data.frame('GRTS' = rep(grts, length(all_species_names)), stringsAsFactors = FALSE) %>%
       dplyr::mutate(Species_Detected = all_species_names) %>%
