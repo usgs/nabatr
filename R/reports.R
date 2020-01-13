@@ -315,6 +315,7 @@ build_ac_doc = function(out_dir,
       }
       methods = c(methods, method)
     }
+    print (methods)
 
 
     table3_row_df = data.frame('GRTS' = rep(grts, length(all_species_names)), stringsAsFactors = FALSE) %>%
