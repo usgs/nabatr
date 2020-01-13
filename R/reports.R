@@ -317,7 +317,6 @@ build_ac_doc = function(out_dir,
     }
 
     if (is.null(methods)){
-      print (grts)
       methods = rep('None', length(all_species_names))
     }
 
@@ -630,10 +629,10 @@ build_ac_doc = function(out_dir,
     slip_in_img(src = fig3_f, width = 6.5, height = 7)
 
   print ('Clean up and removing files')
-  file.remove(map_out_)
-  file.remove(fig2a_f)
-  file.remove(fig2b_f)
-  file.remove(fig3_f)
+  # file.remove(map_out_)
+  # file.remove(fig2a_f)
+  # file.remove(fig2b_f)
+  # file.remove(fig3_f)
 
   return(doc)
 }
