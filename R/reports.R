@@ -503,7 +503,7 @@ build_ac_doc = function(out_dir,
   l = list(family = "cambria", size = 22, color = "#6b6b6b")
   leg = list(family = "cambria", size = 16, color = "#6b6b6b")
   # ti = list(title = "Bat Activity rate", titlefont = f)
-  x = list(title = "Bat Species", titlefont = l)
+  x = list(title = "", titlefont = leg)
   y = list(title = "Average No. of Bat Passes",titlefont = l)
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   m = list(t = 70)
