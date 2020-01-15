@@ -243,7 +243,7 @@ build_ac_doc = function(out_dir,
   number_of_net_nights = length(unique(net_nights_df$site_date_nights))
 
   # If the manual_species_grts_df_w is not null
-  if (!is.null(manual_species_grts_df_w_)){
+  if (!is.null(manual_species_grts_df_w)){
     # All unique species found for project across both Automatic and manual Ids
     manual_species = subset(manual_species_grts_df_w$names,
       manual_species_grts_df_w$names != 'site_totals' & manual_species_grts_df_w$names != 'NoID' & manual_species_grts_df_w$names != '25k')
