@@ -30,6 +30,13 @@
 #'
 get_species_counts_wide = function(nightly_df){
 
+  # Return NULL if no manual checked species found
+  check_values = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id', 'NoID'))
+  if (length(unique(colSums(check_values))) == 1){
+    return(list('species_site_id_df'   = NULL,
+      'species_grts_df' = NULL))
+  }
+
   # Select only the wav file count data to run sums on
   species_grts_df = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id'))
 

@@ -235,18 +235,25 @@ build_ac_doc = function(out_dir,
   number_of_sites = length(unique(acoustic_bulk_df$site_name))
   number_of_cells = length(unique(acoustic_bulk_df$grts_cell_id))
   # Selected Years - should be 1
-  selected_year = unique(format(as.Date(acoustic_bulk_df$recording_time), '%Y'))
+  selected_year = unique(format(as.Date(acoustic_bulk_df$recording_time), '%Y'))[1]
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of net nights across all sites
   net_nights_df = acoustic_bulk_df %>% dplyr::mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
   number_of_net_nights = length(unique(net_nights_df$site_date_nights))
-  # All unique species found for project across both Automatic and manual Ids
-  manual_species = subset(manual_species_grts_df_w$names,
-    manual_species_grts_df_w$names != 'site_totals' & manual_species_grts_df_w$names != 'NoID' & manual_species_grts_df_w$names != '25k')
+
+  # If the manual_species_grts_df_w is not null
+  if (!is.null(manual_species_grts_df_w_)){
+    # All unique species found for project across both Automatic and manual Ids
+    manual_species = subset(manual_species_grts_df_w$names,
+      manual_species_grts_df_w$names != 'site_totals' & manual_species_grts_df_w$names != 'NoID' & manual_species_grts_df_w$names != '25k')
+  }else{
+    manual_species = c('')
+  }
   auto_species = subset(auto_species_grts_df_w$names,
     auto_species_grts_df_w$names != 'site_totals' & auto_species_grts_df_w$names != 'NoID' & auto_species_grts_df_w$names != '25k')
-  all_species = c(auto_species, setdiff(auto_species, manual_species))
+  # All species between auto and manual species
+  all_species = unique(c(auto_species, setdiff(auto_species, manual_species)))
   number_of_species_detected = length(all_species)
 
   print ('Calculate min, max, median, mean for sites')
@@ -280,17 +287,30 @@ build_ac_doc = function(out_dir,
   all_rows_man = data.frame()
   all_grts_rows = data.frame()
   table3_df = data.frame()
+  final_all_species = c()
 
   print ('Building dataframes for all GRTS cells')
+  names_length_man = length(names(manual_species_totals_l))
   for (grts in all_GRTS){
     # MANUAL
-    this_row_man = subset(manual_species_totals_l, manual_species_totals_l$GRTS == grts)
-    # Exclude NoID from species calculation
-    grts_species_man = get_species_names(this_row_man %>% dplyr::select(-type, -project_id, -GRTS, -year))
-    species_length_man = length(grts_species_man)
-    this_row_man['Species_Detected'] = species_length_man
-    this_row_man['all_species'] = paste(grts_species_man, collapse='_')
-    all_rows_man = rbind(all_rows_man, this_row_man)
+    if (names_length_man == 4){
+      man_species_names = c('')
+      grts_species_man  = c('')
+    }else{
+      this_row_man = subset(manual_species_totals_l, manual_species_totals_l$GRTS == grts)
+      # Exclude NoID from species calculation
+      grts_species_man = get_species_names(this_row_man %>% dplyr::select(-type, -project_id, -GRTS, -year))
+      species_length_man = length(grts_species_man)
+      this_row_man['Species_Detected'] = species_length_man
+      this_row_man['all_species'] = paste(grts_species_man, collapse='_')
+      all_rows_man = rbind(all_rows_man, this_row_man)
+
+      # MANUAL names
+      man_species_names = as.character(subset(bats_df, bats_df$species_code %in% grts_species_man)$species)
+      man_species_names = man_species_names[man_species_names != ""]
+    }
+
+
     # AUTO
     this_row_auto = subset(auto_species_totals_l, auto_species_totals_l$GRTS == grts)
     # Exclude NoID from species calculation
@@ -300,12 +320,11 @@ build_ac_doc = function(out_dir,
     this_row_auto['all_species'] = paste(grts_species_auto, collapse='_')
     all_rows_auto = rbind(all_rows_auto, this_row_auto)
 
-    man_species_names = as.character(subset(bats_df, bats_df$species_code %in% grts_species_man)$species)
-    man_species_names = man_species_names[man_species_names != ""]
+    # AUTO names
     auto_species_names = as.character(subset(bats_df, bats_df$species_code %in% grts_species_auto)$species)
-    auto_species_names = auto_species_names[auto_species_names != ""]
 
     all_species_names = unique(c(man_species_names, auto_species_names))
+    all_species_names = all_species_names[all_species_names != ""]
 
     # Build Method of species ID
     methods = c()
@@ -332,6 +351,7 @@ build_ac_doc = function(out_dir,
 
     # Combine both species lists and grab unique to use both AUTO and MAN counts
     grts_all_species = unique(c(grts_species_man, grts_species_auto))
+    grts_all_species = grts_all_species[grts_all_species != ""]
     grts_species = grts_all_species[grts_all_species != '25k' & grts_all_species != 'NoID']
     number_species_grts = length(grts_species)
 
@@ -346,7 +366,12 @@ build_ac_doc = function(out_dir,
       dplyr::mutate(Detector_Nights = detector_nights) %>%
       dplyr::mutate(Species_Detected = number_species_grts)
     all_grts_rows = rbind(all_grts_rows, this_grts_row)
-  }
+
+    # Combine species from previous GRTS cell
+    final_all_species = c(final_all_species, grts_all_species)
+  } # End GRTS loop
+
+  final_all_species = unique(final_all_species)
 
   row.names(all_rows_auto) = NULL
   row.names(all_rows_man) = NULL
@@ -438,7 +463,7 @@ build_ac_doc = function(out_dir,
 
   print ('Get all bat species')
   # Get all bat species
-  bat_species = grts_all_species[grts_all_species != '25k' & grts_all_species != 'NoID']
+  bat_species = final_all_species[final_all_species != '25k' & final_all_species != 'NoID' & final_all_species != 'HighF']
 
   print ('Build bat types df')
   all_bat_id_types = data.frame()
@@ -460,11 +485,16 @@ build_ac_doc = function(out_dir,
     }else if (this_type == 'Auto ID only'){
       species_auto_count = subset(auto_species_grts_df_w, auto_species_grts_df_w$names == bat_spc)$species_totals
     }else if (this_type == 'Manual ID only'){
-      species_auto_count = subset(manual_species_grts_df_w, manual_species_grts_df_w$names == bat_spc)$species_totals
+      if (!is.null(manual_species_grts_df_w)){
+        species_auto_count = subset(manual_species_grts_df_w, manual_species_grts_df_w$names == bat_spc)$species_totals
+      }else {
+        species_auto_count = 0
+      }
     }
     bat_id_type_row = data.frame(species = bat_spc, bat_types = this_type, auto_count = species_auto_count, stringsAsFactors = FALSE)
     all_bat_id_types = rbind(all_bat_id_types, bat_id_type_row)
   }
+
   bat_id_type = all_bat_id_types$bat_types
   bat_auto_counts = all_bat_id_types$auto_count / length(grts_df_final$GRTS)
 
@@ -489,6 +519,7 @@ build_ac_doc = function(out_dir,
   fig2_p = fig2_p_base %>% layout(title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f))
   # fig 2b
   fig2_p_log = fig2_p_base %>% layout(yaxis = y_log, title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
+
 
   print ('Save out plotly fig2')
   # Export to a file to be used to upload into the .docx
