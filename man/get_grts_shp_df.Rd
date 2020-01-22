@@ -6,6 +6,9 @@
 \usage{
 get_grts_shp_df(grts_ids)
 }
+\arguments{
+\item{grts_ids}{Character Vector GRTS Ids}
+}
 \description{
 Build polygons dataframe from GRTS IDs
 }

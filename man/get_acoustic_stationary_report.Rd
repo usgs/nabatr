@@ -4,7 +4,7 @@
 \alias{get_acoustic_stationary_report}
 \title{Build Report .html file for Acoustic Stationary Project Data}
 \usage{
-get_acoustic_stationary_report(token, username, project_id, output_dir,
+get_acoustic_stationary_report(token, project_id, output_dir,
   output_type = "html", project_name = NULL,
   project_description = NULL, file_name = "report.html",
   nightly_plots_type = "grts", survey_df = NULL,
@@ -14,17 +14,21 @@ get_acoustic_stationary_report(token, username, project_id, output_dir,
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
 
-\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
-
 \item{project_id}{String or Integer project id from NABat ex: 105 or '105'}
 
 \item{output_dir}{String output directory to save report .html file ex: /path/to/directory}
 
 \item{file_name}{(optional) String output file name ex: 'my_report.html' ex: my_report.html}
 
+\item{nightly_plots_type}{(optional) String 'grts' | 'sites'}
+
 \item{survey_df}{(optional) Dataframe from running get_project_surveys()}
 
 \item{acoustic_bulk_df}{(optional) Dataframe from running get_acoustic_bulk_wavs()}
+
+\item{nightly_observed_list}{(optional) List from running get_observed_nights()}
+
+\item{num_plots}{(optional) Integer for number of plots. Ex: any number from 0 to 60}
 
 \item{manual_nights_df}{(optional) Dataframe from running get_observed_nights()}
 
@@ -39,7 +43,6 @@ This function can run with these outputs or without.
 
 \dontrun{
 get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
-                               username   = 'NABat_Username',
                                output_dir = '/path/to/your/output/directory',
                                file_name  = 'report.html',
                                project_id = 'number or string of a number')

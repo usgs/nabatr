@@ -7,15 +7,15 @@
 get_grts_leaflet_map(all_grts, grts_with_data = NULL)
 }
 \arguments{
-\item{all_grts}{String Vector all grts cell ids found from the survey_df dataframe by running
-unique(survey_df$)}
+\item{all_grts}{Character Vector all grts cell ids found from the survey_df dataframe by running
+unique(survey_df$grts_cell_id)}
 
-\item{grts_with_data}{(optional) String Vector or NULL}
+\item{grts_with_data}{(optional) Character Vector or NULL}
 }
 \description{
 Builds a leaflet map using a vector list of grts cells to add to a leaflet map.  Shows
 where the project's grts cells live spatially.  Keep in mind that the project_id
-and all_grts must be in CONUS. note: This function does not use any spatial packages.
+and all_grts must be in CONUS.
 }
 \examples{
 

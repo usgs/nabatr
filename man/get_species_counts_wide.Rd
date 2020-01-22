@@ -7,7 +7,8 @@
 get_species_counts_wide(nightly_df)
 }
 \arguments{
-\item{acoustic_bulk_df}{Dataframe acoustic bulk dataframe from output of get_observed_nights()}
+\item{nightly_df}{Dataframe acoustic bulk dataframe from output of get_observed_nights().
+Note: must run seperately for MANUAL and AUTOMATIC nights dataframes.}
 }
 \description{
 Uses one of the outputs from get_observed_nights() to calculate totals for
@@ -16,7 +17,21 @@ number of species present at a GRTS cell or a site ID and then returns a datafra
 \examples{
 
 \dontrun{
-species_totals    = get_species_counts(manual_nights_df)
+
+# MANUAL
+manual_species_totals_w_   = get_species_counts_wide(manual_nights_df_)
+# --- totals at sites
+manual_species_sites_df_w_ = manual_species_totals_w_$species_site_id_df
+# --- totals at GRTS cell id
+manual_species_grts_df_w_  = manual_species_totals_w_$species_grts_df
+
+# AUTOMATIC
+auto_species_totals_w_   = get_species_counts_wide(auto_nights_df_)
+# --- totals at sites
+auto_species_sites_df_w_ = auto_species_totals_w_$species_site_id_df
+# --- totals at GRTS cell id
+auto_species_grts_df_w_  = auto_species_totals_w_$species_grts_df
+
 }
 
 }

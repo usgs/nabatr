@@ -6,6 +6,9 @@
 \usage{
 get_spdf_from_polys_df(grts_shp_df)
 }
+\arguments{
+\item{grts_shp_df}{Dataframe}
+}
 \description{
 Build spatial polygons dataframe from GRTS shape dataframe
 }

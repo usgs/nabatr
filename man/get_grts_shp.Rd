@@ -7,7 +7,7 @@
 get_grts_shp(grts_ids)
 }
 \arguments{
-\item{grts_ids}{Vector GRTS Ids}
+\item{grts_ids}{Character Vector GRTS Ids}
 }
 \description{
 Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.

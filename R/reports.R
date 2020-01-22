@@ -25,7 +25,6 @@
 #' and get_observed_nights() this function will create a report .html file to an output_dir.
 #' This function can run with these outputs or without.
 #' @param token String token created from get_nabat_gql_token function
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param project_id String or Integer project id from NABat ex: 105 or '105'
 #' @param output_dir String output directory to save report .html file ex: /path/to/directory
 #' @param file_name (optional) String output file name ex: 'my_report.html' ex: my_report.html
@@ -33,12 +32,15 @@
 #' @param acoustic_bulk_df (optional) Dataframe from running get_acoustic_bulk_wavs()
 #' @param manual_nights_df (optional) Dataframe from running get_observed_nights()
 #' @param auto_nights_df (optional) Dataframe from running get_observed_nights()
+#' @param nightly_plots_type (optional) String 'grts' | 'sites'
+#' @param nightly_observed_list (optional) List from running get_observed_nights()
+#' @param num_plots (optional) Integer for number of plots. Ex: any number from 0 to 60
+#'
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
 #' \dontrun{
 #' get_acoustic_stationary_report(token      = 'generated-nabat-gql-token',
-#'                                username   = 'NABat_Username',
 #'                                output_dir = '/path/to/your/output/directory',
 #'                                file_name  = 'report.html',
 #'                                project_id = 'number or string of a number')
@@ -47,7 +49,6 @@
 #' @export
 #'
 get_acoustic_stationary_report = function(token,
-                                          username,
                                           project_id,
                                           output_dir,
                                           output_type = 'html',
@@ -69,14 +70,13 @@ get_acoustic_stationary_report = function(token,
     message(nabat_png)
 
     # Get Project dataframe
-    project_df = get_projects(token    = token,
-                              username = username)
+    project_df = get_projects(token    = token)
     this_project_id = project_id
     project_name = subset(project_df, project_df$project_id == this_project_id)$project_name
 
     # Get survey dataframe
     if (is.null(survey_df)){
-      survey_df = get_project_surveys(username   = username,
+      survey_df = get_project_surveys(
         token      = token,
         project_id = project_id)
     }
@@ -84,7 +84,6 @@ get_acoustic_stationary_report = function(token,
     # Get stationary acoustic bulk upload format dataframe
     if (is.null(acoustic_bulk_df)){
       acoustic_bulk_df = get_acoustic_bulk_wavs(token      = token,
-        username   = username,
         survey_df  = survey_df,
         project_id = project_id)
     }
@@ -177,6 +176,9 @@ get_acoustic_stationary_report = function(token,
 
 #' @title Build Report document in .docx file for Acoustic Stationary Project Data
 #'
+#' @description Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
+#' and get_observed_nights() this function will create a report .docx file to an out_dir.
+#'
 #' @import mapview
 #' @import officer
 #' @import rJava
@@ -185,6 +187,38 @@ get_acoustic_stationary_report = function(token,
 #' @import maptools
 #' @import sp
 #' @import flextable
+#'
+#' @param out_dir String output directory to save report .html file ex: /path/to/directory
+#' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
+#' @param project_df Dataframe from running get_projects()
+#' @param project_id Integer project id from NABat ex: 105
+#' @param auto_nights_df Dataframe from running get_observed_nights()
+#' @param manual_nights_df Dataframe from running get_observed_nights()
+#' @param cover_photo String path to a .png file
+#' @param map (optional) output from get_grts_leaflet_map()
+#' @param manual_species_grts_df_w Dataframe from running get_species_counts_wide()
+#' @param auto_species_grts_df_w Dataframe from running get_species_counts_wide()
+#' @param auto_species_totals_l Dataframe from running get_species_counts_long()
+#' @param manual_species_totals_l Dataframe from running get_species_counts_long()
+#' @param acoustic_bulk_df Dataframe from running get_observed_nights()
+#' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
+#'
+#' \dontrun{
+#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
+#'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
+#'                     project_df = project_df_,
+#'                     project_id = project_id_,
+#'                     auto_nights_df = auto_nights_df_,
+#'                     manual_nights_df = manual_nights_df_,
+#'                     cover_photo = '/path/to/a/cover/photo.png',
+#'                     map = grts_map,
+#'                     manual_species_grts_df_w = manual_species_grts_df_w_,
+#'                     auto_species_grts_df_w = auto_species_grts_df_w_,
+#'                     auto_species_totals_l = auto_species_totals_l_,
+#'                     manual_species_totals_l = manual_species_totals_l_,
+#'                     date = format(Sys.time(), "%B %d, %Y"),
+#'                     acoustic_bulk_df = acoustic_bulk_df_)
+#' }
 #'
 #' @export
 #'

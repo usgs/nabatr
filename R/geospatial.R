@@ -39,10 +39,10 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv', stringsAsFactors=FALSE)
 #' @description
 #' Builds a leaflet map using a vector list of grts cells to add to a leaflet map.  Shows
 #' where the project's grts cells live spatially.  Keep in mind that the project_id
-#' and all_grts must be in CONUS. note: This function does not use any spatial packages.
-#' @param all_grts String Vector all grts cell ids found from the survey_df dataframe by running
-#' unique(survey_df$)
-#' @param grts_with_data (optional) String Vector or NULL
+#' and all_grts must be in CONUS.
+#' @param all_grts Character Vector all grts cell ids found from the survey_df dataframe by running
+#' unique(survey_df$grts_cell_id)
+#' @param grts_with_data (optional) Character Vector or NULL
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -124,7 +124,7 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 #'
 #' @description
 #' Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.
-#' @param grts_ids Vector GRTS Ids
+#' @param grts_ids Character Vector GRTS Ids
 #' @keywords species, bats, NABat, grts, CONUS
 #' @examples
 #'
@@ -148,6 +148,8 @@ get_grts_shp = function(grts_ids){
 #' @import raster
 #' @import rgdal
 #' @import plyr
+#'
+#' @param grts_ids Character Vector GRTS Ids
 #'
 #' @export
 #'
@@ -185,6 +187,8 @@ get_grts_shp_df = function(grts_ids){
 #' @import raster
 #' @import rgdal
 #' @import plyr
+#'
+#' @param grts_shp_df Dataframe
 #'
 #' @export
 #'
