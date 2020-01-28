@@ -413,7 +413,7 @@ build_ac_doc = function(out_dir,
 
   print ('Build dataframe with center points')
 
-  grts_fname = get_grts_frame_name(project_df_, project_id_)
+  grts_fname = get_grts_frame_name(project_df, project_id)
   grts_fname_df = pkg.env$grts_df['grts_fname'][[1]]
 
   # Build Dataframe with grts and their center points
