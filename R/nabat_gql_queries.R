@@ -268,8 +268,15 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   frame_name = get_grts_frame_name(project_df, project_id)
 
-  print (paste0('data/GRTS_coords_',frame_name,'.csv'))
-  species_df = read.csv(paste0('../data/GRTS_coords_',frame_name,'.csv'), stringsAsFactors=FALSE)
+  # If in docker than change output_ path
+  if (getwd() == "/home"){
+    output_ = 'data/GRTS_coords_'
+  }else {
+    output_ = '../data/GRTS_coords_'
+  }
+
+  print (paste0(output_ ,frame_name,'.csv'))
+  species_df = read.csv(paste0(output_ ,frame_name,'.csv'), stringsAsFactors=FALSE)
   row.names(species_df) = c()
   assign('grts_df', species_df, pkg.env)
 
