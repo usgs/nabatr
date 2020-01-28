@@ -275,7 +275,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   frame_name = get_grts_frame_name(project_df, project_id)
 
   # Define global grts_fname ()
-  grts_fname = get_grts_frame_name(project_df_, project_id_)
+  grts_fname = get_grts_frame_name(project_df, project_id)
   assign('grts_fname', grts_fname, pkg.env)
 
   return (survey_df)
