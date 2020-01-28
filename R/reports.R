@@ -445,16 +445,24 @@ build_ac_doc = function(out_dir,
     stateNames[indices]
   }
 
-  print ('Build grts_df_final')
-  state_county = ll_to_county_state(dplyr::select(grts_df, x, y))
-  grts_df['state_county'] = state_county
+  # If in CONUS add State and County.  Otherwise exclude
+  grts_fname = get_grts_frame_name(project_df_, project_id_)
+  if (grts_fname == 'CONUS'){
+    print ('Build grts_df_final')
+    state_county = ll_to_county_state(dplyr::select(grts_df, x, y))
+    grts_df['state_county'] = state_county
 
-  grts_df_final = grts_df %>% rowwise() %>%
-    dplyr::mutate(State = strsplit(state_county,',')[[1]][1]) %>%
-    dplyr::mutate(County = .simpleCap(strsplit(state_county,',')[[1]][2])) %>%
-    dplyr::select(-state_county, -x, -y, -center) %>%
-    dplyr::left_join(all_grts_rows) %>%
-    dplyr::arrange(State, County, Species_Detected)
+    grts_df_final = grts_df %>% rowwise() %>%
+      dplyr::mutate(State = strsplit(state_county,',')[[1]][1]) %>%
+      dplyr::mutate(County = .simpleCap(strsplit(state_county,',')[[1]][2])) %>%
+      dplyr::select(-state_county, -x, -y, -center) %>%
+      dplyr::left_join(all_grts_rows) %>%
+      dplyr::arrange(State, County, Species_Detected)
+  }else{
+    grts_df_final = grts_df %>%
+      dplyr::select(-x, -y, -center) %>%
+      dplyr::left_join(all_grts_rows)
+  }
 
   # Build flex tables for table 1 and 3
   descr_table1 = paste0("Table 1. NABat GRTS cells surveyed in ",selected_year,". Number of detector points, detector nights, and species detected are shown for each cell.")

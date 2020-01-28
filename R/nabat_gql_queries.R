@@ -265,6 +265,24 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   survey_dat  = cli$exec(qry$queries$allSurveys)
   survey_json = fromJSON(survey_dat, flatten = TRUE)
   survey_df   = rename_survey_df(as.data.frame(survey_json))
+
+  frame_name = get_grts_frame_name(project_df, project_id)
+
+  print (paste0('data/GRTS_coords_',frame_name,'.csv'))
+  species_df = read.csv(paste0('../data/GRTS_coords_',frame_name,'.csv'), stringsAsFactors=FALSE)
+  row.names(species_df) = c()
+  assign('grts_df', species_df, pkg.env)
+
+  return (survey_df)
+}
+
+
+
+#' @title Get Acoustic stationary bulk upload template dataframe for a project
+#'
+#' @export
+#'
+get_grts_frame_name = function(project_df, project_id){
   proj_id = project_id
   project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
 
@@ -282,13 +300,9 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   }else if (project_sample_frame == 'Puerto Rico'){
     frame_name = 'Puerto_Rico'
   }
-
-  print (paste0('data/GRTS_coords_',frame_name,'.csv'))
-  species_df = read.csv(paste0('../data/GRTS_coords_',frame_name,'.csv'), stringsAsFactors=FALSE)
-  assign('grts_df', species_df, pkg.env)
-
-  return (survey_df)
+  return(frame_name)
 }
+
 
 #' @title Get Acoustic stationary bulk upload template dataframe for a project
 #'
