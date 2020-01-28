@@ -513,6 +513,7 @@ build_ac_doc = function(out_dir,
   all_bat_id_types = data.frame()
   # Get a bat species bat_id_type -- 'Manual ID only'|'Auto ID only'|'At least one manual ID/site'
   for (bat_spc in bat_species){
+    print (bat_spc)
     types = unique(subset(table3_df, table3_df$Species_Detected == subset(pkg.env$bats_df, pkg.env$bats_df$species_code == bat_spc)$species)$Method_of_Species_ID)
     if ('Auto, Manual' %in% types){
       this_type = 'At least one manual ID/site'
@@ -522,21 +523,27 @@ build_ac_doc = function(out_dir,
       this_type = 'Manual ID only'
     }else if('Auto' %in% types){
       this_type = 'Auto ID only'
+    }else {
+      this_type = 'Not a Species'
     }
 
-    if (this_type == 'At least one manual ID/site'){
-      species_auto_count = subset(auto_species_grts_df_w, auto_species_grts_df_w$names == bat_spc)$species_totals
-    }else if (this_type == 'Auto ID only'){
-      species_auto_count = subset(auto_species_grts_df_w, auto_species_grts_df_w$names == bat_spc)$species_totals
-    }else if (this_type == 'Manual ID only'){
-      if (!is.null(manual_species_grts_df_w)){
-        species_auto_count = subset(manual_species_grts_df_w, manual_species_grts_df_w$names == bat_spc)$species_totals
-      }else {
-        species_auto_count = 0
+    if (this_type == 'Not a Species'){
+      print (paste0('Skip ', bat_spc,' for bat species (aka not a species)'))
+    }else{
+      if (this_type == 'At least one manual ID/site'){
+        species_auto_count = subset(auto_species_grts_df_w, auto_species_grts_df_w$names == bat_spc)$species_totals
+      }else if (this_type == 'Auto ID only'){
+        species_auto_count = subset(auto_species_grts_df_w, auto_species_grts_df_w$names == bat_spc)$species_totals
+      }else if (this_type == 'Manual ID only'){
+        if (!is.null(manual_species_grts_df_w)){
+          species_auto_count = subset(manual_species_grts_df_w, manual_species_grts_df_w$names == bat_spc)$species_totals
+        }else {
+          species_auto_count = 0
+        }
       }
+      bat_id_type_row = data.frame(species = bat_spc, bat_types = this_type, auto_count = species_auto_count, stringsAsFactors = FALSE)
+      all_bat_id_types = rbind(all_bat_id_types, bat_id_type_row)
     }
-    bat_id_type_row = data.frame(species = bat_spc, bat_types = this_type, auto_count = species_auto_count, stringsAsFactors = FALSE)
-    all_bat_id_types = rbind(all_bat_id_types, bat_id_type_row)
   }
 
   bat_id_type = all_bat_id_types$bat_types
