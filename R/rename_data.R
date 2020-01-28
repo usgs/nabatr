@@ -33,6 +33,19 @@ rename_project_df = function(project_df){
   return (project_df)
 }
 
+rename_species_df = function(species_df){
+  #' Return the species dataframe renamed with appropriate field headers
+  #'
+  #' @param project_df Dataframe output from get_species()
+  #'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.id']          = 'id'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.speciesCode'] = 'species_code'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.species']  = 'species'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.commonName']  = 'common_name'
+  row.names(species_df) = c()
+  return (species_df)
+}
+
 rename_survey_df = function(survey_df){
   #' Return the survey dataframe renamed with appropriate field headers
   #'

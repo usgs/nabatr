@@ -4,11 +4,22 @@
 \alias{build_ac_doc}
 \title{Build Report document in .docx file for Acoustic Stationary Project Data}
 \usage{
-build_ac_doc(out_dir, file_name, manual_species_grts_df_w,
-  auto_species_grts_df_w, project_df, project_id, acoustic_bulk_df,
-  manual_species_totals_l, auto_species_totals_l, auto_nights_df,
-  manual_nights_df, cover_photo = NULL, date = format(Sys.time(),
-  "\%B \%d, \%Y"), map = NULL)
+build_ac_doc(
+  out_dir,
+  file_name,
+  manual_species_grts_df_w,
+  auto_species_grts_df_w,
+  project_df,
+  project_id,
+  acoustic_bulk_df,
+  manual_species_totals_l,
+  auto_species_totals_l,
+  auto_nights_df,
+  manual_nights_df,
+  cover_photo = NULL,
+  date = format(Sys.time(), "\%B \%d, \%Y"),
+  map = NULL
+)
 }
 \arguments{
 \item{out_dir}{String output directory to save report .html file ex: /path/to/directory}

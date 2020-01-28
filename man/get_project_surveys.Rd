@@ -4,10 +4,12 @@
 \alias{get_project_surveys}
 \title{Get a project's Stationary Acoustic Surveys}
 \usage{
-get_project_surveys(token, project_id, branch = "prod", url = NULL)
+get_project_surveys(token, project_df, project_id, branch = "prod", url = NULL)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
+
+\item{project_df}{Dataframe output from get_projects()}
 
 \item{project_id}{Numeric or String a project id}
 }

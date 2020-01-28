@@ -181,7 +181,6 @@ get_acoustic_stationary_report = function(token,
 #'
 #' @import mapview
 #' @import officer
-#' @import rJava
 #' @import magrittr
 #' @import maps
 #' @import maptools
@@ -340,7 +339,7 @@ build_ac_doc = function(out_dir,
       all_rows_man = rbind(all_rows_man, this_row_man)
 
       # MANUAL names
-      man_species_names = as.character(subset(bats_df, bats_df$species_code %in% grts_species_man)$species)
+      man_species_names = as.character(subset(pkg.env$bats_df, pkg.env$bats_df$species_code %in% grts_species_man)$species)
       man_species_names = man_species_names[man_species_names != ""]
     }
 
@@ -355,7 +354,7 @@ build_ac_doc = function(out_dir,
     all_rows_auto = rbind(all_rows_auto, this_row_auto)
 
     # AUTO names
-    auto_species_names = as.character(subset(bats_df, bats_df$species_code %in% grts_species_auto)$species)
+    auto_species_names = as.character(subset(pkg.env$bats_df, pkg.env$bats_df$species_code %in% grts_species_auto)$species)
 
     all_species_names = unique(c(man_species_names, auto_species_names))
     all_species_names = all_species_names[all_species_names != ""]
@@ -414,7 +413,7 @@ build_ac_doc = function(out_dir,
 
   print ('Build dataframe with center points')
   # Build Dataframe with grts and their center points
-  grts_df = data.frame(GRTS_Cell = all_GRTS) %>% dplyr::left_join(grts_coords, by = c('GRTS_Cell'='GRTS_ID')) %>%
+  grts_df = data.frame(GRTS_Cell = all_GRTS) %>% dplyr::left_join(pkg.env$grts_df, by = c('GRTS_Cell'='GRTS_ID')) %>%
     dplyr::select(GRTS_Cell, center) %>% rowwise() %>%
     dplyr::rename('GRTS' = 'GRTS_Cell') %>%
     dplyr::mutate(y = as.numeric(strsplit(center, split=',')[[1]][1])) %>%
@@ -503,7 +502,7 @@ build_ac_doc = function(out_dir,
   all_bat_id_types = data.frame()
   # Get a bat species bat_id_type -- 'Manual ID only'|'Auto ID only'|'At least one manual ID/site'
   for (bat_spc in bat_species){
-    types = unique(subset(table3_df, table3_df$Species_Detected == subset(bats_df, bats_df$species_code == bat_spc)$species)$Method_of_Species_ID)
+    types = unique(subset(table3_df, table3_df$Species_Detected == subset(pkg.env$bats_df, pkg.env$bats_df$species_code == bat_spc)$species)$Method_of_Species_ID)
     if ('Auto, Manual' %in% types){
       this_type = 'At least one manual ID/site'
     }else if('Auto' %in% types & 'Manual' %in% types){

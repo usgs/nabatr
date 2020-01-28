@@ -32,6 +32,15 @@ project_df_
 
 ```
 
+### Get Species dataframe which contains a species lookup table for auto and manual ids
+```
+# Get your species lookup table
+species_df_ = get_species(token = token_)
+# Display your species lookup table
+species_df_
+
+```
+
 ### Get all Acoustic Stationary Surveys within a single Project set with project_id_
 ```
 # Fill in project id using the project_df_ lookup table
@@ -39,6 +48,7 @@ project_id_ = 284 # Set equal to one of your project ids
 
 # Get survey dataframe 
 survey_df_ = get_project_surveys(token      = token_,
+                                 project_df = project_df_,
                                  project_id = project_id_)
 # Display survey dataframe
 survey_df_

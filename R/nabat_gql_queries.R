@@ -10,21 +10,60 @@
 # Written by: Kyle Enns
 # Created: 2019-9-6
 #############################################################################
+pkg.env = new.env()
+pkg.env$bats_df = NULL
+pkg.env$grts_df = NULL
 
-#' @title NABat species lookup table
+#' @title Get the bat species lookup table
 #'
 #' @description
 #' Reads in dataframe for NABat species lookup table
+#'
+#' @param token String token created from get_nabat_gql_token function
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
 #' @keywords species, bats, NABat
 #' @examples
 #'
-#' \dontrun{
-#' nabatr::bats_df
-#' }
-#'
 #' @export
 #'
-bats_df =  read.csv('data/bat_species.csv')
+get_species = function(token, branch = 'prod', url = NULL){
+
+  # When url is not passed in use these two, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
+  cli = GraphqlClient$new(url = url,
+    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+
+  # Set empty Query
+  qry = Query$new()
+  # Build query for all projects under user
+  qry$query('speciesDf',
+    paste0('{ allSpecies{
+      nodes{
+        id
+        speciesCode
+        species
+        commonName
+      }
+    }}'))
+
+  # Build dataframe of project data to return
+  species_dat  = cli$exec(qry$queries$speciesDf)
+  species_json = fromJSON(species_dat, flatten = TRUE)
+  species_df   = rename_species_df(as.data.frame(species_json))
+
+  return(species_df)
+}
 
 #' @title NABat login to NABAt Database GQL
 #'
@@ -32,6 +71,7 @@ bats_df =  read.csv('data/bat_species.csv')
 #' Get a NABat GQL token to use for queries
 #' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param password (optional) String it will prompt you for your password
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -167,6 +207,10 @@ get_projects = function(token, branch ='prod', url = NULL){
   proj_json = fromJSON(proj_dat, flatten = TRUE)
   proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
+  # Define package environmental varioables
+  species_df = get_species(token = token, branch = branch)
+  assign('bats_df', species_df, pkg.env)
+
   # Return dataframe of projects
   return (proj_df)
 }
@@ -178,6 +222,7 @@ get_projects = function(token, branch ='prod', url = NULL){
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
+#' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
@@ -188,7 +233,7 @@ get_projects = function(token, branch ='prod', url = NULL){
 #' }
 #'
 #' @export
-get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
+get_project_surveys = function(token, project_df, project_id, branch ='prod', url = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -220,10 +265,30 @@ get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
   survey_dat  = cli$exec(qry$queries$allSurveys)
   survey_json = fromJSON(survey_dat, flatten = TRUE)
   survey_df   = rename_survey_df(as.data.frame(survey_json))
+  proj_id = project_id
+  project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
+
+  print (paste0('Using ', project_sample_frame, ' for GRTS sample frame.'))
+  if (project_sample_frame == 'Continental US'){
+    frame_name = 'CONUS'
+  }else if (project_sample_frame == 'Alaska'){
+    frame_name = 'Alaska'
+  }else if (project_sample_frame == 'Hawaii'){
+    frame_name = 'Hawaii'
+  }else if (project_sample_frame == 'Canada'){
+    frame_name = 'Canada'
+  }else if (project_sample_frame == 'Mexico'){
+    frame_name = 'Mexico'
+  }else if (project_sample_frame == 'Puerto Rico'){
+    frame_name = 'Puerto_Rico'
+  }
+
+  print (paste0('data/GRTS_coords_',frame_name,'.csv'))
+  species_df = read.csv(paste0('../data/GRTS_coords_',frame_name,'.csv'), stringsAsFactors=FALSE)
+  assign('grts_df', species_df, pkg.env)
+
   return (survey_df)
 }
-
-
 
 #' @title Get Acoustic stationary bulk upload template dataframe for a project
 #'

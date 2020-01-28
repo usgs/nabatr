@@ -122,9 +122,9 @@ pa
 
 ```{r, echo=FALSE}
 # Pie chart with all species and their percentages
-df = auto_species_totals_w$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
+df = auto_species_totals_w_$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
 df = df[order(df$species_totals, df$species_totals),]
-df$species_totals = rev(df$species_totals)
+# df$species_totals = rev(df$species_totals)
 row.names(df) = NULL
 
 n = dim(df)[1]
@@ -147,7 +147,7 @@ df_p
 # Pie chart with all species and their percentages
 df = manual_species_totals_w$species_grts_df %>% dplyr::select(names, species_totals) %>% subset(names != 'grts_totals' & names != '25k' & names != 'NoID')
 df = df[order(df$species_totals, df$species_totals),]
-df$species_totals = rev(df$species_totals)
+# df$species_totals = rev(df$species_totals)
 row.names(df) = NULL
 
 n = dim(df)[1]

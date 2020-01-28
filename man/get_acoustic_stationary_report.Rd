@@ -4,12 +4,20 @@
 \alias{get_acoustic_stationary_report}
 \title{Build Report .html file for Acoustic Stationary Project Data}
 \usage{
-get_acoustic_stationary_report(token, project_id, output_dir,
-  output_type = "html", project_name = NULL,
-  project_description = NULL, file_name = "report.html",
-  nightly_plots_type = "grts", survey_df = NULL,
-  acoustic_bulk_df = NULL, nightly_observed_list = NULL,
-  num_plots = NULL)
+get_acoustic_stationary_report(
+  token,
+  project_id,
+  output_dir,
+  output_type = "html",
+  project_name = NULL,
+  project_description = NULL,
+  file_name = "report.html",
+  nightly_plots_type = "grts",
+  survey_df = NULL,
+  acoustic_bulk_df = NULL,
+  nightly_observed_list = NULL,
+  num_plots = NULL
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}

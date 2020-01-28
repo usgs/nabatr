@@ -30,7 +30,7 @@
 #'
 get_observed_nights = function(acoustic_bulk_df){
 
-  species_df  = bats_df
+  species_df  = pkg.env$bats_df
   species     = species_df$species_code
   surveys_    = unique(acoustic_bulk_df$survey_id)
   project_id  = unique(acoustic_bulk_df$project_id)

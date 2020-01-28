@@ -11,24 +11,6 @@
 # Created: 2019-10-2
 #############################################################################
 
-
-#' @title Read in GRTS lookup csv for CONUS
-#'
-#' @description
-#' Reads in dataframe that contains all of the GRTS cells and their
-#' 4 corners to build shapefiles from.  Projection: WGS84 and extent: CONUS
-#' @keywords species, bats, NABat, grts, CONUS
-#' @examples
-#'
-#' \dontrun{
-#' nabatr::grts_coords
-#' }
-#'
-#' @export
-#'
-grts_coords = read.csv('data/GRTS_coords_CONUS.csv', stringsAsFactors=FALSE)
-
-
 #' @title Build leaflet map for Acoustic Stationary report in CONUS
 #'
 #' @import rmarkdown
@@ -55,9 +37,9 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv', stringsAsFactors=FALSE)
 #'
 get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 
-  # Create grts_template_df dataframe and merge with grts_coords
+  # Create grts_template_df dataframe and merge with pkg.env$grts_df
   grts_template_df = data.frame(GRTS_ID = all_grts)
-  grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
+  grts_df = plyr::join(grts_template_df, pkg.env$grts_df, by = c('GRTS_ID'), type = "left")
 
   # Creating map with an Imagery layer
   m = leaflet() %>% #addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
@@ -155,7 +137,7 @@ get_grts_shp = function(grts_ids){
 #'
 get_grts_shp_df = function(grts_ids){
   grts_template_df = data.frame(GRTS_ID = as.integer(grts_ids))
-  grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
+  grts_df = plyr::join(grts_template_df, pkg.env$grts_df, by = c('GRTS_ID'), type = "left")
 
   print (grts_ids)
   polys_df = data.frame()
