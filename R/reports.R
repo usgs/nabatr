@@ -412,8 +412,12 @@ build_ac_doc = function(out_dir,
 
 
   print ('Build dataframe with center points')
+
+  grts_fname = get_grts_frame_name(project_df_, project_id_)
+  grts_fname_df = pkg.env$grts_df['grts_fname'][[1]]
+
   # Build Dataframe with grts and their center points
-  grts_df = data.frame(GRTS_Cell = all_GRTS) %>% dplyr::left_join(pkg.env$grts_df, by = c('GRTS_Cell'='GRTS_ID')) %>%
+  grts_df = data.frame(GRTS_Cell = all_GRTS) %>% dplyr::left_join(grts_fname_df, by = c('GRTS_Cell'='GRTS_ID')) %>%
     dplyr::select(GRTS_Cell, center) %>% rowwise() %>%
     dplyr::rename('GRTS' = 'GRTS_Cell') %>%
     dplyr::mutate(y = as.numeric(strsplit(center, split=',')[[1]][1])) %>%
@@ -446,7 +450,6 @@ build_ac_doc = function(out_dir,
   }
 
   # If in CONUS add State and County.  Otherwise exclude
-  grts_fname = get_grts_frame_name(project_df_, project_id_)
   if (grts_fname == 'CONUS'){
     print ('Build grts_df_final')
     state_county = ll_to_county_state(dplyr::select(grts_df, x, y))

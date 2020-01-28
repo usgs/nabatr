@@ -12,7 +12,13 @@
 #############################################################################
 pkg.env = new.env()
 pkg.env$bats_df = NULL
-pkg.env$grts_df = NULL
+pkg.env$grts_fname = NULL
+pkg.env$grts_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'), stringsAsFactors=FALSE),
+                      'Alaska' = read.csv(paste0('data/GRTS_coords_Alaska.csv'), stringsAsFactors=FALSE),
+                      'Mexico' = read.csv(paste0('data/GRTS_coords_Mexico.csv'), stringsAsFactors=FALSE),
+                      'Puerto_Rico' = read.csv(paste0('data/GRTS_coords_Puerto_Rico.csv'), stringsAsFactors=FALSE),
+                      'Hawaii' = read.csv(paste0('data/GRTS_coords_Hawaii.csv'), stringsAsFactors=FALSE),
+                      'CONUS' = read.csv(paste0('data/GRTS_coords_CONUS.csv'), stringsAsFactors=FALSE))
 
 #' @title Get the bat species lookup table
 #'
@@ -268,17 +274,9 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   frame_name = get_grts_frame_name(project_df, project_id)
 
-  # If in docker than change output_ path
-  if (getwd() == "/home"){
-    output_ = 'data/GRTS_coords_'
-  }else {
-    output_ = '../data/GRTS_coords_'
-  }
-
-  print (paste0(output_ ,frame_name,'.csv'))
-  species_df = read.csv(paste0(output_ ,frame_name,'.csv'), stringsAsFactors=FALSE)
-  row.names(species_df) = c()
-  assign('grts_df', species_df, pkg.env)
+  # Define global grts_fname ()
+  grts_fname = get_grts_frame_name(project_df_, project_id_)
+  assign('grts_fname', grts_fname, pkg.env)
 
   return (survey_df)
 }
