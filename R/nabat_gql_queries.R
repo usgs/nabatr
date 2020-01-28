@@ -10,6 +10,8 @@
 # Written by: Kyle Enns
 # Created: 2019-9-6
 #############################################################################
+
+# Global Variables for NABatR
 pkg.env = new.env()
 pkg.env$bats_df = NULL
 pkg.env$grts_fname = NULL
@@ -214,8 +216,10 @@ get_projects = function(token, branch ='prod', url = NULL){
   proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
   # Define package environmental varioables
-  species_df = get_species(token = token, branch = branch)
-  assign('bats_df', species_df, pkg.env)
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, branch = branch)
+    assign('bats_df', species_df, pkg.env)
+  }
 
   # Return dataframe of projects
   return (proj_df)
@@ -278,6 +282,12 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   grts_fname = get_grts_frame_name(project_df, project_id)
   assign('grts_fname', grts_fname, pkg.env)
 
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, branch = branch)
+    assign('bats_df', species_df, pkg.env)
+  }
+
   return (survey_df)
 }
 
@@ -305,6 +315,7 @@ get_grts_frame_name = function(project_df, project_id){
   }else if (project_sample_frame == 'Puerto Rico'){
     frame_name = 'Puerto_Rico'
   }
+  row.names(frame_name) = c()
   return(frame_name)
 }
 
@@ -339,6 +350,12 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     }
   }else {
     url = url
+  }
+
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, branch = branch)
+    assign('bats_df', species_df, pkg.env)
   }
 
   cli = GraphqlClient$new(url = url,
