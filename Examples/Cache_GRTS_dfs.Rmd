@@ -14,12 +14,13 @@ library(sp)
 library(raster)
 library(tidyr)
 library(plotly)
+out_put_dir = '/path/to/dir/to/save/csvs/'
 ```
 
 # CONUS
 ```{r}
-CONUS     = readOGR('/users/kenns/projects/r/nabat/shinybatr/data/conus_mastersample_10km_attributed/')
-# p = CONUS[CONUS$GRTS_ID %in% c(55478,2,5,90,15),]
+CONUS     = readOGR('/path/to/downloaded/conus_mastersample_10km_attributed/')
+p = CONUS[CONUS$GRTS_ID %in% c(55478,2,5,90,15),]
 p =  spTransform(CONUS, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 p
 
@@ -46,12 +47,12 @@ names(final_df)[4] = 'upperright'
 names(final_df)[5] = 'lowerright'
 final_df$center = grts_centerpoints
 final_df
-write.csv(final_df, file = '/users/kenns/downloads/GRTS_coords_CONUS.csv')
+write.csv(final_df, file = paste0(out_put_dir, 'GRTS_coords_CONUS.csv'))
 ```
 
 # Hawaii
 ```{r}
-Hawaii     = readOGR('/users/kenns/projects/r/nabat/shinybatr/data/HI_mastersample_5km_attributed/')
+Hawaii = readOGR('/path/to/downloaded//HI_mastersample_5km_attributed/')
 p = Hawaii
 p =  spTransform(Hawaii, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 p
@@ -79,13 +80,13 @@ names(final_df)[4] = 'upperright'
 names(final_df)[5] = 'lowerright'
 final_df$center = grts_centerpoints
 final_df
-write.csv(final_df, file = '/users/kenns/downloads/GRTS_coords_Hawaii.csv')
+write.csv(final_df, file = paste0(out_put_dir, 'GRTS_coords_Hawaii.csv'))
 
 ```
 
 # ALASKA
 ```{r}
-Alaska     = readOGR('/users/kenns/projects/r/nabat/shinybatr/data/AK_mastersample_10km_attributed/')
+Alaska     = readOGR('/path/to/downloaded//AK_mastersample_10km_attributed/')
 p = Alaska
 p =  spTransform(Alaska, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 p
@@ -113,12 +114,12 @@ names(final_df)[4] = 'upperright'
 names(final_df)[5] = 'lowerright'
 final_df$center = grts_centerpoints
 final_df
-write.csv(final_df, file = '/users/kenns/downloads/GRTS_coords_Alaska.csv')
+write.csv(final_df, file = paste0(out_put_dir, 'GRTS_coords_Alaska.csv'))
 ```
 
 # Puerto Rico
 ```{r}
-Puerto_Rico     = readOGR('/users/kenns/projects/r/nabat/shinybatr/data/PR_mastersample_5km_attributed/')
+Puerto_Rico     = readOGR('/path/to/downloaded/PR_mastersample_5km_attributed/')
 p = Puerto_Rico
 p =  spTransform(Puerto_Rico, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 p
@@ -146,12 +147,12 @@ names(final_df)[4] = 'upperright'
 names(final_df)[5] = 'lowerright'
 final_df$center = grts_centerpoints
 final_df
-write.csv(final_df, file = '/users/kenns/downloads/GRTS_coords_Puerto_Rico.csv')
+write.csv(final_df, file = paste0(out_put_dir, 'GRTS_coords_Puerto_Rico.csv'))
 ```
 
 # Mexico
 ```{r}
-Mexico     = readOGR('/users/kenns/projects/r/nabat/shinybatr/data/Mex_mastersample_10km_attributed//')
+Mexico     = readOGR('/path/to/downloaded/Mex_mastersample_10km_attributed//')
 p = Mexico
 p =  spTransform(Mexico, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 p
@@ -179,12 +180,12 @@ names(final_df)[4] = 'upperright'
 names(final_df)[5] = 'lowerright'
 final_df$center = grts_centerpoints
 final_df
-write.csv(final_df, file = '/users/kenns/downloads/GRTS_coords_Mexico.csv')
+write.csv(final_df, file = paste0(out_put_dir, 'GRTS_coords_Mexico.csv'))
 ```
 
 # Canada
 ```{r}
-Canada     = readOGR('/users/kenns/projects/r/nabat/shinybatr/data/Can_mastersample_10km_attributed/')
+Canada     = readOGR('/path/to/downloaded/Can_mastersample_10km_attributed/')
 p = Canada
 p =  spTransform(Canada, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 p
@@ -212,6 +213,6 @@ names(final_df)[4] = 'upperright'
 names(final_df)[5] = 'lowerright'
 final_df$center = grts_centerpoints
 final_df
-write.csv(final_df, file = '/users/kenns/downloads/GRTS_coords_Canada.csv')
+write.csv(final_df, file = paste0(out_put_dir, 'GRTS_coords_Canada.csv'))
 ```
 
