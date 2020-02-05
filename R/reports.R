@@ -251,13 +251,13 @@ build_ac_doc = function(out_dir,
   by           = project_row_df$owner_email
   organization = project_row_df$organization
   # description  = project_row_df$project_description
-  description = "Ex. PURPOSE: Bat occupancy and abundance data in Colorado is less comprehensive than most other groups of mammals in the state. The purpose of a Bureau of Land Management-Royal Gorge Field Office (RGFO) acoustic monitoring project is to produce a statistically sound dataset that will provide a baseline for bat occupancy monitoring that may be utilized as a decision making tool for effective conservation. In addition, the project will participate in the continent-wide effort to create a coordinated bat population monitoring program at a regional and range wide scale that is able to provide inferences regarding changes in distribution and abundance of bat populations. OBJECTIVES: Establish a long-term monitoring program for bats across the RGFO; Utilize a monitoring protocol that will determine a baseline occupancy of bat species across the RGFO and may be used as an index to determine changes of occupancy in the future; Incorporate local data into the continent wide NABat dataset.]"
+  description = "[EXAMPLE]: PURPOSE: Bat occupancy and abundance data in Colorado is less comprehensive than most other groups of mammals in the state. The purpose of a Bureau of Land Management-Royal Gorge Field Office (RGFO) acoustic monitoring project is to produce a statistically sound dataset that will provide a baseline for bat occupancy monitoring that may be utilized as a decision making tool for effective conservation. In addition, the project will participate in the continent-wide effort to create a coordinated bat population monitoring program at a regional and range wide scale that is able to provide inferences regarding changes in distribution and abundance of bat populations. OBJECTIVES: Establish a long-term monitoring program for bats across the RGFO; Utilize a monitoring protocol that will determine a baseline occupancy of bat species across the RGFO and may be used as an index to determine changes of occupancy in the future; Incorporate local data into the continent wide NABat dataset."
   # Set Methods in 3 sections
   methods_1 = "Survey units were selected using the NABat master sampling frame, a grid-based system consisting of 10 x 10 km (100 km2) cells spanning Canada, the United States, and Mexico. The NABat master sample frame provides an ordered list of cells that is spatially balanced and randomized by utilizing the generalized random-tessellation stratified (GRTS) survey design algorithm. Using NABat's online cell selection tool, a subset of the master sampling frame was selected by defining the overall geographic scope of this project. Individual cells were then selected for survey based on their GRTS order and available resources. These 100 km2 cells serve as the focal analytical unit for NABat analyses and are a biologically appropriate grain size given the nightly range of most bat species (Loeb et al. 2015). "
   methods_2 = "Recording devices capable of detecting high-frequency bat echolocation calls were deployed at 2-4 sites within each GRTS cell selected for survey. Sites were chosen based on guidance provided in Loeb et al. (2015). Factors considered when selecting sites included land ownership, accessibility, minimizing clutter, elevation, and heterogeneity of habitats within the cell. Recording devices were deployed for 4 consecutive nights during the summer maternity season when bats are most active and most likely to be detected if present in the cell. Detectors were programmed to record automatically beginning 15 minutes prior to sunset and ending 15 minutes after sunrise. Microphones were elevated ~ 3 m from the ground and oriented in the direction of least clutter to maximize detection (Loeb et al. 2015). "
   methods_3 = "Calls files were processed using commercially-available automated identification software. Prior to species identification, non-bat files were scrubbed using a noise filter. Next, the remaining files were identified to species using a regional classifier that only considers the species whose ranges intersect the defined region. Calls that could not be identified to species were labeled either NO ID or with a general category (LowF, HighF, 25k, 40k, etc.). Due to overlap in the characteristics of some bat species' calls and the uncertainty associated with automated ID software, a subset of calls was manually vetted in accordance with Loeb et al. (2015). All call files identified as rare species were manually vetted, as were all calls from species not known to occur in the survey area. For non-rare species known to occur in the survey area, at least one call was manually vetted per point per night to confirm species presence within the survey cell and to estimate detection probability."
   # Set Summary in 2 sections
-  summary_1 = "Ex. Survey results will be reported to relevant state biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to include 15 new cells and collaborative efforts with Colorado Parks and Wildlife, USFWS, and Bat Conservation International.  "
+  summary_1 = "[EXAMPLE]: Survey results will be reported to relevant state biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to include 15 new cells and collaborative efforts with Colorado Parks and Wildlife, USFWS, and Bat Conservation International.  "
   summary_2 = "No statistically significant changes in species richness were detected between 2018 and 2019, however, there was a significant decrease in overall activity rate between the two years. Moving forward, these data will help land managers determine priority areas for bat mitigation efforts and provide baseline data to examine habitat associations that may be important for protecting species of federal and state conservation concern. "
 
   # Lit Cited
@@ -504,6 +504,7 @@ build_ac_doc = function(out_dir,
   descr_fig2a = paste0("Figure 2a. ",selected_year," bat activity rate (average number of bat passes per night) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   descr_fig2b = paste0("Figure 2b. ",selected_year," bat activity rate (average number of bat passes per night using a logarithmic scale) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   descr_fig3 = paste0("Figure 3. ",selected_year," automatic detections across project.")
+  descr_fig4 = paste0("Figure 4. ",selected_year," bat activity rate (average number of bat passes per night) by NABat GRTS cell")
 
   print ('Get all bat species')
   # Get all bat species
@@ -550,6 +551,7 @@ build_ac_doc = function(out_dir,
   bat_id_type = all_bat_id_types$bat_types
   bat_auto_counts = all_bat_id_types$auto_count / length(grts_df_final$GRTS)
   bat_species = all_bat_id_types$species
+
   print ('Build plotly fig2')
   f = list(family = "cambria", size = 24, color = "#6b6b6b")
   l = list(family = "cambria", size = 22, color = "#6b6b6b")
@@ -572,7 +574,6 @@ build_ac_doc = function(out_dir,
   # fig 2b
   fig2_p_log = fig2_p_base %>% layout(yaxis = y_log, title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f))
 
-
   print ('Save out plotly fig2')
   # Export to a file to be used to upload into the .docx
   fig2a_f = paste0(out_dir, "/temps/fig2a.png")
@@ -580,6 +581,7 @@ build_ac_doc = function(out_dir,
   # Export to a file to be used to upload into the .docx
   fig2b_f = paste0(out_dir, "/temps/fig2b.png")
   plotly::export(fig2_p_log, file = fig2b_f)
+
 
   print ('Building plotly fig3')
   species_counts_df = auto_species_grts_df_w %>% subset(names != 'grts_totals') %>% dplyr::select(names, species_totals)
@@ -598,10 +600,44 @@ build_ac_doc = function(out_dir,
   plotly::export(pie_species, file = fig3_f)
 
 
+  # Fig 4
+  x = list(title = "NABat GRTS Cell", titlefont = leg)
+  y = list(title = "Average No. of Bat Passes",titlefont = l)
+  if ('NoID' %in% auto_species_grts_df_w$names){
+    fig_4_grts = names(auto_species_grts_df_w %>% dplyr::select(-species_totals, -names))
+    int_species_counts = subset(auto_species_grts_df_w, auto_species_grts_df_w$names != 'NoID' & auto_species_grts_df_w$names != 'grts_totals' )
+    these_species = int_species_counts$names
+    species_counts = int_species_counts %>% dplyr::select(-species_totals, -names)
+    fig_4_sums = as.integer(colSums(species_counts))
+
+  }else {
+    fig_4_grts = names(auto_species_grts_df_w %>% dplyr::select(-species_totals, -names))
+    int_species_counts = subset(auto_species_grts_df_w, auto_species_grts_df_w$names != 'grts_totals' )
+    these_species = int_species_counts$names
+    species_counts = int_species_counts %>% dplyr::select(-species_totals, -names)
+    fig_4_sums = as.integer(colSums(species_counts))
+  }
+
+  fig4_p = plot_ly(x = fig_4_grts, y = fig_4_sums, type = 'bar',
+    width = 850, height = 650,
+    marker = list(line = list(color = 'black', width = .5)),
+    color = 'blue', colors = c('#ff8400', '#337acc', '#23992f')) %>% # orange/blue/green
+    layout(margin = m, font = leg, xaxis = x, yaxis = y, showlegend = F, autosize=F, bargap = .6,
+      legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
+  print ('Save out plotly fig4')
+  # Export to a file to be used to upload into the .docx
+  fig4_f = paste0(out_dir, "/temps/fig4.png")
+  plotly::export(fig4_p, file = fig4_f)
+
   print ('Set bold and par style')
   # Font for title
   bold_face = shortcuts$fp_bold(font.size = 16)
   par_style = fp_par(text.align = "center")
+  par_style_left = fp_par(text.align = "left")
+  example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
+    italic = FALSE, underlined = FALSE, font.family = "Cambria",
+    vertical.align = "baseline", shading.color = "transparent")
+  black_bracket = fp_text(color = "black", font.size = 12, font.family = "Cambria")
 
   print ('Begin .docx build')
   doc = read_docx() %>%
@@ -634,7 +670,7 @@ build_ac_doc = function(out_dir,
     # Project Description
     body_add_par(value = "Project Description", style = "heading 1") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = description, style = "Normal") %>%
+    body_add_fpar(fpar(ftext(description, prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -662,9 +698,9 @@ build_ac_doc = function(out_dir,
     # Summary
     body_add_par(value = "Summary", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = summary_1, style = "Normal") %>%
+    body_add_fpar(fpar(ftext(summary_1, prop = example_font)), style = 'Normal') %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = summary_2, style = "Normal") %>%
+    body_add_fpar(fpar(ftext(summary_2, prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -712,7 +748,13 @@ build_ac_doc = function(out_dir,
 
     # Figure 3
     body_add_par(value = descr_fig3, style = "Normal") %>%
-    slip_in_img(src = fig3_f, width = 6.5, height = 7)
+    slip_in_img(src = fig3_f, width = 6.5, height = 7) %>%
+
+    body_add_break() %>%
+
+    # Figure 4
+    body_add_par(value = descr_fig4, style = "Normal") %>%
+    slip_in_img(src = fig4_f, width = 6.5, height = 5)
 
   return(doc)
 }
