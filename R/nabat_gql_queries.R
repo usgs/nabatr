@@ -276,8 +276,6 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   survey_json = fromJSON(survey_dat, flatten = TRUE)
   survey_df   = rename_survey_df(as.data.frame(survey_json))
 
-  frame_name = get_grts_frame_name(project_df, project_id)
-
   # Define global grts_fname ()
   grts_fname = get_grts_frame_name(project_df, project_id)
   assign('grts_fname', grts_fname, pkg.env)
