@@ -762,3 +762,212 @@ build_ac_doc = function(out_dir,
 
   return(doc)
 }
+
+
+
+#' @title Build Report document in .docx file for Colony Count Data
+#'
+#' @description Using the outputs from get_projects(), get_project_surveys(), get_colony_bulk_counts(),
+#' and () this function will create a report .docx file to an out_dir.
+#'
+#' @import mapview
+#' @import officer
+#' @import magrittr
+#' @import maps
+#' @import maptools
+#' @import sp
+#' @import flextable
+#'
+#' @param out_dir String output directory to save report .html file ex: /path/to/directory
+#' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
+#' @param project_df Dataframe from running get_projects()
+#' @param project_id Integer project id from NABat ex: 105
+#' @param auto_nights_df Dataframe from running get_observed_nights()
+#' @param manual_nights_df Dataframe from running get_observed_nights()
+#' @param cover_photo String path to a .png file
+#' @param map (optional) output from get_grts_leaflet_map()
+#' @param manual_species_grts_df_w Dataframe from running get_species_counts_wide()
+#' @param auto_species_grts_df_w Dataframe from running get_species_counts_wide()
+#' @param auto_species_totals_l Dataframe from running get_species_counts_long()
+#' @param manual_species_totals_l Dataframe from running get_species_counts_long()
+#' @param acoustic_bulk_df Dataframe from running get_observed_nights()
+#' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
+#'
+#' \dontrun{
+#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
+#'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
+#'                     project_df = project_df_,
+#'                     project_id = project_id_,
+#'                     auto_nights_df = auto_nights_df_,
+#'                     manual_nights_df = manual_nights_df_,
+#'                     cover_photo = '/path/to/a/cover/photo.png',
+#'                     map = grts_map,
+#'                     manual_species_grts_df_w = manual_species_grts_df_w_,
+#'                     auto_species_grts_df_w = auto_species_grts_df_w_,
+#'                     auto_species_totals_l = auto_species_totals_l_,
+#'                     manual_species_totals_l = manual_species_totals_l_,
+#'                     date = format(Sys.time(), "%B %d, %Y"),
+#'                     acoustic_bulk_df = acoustic_bulk_df_)
+#' }
+#'
+#' @export
+#'
+
+build_col_doc = function(out_dir,
+                         file_name,
+                         project_df,
+                         project_id,
+                         colony_bulk_df,
+                         survey_table,
+                         cover_photo = NULL,
+                         date = format(Sys.time(), "%B %d, %Y")){
+
+  print ('Enter Report Function')
+
+  if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/'))
+  }
+
+  print ('Set Variables')
+  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+  proj_id = project_id
+  project_row_df = subset(project_df, project_df$project_id == proj_id)
+  title        = project_row_df$project_name
+  by           = project_row_df$owner_email
+  organization = project_row_df$organization
+
+  # description  = project_row_df$project_description
+  description = "[EXAMPLE]:  "
+
+  # Methods
+  methods = "[EXAMPLE]: Survey sites were chosen based on previous knowledge of winter hibernacula in the region, historical monitoring efforts, and suitability criteria outlined in Loeb et al. (2015). Because detection probability of hibernating bats is highly variable within seasons, surveys were conducted between late January and early March to maximize detection (Loeb et al. 2015). Abundance was estimated using visual counts and accompanying digital photographs. Multiple observers conducted counts in each section of the hibernacula to facilitate the estimation of detection probability and to validate species identifications."
+
+  # Results
+
+  ## Set variables to be printed in results section
+  spp <- unique(colony_bulk_df$species)
+  species_sampled <- paste(length(spp), " species ", "(", paste(spp, collapse = ", "), ")", sep = "")
+  number_of_sites <- length(unique(colony_bulk_df$site_name))
+  range_winter_years <- paste(min(colony_bulk_df$wyear, na.rm = TRUE), "to", max(colony_bulk_df$wyear, na.rm = TRUE))
+  number_of_grts <- length(unique(colony_bulk_df$grts_id))
+
+  results_overview = paste0("Winter colonies for ", species_sampled, " were counted at ", number_of_sites, " sites from ", range_winter_years, ", and across ", number_of_grts, " grid cells (Table 1).")
+
+  # Table 1. Summary survey table
+
+  survey_table <- colony_bulk_df %>%
+    group_by(wyear, species) %>%
+    summarise(number_of_sites = length(unique(site_name))) %>%
+    spread(species, number_of_sites) %>%
+    rename(`Winter Year` = wyear)
+
+  descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
+
+
+  print ('Build Table 1')
+  ft1 = flextable::flextable(survey_table, col_keys = names(survey_table))
+  ft1 = flextable::height(ft1, height =.7, part = 'header')
+  ft1 = flextable::width(ft1, width = 1)
+  ft1 = flextable::fontsize(ft1, size = 10, part = "all")
+
+  # Figure 1
+
+  print ('Build Figure 1')
+
+  descr_fig1 = paste0("Figure 1. Winter colony counts of bats by site and species")
+
+  p <- colony_bulk_df %>%
+    ggplot(aes(x = as.integer(wyear), y = count, color = site_name)) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_line() +
+    scale_y_log10() +
+    facet_wrap(~species, scales = "free") +
+    xlab("") +
+    ylab("Count of bats") +
+    theme_bw() +
+    theme(panel.grid = element_blank(), strip.text = element_text(face = "italic"),
+          legend.position = "bottom")
+
+
+  fig1_dir <- paste0(out_dir, "/fig1.png")
+  ggsave(p, filename = fig1_dir)
+
+  # Lit Cited
+  lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research Station. 112 p."
+
+  # Remove files
+  if (file.exists(paste0(out_dir, '/', file_name))){
+    print (paste0('Removing ', paste0(out_dir, '/', file_name)))
+    file.remove(paste0(out_dir, '/', file_name))
+  }
+
+  # Font for title
+  bold_face = shortcuts$fp_bold(font.size = 16)
+  par_style = fp_par(text.align = "center")
+
+  print ('Begin .docx build')
+  doc = read_docx() %>%
+    # Add title/header
+    # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
+    body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    # body_add_par(value = title, style = "graphic title") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = paste0('By ', by), style = "centered") %>%
+    body_add_par(value = organization, style = "centered") %>%
+    body_add_par(value = date, style = "centered") %>%
+
+    # Project Description
+    body_add_par(value = "Project Description", style = "heading 1") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar(ftext(description, prop = example_font)), style = 'Normal') %>%
+
+
+    body_add_break() %>%
+
+    # Methods
+    body_add_par(value = "Methods", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Results
+    body_add_par(value = "Results", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = results_overview, style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Literature Cited
+    body_add_par(value = "Literature Cited", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = lit_cited, style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Table 1
+    body_add_par(value = descr_table1, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_flextable(ft1, align='left') %>%
+    body_add_par(value = "", style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Figure 1
+    body_add_par(value = descr_fig1, style = "Normal") %>%
+    slip_in_img(src = fig1_dir, width = 6.5, height = 5) %>%
+
+    body_add_break() %>%
+
+    # Literature Cited
+    body_add_par(value = "Literature Cited", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = lit_cited, style = "Normal")
+
+  return(doc)
+}
+
+
