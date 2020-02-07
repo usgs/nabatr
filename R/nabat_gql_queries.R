@@ -575,3 +575,115 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL)
   return(final_df)
 }
 
+
+#' @title Get Winter colony count bulk upload template dataframe for a project
+#'
+#' @description
+#' Returns all surveys within a single project (project_id)
+#' @param token String token created from get_nabat_gql_token function
+#' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
+#' @param project_id Numeric or String a project id
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' \dontrun{
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
+#'                                         survey_df  = 'dataframe from output of get_project_surveys()',
+#'                                         project_id = 'number or string of a number')
+#' }
+#'
+#' @export
+get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL){
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+    }
+  }else {
+    url = url
+  }
+
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, branch = branch)
+    assign('bats_df', species_df, pkg.env)
+  }
+
+  cli = GraphqlClient$new(url = url,
+                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+
+  # Extract all survey ids from survey_df
+  survey_ids = survey_df$survey_id
+
+  # Set empty dataframe to build acoustic stationary bulk template data in
+  all_colony_count = data.frame()
+
+  # Query each survey through GQL to extract and build a dataframe with all
+  #   acoustic stationary records for these acoustic survey ids
+  for (survey in survey_ids){
+    qry = Query$new()
+
+    qry$query('counts', paste0('{
+      allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+        nodes{
+          id
+          grtsId
+          colonyCountEventsBySurveyId{
+            nodes{
+              id
+              surveyId
+              dateTimeStart
+              dateTimeEnd
+              colonyCountEventSitesByEventId{
+                nodes{
+                  id
+                  eventId
+                  siteId
+                  siteBySiteId{siteName}
+                  winterYearPdPresumed
+                  winterYearWnsPresumed
+                  colonyCountSiteValuesByEventSiteId{
+                    nodes{
+                      id
+                      eventSiteId
+                      speciesId
+                      speciesBySpeciesId{species}
+                      countValue
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      }'))
+
+
+    # Execute Counts GQL Query
+    count_dat <- cli$exec(qry$queries$counts)
+    count_json <- fromJSON(count_dat, flatten = TRUE)
+    count_tb <- as_tibble(count_json$data$allSurveys$nodes) %>% unnest() %>% unnest() %>% unnest()
+    all_colony_count <- rbind(all_colony_count, count_tb)
+  }
+
+  all_colony_count_final <- rename_colony_df(all_colony_count) %>%
+    mutate(date_sampled = ymd(format(ymd_hms(date_sampled), "%Y-%m-%d")),
+           month = as.numeric(format(date_sampled, "%m")),
+           year = as.numeric(format(date_sampled, "%Y")),
+           wyear = case_when(
+             month %in% c(1:8) ~ year,
+             month %in% c(9:12) ~ year + 1
+           )) %>%
+    dplyr::select("grts_id", "date_sampled", "site_name", "winterYearPdPresumed", "winterYearWnsPresumed",
+                  "species", "count", "wyear")
+
+  return(all_colony_count_final)
+
+}
+
