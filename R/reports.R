@@ -777,39 +777,8 @@ build_ac_doc = function(out_dir,
 #' @import maptools
 #' @import sp
 #' @import flextable
-#'
-#' @param out_dir String output directory to save report .html file ex: /path/to/directory
-#' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
-#' @param project_df Dataframe from running get_projects()
-#' @param project_id Integer project id from NABat ex: 105
-#' @param auto_nights_df Dataframe from running get_observed_nights()
-#' @param manual_nights_df Dataframe from running get_observed_nights()
-#' @param cover_photo String path to a .png file
-#' @param map (optional) output from get_grts_leaflet_map()
-#' @param manual_species_grts_df_w Dataframe from running get_species_counts_wide()
-#' @param auto_species_grts_df_w Dataframe from running get_species_counts_wide()
-#' @param auto_species_totals_l Dataframe from running get_species_counts_long()
-#' @param manual_species_totals_l Dataframe from running get_species_counts_long()
-#' @param acoustic_bulk_df Dataframe from running get_observed_nights()
-#' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
-#'
-#' \dontrun{
-#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
-#'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
-#'                     project_df = project_df_,
-#'                     project_id = project_id_,
-#'                     auto_nights_df = auto_nights_df_,
-#'                     manual_nights_df = manual_nights_df_,
-#'                     cover_photo = '/path/to/a/cover/photo.png',
-#'                     map = grts_map,
-#'                     manual_species_grts_df_w = manual_species_grts_df_w_,
-#'                     auto_species_grts_df_w = auto_species_grts_df_w_,
-#'                     auto_species_totals_l = auto_species_totals_l_,
-#'                     manual_species_totals_l = manual_species_totals_l_,
-#'                     date = format(Sys.time(), "%B %d, %Y"),
-#'                     acoustic_bulk_df = acoustic_bulk_df_)
-#' }
-#'
+#' @import lubridate
+
 #' @export
 #'
 
@@ -856,13 +825,12 @@ build_col_doc = function(out_dir,
   # Table 1. Summary survey table
 
   survey_table <- colony_bulk_df %>%
-    group_by(wyear, species) %>%
-    summarise(number_of_sites = length(unique(site_name))) %>%
+    dplyr::group_by(wyear, species) %>%
+    dplyr::summarise(number_of_sites = length(unique(site_name))) %>%
     spread(species, number_of_sites) %>%
-    rename(`Winter Year` = wyear)
+    dplyr::rename(`Winter Year` = wyear)
 
   descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
-
 
   print ('Build Table 1')
   ft1 = flextable::flextable(survey_table, col_keys = names(survey_table))
@@ -904,6 +872,9 @@ build_col_doc = function(out_dir,
   # Font for title
   bold_face = shortcuts$fp_bold(font.size = 16)
   par_style = fp_par(text.align = "center")
+  example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
+    italic = FALSE, underlined = FALSE, font.family = "Cambria",
+    vertical.align = "baseline", shading.color = "transparent")
 
   print ('Begin .docx build')
   doc = read_docx() %>%

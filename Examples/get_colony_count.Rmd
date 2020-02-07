@@ -14,10 +14,9 @@ vignette: >
 ```{r}
 #library(nabatr)
 devtools::load_all(".")
-library(tidyverse)
-library(lubridate)
+
 # Enter your NABat username here
-username_ = 'Tina Cheng'
+username_ = 'Nabat_Username'
 token_ = get_nabat_gql_token(username = username_)
 token_
 
@@ -66,56 +65,6 @@ colony_bulk_df_ = get_colony_bulk_counts(token = token_,
 colony_bulk_df_
 ```
 
-### Use the Acoustic Stationary acoustic bulk dataframe to build a dataframe for auto and manual species id data
-```{r}
-# Get Acoustic stationary acoustic bulk dataframe
-nightly_observed_list_ = get_observed_nights(acoustic_bulk_df_)
-
-auto_nights_df_ = nightly_observed_list_$auto_nightly_df
-manual_nights_df_  = nightly_observed_list_$manual_nightly_df
-  
-# Display the two dataframes
-manual_nights_df_
-auto_nights_df_
-```
-
-### Extracting unique species found for manual and automatic nights acoustic data in long format
-```{r}
-# Individual species totals for either Manual or Automatic
-manual_species_totals_l_ = get_species_counts_long(manual_nights_df_, filter=TRUE)
-auto_species_totals_l_   = get_species_counts_long(auto_nights_df_, filter=TRUE)
-
-# Both Manual and Automatic species totals 
-all_species_totals_l_l_ = get_all_species_counts_long(auto_nights_df_, manual_nights_df_, fil = TRUE)
-```
-
-### Extracting unique species found for manual and automatic nights acoustic data in WIDE format
-```{r}
-# Extract totals from project at GRTS cell id and GRTS site name
-
-# MANUAL
-manual_species_totals_w_   = get_species_counts_wide(manual_nights_df_)
-# --- totals at sites
-manual_species_sites_df_w_ = manual_species_totals_w_$species_site_id_df
-# --- totals at GRTS cell id
-manual_species_grts_df_w_  = manual_species_totals_w_$species_grts_df
-
-# AUTOMATIC
-auto_species_totals_w_   = get_species_counts_wide(auto_nights_df_)
-# --- totals at sites
-auto_species_sites_df_w_ = auto_species_totals_w_$species_site_id_df
-# --- totals at GRTS cell id
-auto_species_grts_df_w_  = auto_species_totals_w_$species_grts_df
-
-```
-
-### Setup a leaflet map to show 
-```{r}
-grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
-                                grts_with_data = unique(auto_nights_df_$GRTS))
-# Display the grts map
-grts_map
-```
 
 ### Build Acoustic stationary .docx report
 ```{r}
