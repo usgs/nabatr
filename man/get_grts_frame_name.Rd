@@ -2,10 +2,10 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_grts_frame_name}
 \alias{get_grts_frame_name}
-\title{Get Acoustic stationary bulk upload template dataframe for a project}
+\title{Get the GRTS Frame name based on project_id and project_df}
 \usage{
 get_grts_frame_name(project_df, project_id)
 }
 \description{
-Get Acoustic stationary bulk upload template dataframe for a project
+Get the GRTS Frame name based on project_id and project_df
 }

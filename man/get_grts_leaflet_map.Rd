@@ -4,11 +4,15 @@
 \alias{get_grts_leaflet_map}
 \title{Build leaflet map for Acoustic Stationary report in CONUS}
 \usage{
-get_grts_leaflet_map(all_grts, grts_with_data = NULL)
+get_grts_leaflet_map(all_grts, project_df, project_id, grts_with_data = NULL)
 }
 \arguments{
 \item{all_grts}{Character Vector all grts cell ids found from the survey_df dataframe by running
 unique(survey_df$grts_cell_id)}
+
+\item{project_df}{Dataframe output from get_projects()}
+
+\item{project_id}{Numeric or String a project id}
 
 \item{grts_with_data}{(optional) Character Vector or NULL}
 }

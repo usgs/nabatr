@@ -4,10 +4,14 @@
 \alias{get_grts_shp}
 \title{Build shapefile from GRTS IDs}
 \usage{
-get_grts_shp(grts_ids)
+get_grts_shp(grts_ids, project_id, project_df)
 }
 \arguments{
 \item{grts_ids}{Character Vector GRTS Ids}
+
+\item{project_id}{Numeric or String a project id}
+
+\item{project_df}{Dataframe output from get_projects()}
 }
 \description{
 Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.

@@ -14,13 +14,27 @@
 # Global Variables for NABatR
 pkg.env = new.env()
 pkg.env$bats_df = NULL
-pkg.env$grts_fname = NULL
-pkg.env$grts_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'), stringsAsFactors=FALSE),
-                      'Alaska' = read.csv(paste0('data/GRTS_coords_Alaska.csv'), stringsAsFactors=FALSE),
-                      'Mexico' = read.csv(paste0('data/GRTS_coords_Mexico.csv'), stringsAsFactors=FALSE),
-                      'Puerto_Rico' = read.csv(paste0('data/GRTS_coords_Puerto_Rico.csv'), stringsAsFactors=FALSE),
-                      'Hawaii' = read.csv(paste0('data/GRTS_coords_Hawaii.csv'), stringsAsFactors=FALSE),
-                      'CONUS' = read.csv(paste0('data/GRTS_coords_CONUS.csv'), stringsAsFactors=FALSE))
+
+#' @title NABat GRTS lookup list with csvs of coordinates
+#'
+#' @description
+#' Used to grab correct coordinates for GRTS lookups
+#' @keywords GRTS, spatial, NABat
+#' @examples
+#'
+#' \dontrun{
+#' nabatr::grts_lookup_df
+#' }
+#'
+#' @export
+#'
+grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'), stringsAsFactors=FALSE),
+  'Alaska' = read.csv(paste0('data/GRTS_coords_Alaska.csv'), stringsAsFactors=FALSE),
+  'Mexico' = read.csv(paste0('data/GRTS_coords_Mexico.csv'), stringsAsFactors=FALSE),
+  'Puerto Rico' = read.csv(paste0('data/GRTS_coords_Puerto_Rico.csv'), stringsAsFactors=FALSE),
+  'Hawaii' = read.csv(paste0('data/GRTS_coords_Hawaii.csv'), stringsAsFactors=FALSE),
+  'Continental US' = read.csv(paste0('data/GRTS_coords_CONUS.csv'), stringsAsFactors=FALSE))
+
 
 #' @title Get the bat species lookup table
 #'
@@ -43,7 +57,7 @@ get_species = function(token, branch = 'prod', url = NULL){
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
@@ -69,6 +83,11 @@ get_species = function(token, branch = 'prod', url = NULL){
   species_dat  = cli$exec(qry$queries$speciesDf)
   species_json = fromJSON(species_dat, flatten = TRUE)
   species_df   = rename_species_df(as.data.frame(species_json))
+
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    assign('bats_df', species_df, pkg.env)
+  }
 
   return(species_df)
 }
@@ -107,7 +126,7 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
@@ -136,7 +155,11 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   if (is.null(error)){
     token = strsplit(bearer, 'Bearer ')[[1]][2]
     message("Returning a GQL token for NABat.")
+    if (is.na(token)){
+      message('Error, no token returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
+    }
     # Return token
+    print (token)
     return (token)
   } else {
     # Post message with error for user
@@ -173,7 +196,7 @@ get_projects = function(token, branch ='prod', url = NULL){
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
@@ -217,7 +240,7 @@ get_projects = function(token, branch ='prod', url = NULL){
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, branch = branch)
+    species_df = get_species(token = token)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -252,7 +275,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
@@ -282,7 +305,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, branch = branch)
+    species_df = get_species(token = token)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -291,30 +314,15 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
 
 
-#' @title Get Acoustic stationary bulk upload template dataframe for a project
+#' @title Get the GRTS Frame name based on project_id and project_df
 #'
 #' @export
 #'
 get_grts_frame_name = function(project_df, project_id){
   proj_id = project_id
   project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
-
-  print (paste0('Using ', project_sample_frame, ' for GRTS sample frame.'))
-  if (project_sample_frame == 'Continental US'){
-    frame_name = 'CONUS'
-  }else if (project_sample_frame == 'Alaska'){
-    frame_name = 'Alaska'
-  }else if (project_sample_frame == 'Hawaii'){
-    frame_name = 'Hawaii'
-  }else if (project_sample_frame == 'Canada'){
-    frame_name = 'Canada'
-  }else if (project_sample_frame == 'Mexico'){
-    frame_name = 'Mexico'
-  }else if (project_sample_frame == 'Puerto Rico'){
-    frame_name = 'Puerto_Rico'
-  }
-  row.names(frame_name) = c()
-  return(frame_name)
+  print (paste0('Using ', project_sample_frame, ' as the Frame name for GRTS Cells.'))
+  return(project_sample_frame)
 }
 
 
@@ -344,7 +352,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
@@ -352,7 +360,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, branch = branch)
+    species_df = get_species(token = token)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -506,7 +514,7 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL)
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
