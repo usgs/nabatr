@@ -48,9 +48,9 @@ grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'),
 #'
 #' @export
 #'
-get_species = function(token, branch = 'prod', url = NULL){
+get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
-  # When url is not passed in use these two, otherwise use the url passed through
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
@@ -63,8 +63,14 @@ get_species = function(token, branch = 'prod', url = NULL){
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
 
   # Set empty Query
   qry = Query$new()
@@ -187,7 +193,7 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 #'
 #' @export
 #'
-get_projects = function(token, branch ='prod', url = NULL){
+get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -202,8 +208,15 @@ get_projects = function(token, branch ='prod', url = NULL){
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
+
   # Sample frame lookup
   sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
     sample_frame_short = c('Mexico', 'Continental US', 'Hawaii', 'Canada', 'Alaska', 'Puerto Rico'),
@@ -266,7 +279,7 @@ get_projects = function(token, branch ='prod', url = NULL){
 #' }
 #'
 #' @export
-get_project_surveys = function(token, project_df, project_id, branch ='prod', url = NULL){
+get_project_surveys = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -281,8 +294,15 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
+
   # Set empty Query
   qry = Query$new()
   # Build query for all surveys under user project
@@ -343,7 +363,7 @@ get_grts_frame_name = function(project_df, project_id){
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL){
+get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -358,14 +378,14 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     url = url
   }
 
-  # Define package environmental varioables
-  if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token)
-    assign('bats_df', species_df, pkg.env)
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   }
-
-  cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -505,7 +525,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL){
+get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -520,8 +540,14 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL)
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
 
   final_df = data.frame()
   states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
@@ -593,7 +619,7 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL)
 #' }
 #'
 #' @export
-get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL){
+get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -602,10 +628,19 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     if (branch == 'prod'){
       url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
+  }
+
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
   }
 
   # Define package environmental varioables
@@ -613,9 +648,6 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     species_df = get_species(token = token, branch = branch)
     assign('bats_df', species_df, pkg.env)
   }
-
-  cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id

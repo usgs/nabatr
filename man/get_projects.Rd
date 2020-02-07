@@ -4,7 +4,13 @@
 \alias{get_projects}
 \title{Find your NABat Projects}
 \usage{
-get_projects(token, branch = "prod", url = NULL)
+get_projects(
+  token,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}

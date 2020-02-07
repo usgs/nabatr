@@ -10,7 +10,9 @@ get_acoustic_bulk_wavs(
   project_id,
   year = NULL,
   branch = "prod",
-  url = NULL
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
 )
 }
 \arguments{

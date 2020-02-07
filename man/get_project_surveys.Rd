@@ -4,7 +4,15 @@
 \alias{get_project_surveys}
 \title{Get a project's Stationary Acoustic Surveys}
 \usage{
-get_project_surveys(token, project_df, project_id, branch = "prod", url = NULL)
+get_project_surveys(
+  token,
+  project_df,
+  project_id,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}

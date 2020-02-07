@@ -4,7 +4,14 @@
 \alias{get_nabat_banding_by_states}
 \title{Get Bat banding data for States}
 \usage{
-get_nabat_banding_by_states(token, states, branch = "prod", url = NULL)
+get_nabat_banding_by_states(
+  token,
+  states,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}

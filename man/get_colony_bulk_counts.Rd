@@ -9,7 +9,9 @@ get_colony_bulk_counts(
   survey_df,
   project_id,
   branch = "prod",
-  url = NULL
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
 )
 }
 \arguments{
