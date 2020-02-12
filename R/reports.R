@@ -247,11 +247,14 @@ build_ac_doc = function(out_dir,
 
   print ('Set Variables')
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+  circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
   proj_id = project_id
   project_row_df = subset(project_df, project_df$project_id == proj_id)
   title        = project_row_df$project_name
   by           = project_row_df$owner_email
   organization = project_row_df$organization
+  this_project_description = project_row_df$project_description
+
   # description  = project_row_df$project_description
   description = "[EXAMPLE]: PURPOSE: Bat occupancy and abundance data in Colorado is less comprehensive than most other groups of mammals in the state. The purpose of a Bureau of Land Management-Royal Gorge Field Office (RGFO) acoustic monitoring project is to produce a statistically sound dataset that will provide a baseline for bat occupancy monitoring that may be utilized as a decision making tool for effective conservation. In addition, the project will participate in the continent-wide effort to create a coordinated bat population monitoring program at a regional and range wide scale that is able to provide inferences regarding changes in distribution and abundance of bat populations. OBJECTIVES: Establish a long-term monitoring program for bats across the RGFO; Utilize a monitoring protocol that will determine a baseline occupancy of bat species across the RGFO and may be used as an index to determine changes of occupancy in the future; Incorporate local data into the continent wide NABat dataset."
   # Set Methods in 3 sections
@@ -647,7 +650,7 @@ build_ac_doc = function(out_dir,
   doc = read_docx() %>%
     # Add title/header
     # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
-    body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
+    # body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
@@ -658,13 +661,13 @@ build_ac_doc = function(out_dir,
     body_add_par(value = organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
 
-    # Add Map
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
-    # body_add_par(value = "GRTS Map", style = "table title") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_img(src = cover_photo, width = 6, height = 4, style= 'centered') %>%
+
+    body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+
 
     # Add summary data for project and GRTS cells
     body_add_par(value = "", style = "centered") %>%
@@ -673,7 +676,9 @@ build_ac_doc = function(out_dir,
 
     # Project Description
     body_add_par(value = "Project Description", style = "heading 1") %>%
-    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = this_project_description, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
     body_add_fpar(fpar(ftext(description, prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
@@ -778,6 +783,7 @@ build_ac_doc = function(out_dir,
 #' @import sp
 #' @import flextable
 #' @import lubridate
+#' @import ggplot2
 
 #' @export
 #'
@@ -799,11 +805,13 @@ build_col_doc = function(out_dir,
 
   print ('Set Variables')
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+  circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
   proj_id = project_id
   project_row_df = subset(project_df, project_df$project_id == proj_id)
   title        = project_row_df$project_name
   by           = project_row_df$owner_email
   organization = project_row_df$organization
+  this_project_description = project_row_df$project_description
 
   # description  = project_row_df$project_description
   description = "[EXAMPLE]:  "
@@ -827,7 +835,7 @@ build_col_doc = function(out_dir,
   survey_table <- colony_bulk_df %>%
     dplyr::group_by(wyear, species) %>%
     dplyr::summarise(number_of_sites = length(unique(site_name))) %>%
-    spread(species, number_of_sites) %>%
+    tidyr::spread(species, number_of_sites) %>%
     dplyr::rename(`Winter Year` = wyear)
 
   descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
@@ -880,9 +888,6 @@ build_col_doc = function(out_dir,
   doc = read_docx() %>%
     # Add title/header
     # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
-    body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
-    body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     # body_add_par(value = title, style = "graphic title") %>%
@@ -890,12 +895,21 @@ build_col_doc = function(out_dir,
     body_add_par(value = paste0('By ', by), style = "centered") %>%
     body_add_par(value = organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+
+    body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+
+    body_add_break() %>%
 
     # Project Description
     body_add_par(value = "Project Description", style = "heading 1") %>%
-    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = this_project_description, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
     body_add_fpar(fpar(ftext(description, prop = example_font)), style = 'Normal') %>%
-
 
     body_add_break() %>%
 

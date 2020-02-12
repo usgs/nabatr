@@ -210,6 +210,10 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
+    print ('URL:')
+    print (paste0(aws_alb, '/graphql'))
+    print ('host:')
+    print (aws_gql)
     cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
       headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
   }else {
@@ -253,7 +257,7 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token)
+    species_df = get_species(token = token, aws_gql, aws_alb)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -325,7 +329,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token)
+    species_df = get_species(token = token, aws_gql, aws_alb)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -645,7 +649,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, branch = branch)
+    species_df = get_species(token = token, aws_gql, aws_alb)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -700,7 +704,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     # Execute Counts GQL Query
     count_dat <- cli$exec(qry$queries$counts)
     count_json <- fromJSON(count_dat, flatten = TRUE)
-    count_tb <- as_tibble(count_json$data$allSurveys$nodes) %>% unnest() %>% unnest() %>% unnest()
+    count_tb <- as_tibble(count_json$data$allSurveys$nodes) %>% tidyr::unnest() %>% tidyr::unnest() %>% tidyr::unnest()
     all_colony_count <- rbind(all_colony_count, count_tb)
   }
 
