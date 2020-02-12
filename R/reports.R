@@ -654,7 +654,7 @@ build_ac_doc = function(out_dir,
     # Add title/header
     # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
     # body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
-    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar(ftext('Acoustic Stationary Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
