@@ -604,7 +604,7 @@ build_ac_doc = function(out_dir,
     marker = list(colors = col_,line = list(color = 'black', width = .5)),
     height = 1000,
     textinfo = 'label+value') %>%
-    layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f))
+    layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f), font = l)
   print ('Save out plotly fig3')
   fig3_f = paste0(out_dir, "/temps/fig3.png")
   plotly::export(pie_species, file = fig3_f)
