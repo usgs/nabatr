@@ -256,8 +256,9 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
   proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
   # Define package environmental varioables
+  print ('Setting species_df environmental variable')
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql, aws_alb)
+    species_df = get_species(tokne = token, aws_gql = aws_gql, aws_alb = aws_alb)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -329,7 +330,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql, aws_alb)
+    species_df = get_species(tokne = token, aws_gql = aws_gql, aws_alb = aws_alb)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -649,7 +650,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql, aws_alb)
+    species_df = get_species(tokne = token, aws_gql = aws_gql, aws_alb = aws_alb)
     assign('bats_df', species_df, pkg.env)
   }
 
