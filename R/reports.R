@@ -591,12 +591,15 @@ build_ac_doc = function(out_dir,
 
 
   print ('Building plotly fig3')
-  species_counts_df = auto_species_grts_df_w %>% subset(names != 'grts_totals') %>% dplyr::select(names, species_totals)
-  col_ = colorRampPalette(c('black', '#337acc'))(length(species_counts_df$names))
+  fig3_counts = subset(auto_species_grts_df_w, auto_species_grts_df_w$names != 'grts_totals')$species_totals
+  fig3_species = subset(auto_species_grts_df_w, auto_species_grts_df_w$names != 'grts_totals')$names
+  fig3_data_df = data.frame(species = fig3_species, counts = fig3_counts, stringsAsFactors = FALSE) %>% subset(species != 'NoID')
+  # col_ = colorRampPalette(c('red', '#337acc','yellow'))(length(fig3_data_df$species))
+  col_ = rainbow(n = length(fig3_data_df$species))
 
   # fig 3
-  pie_species = plot_ly(values = species_counts_df$species_totals, type = 'pie', width='100%',
-    labels = species_counts_df$names,
+  pie_species = plot_ly(values = fig3_data_df$counts, type = 'pie', width='100%',
+    labels = fig3_data_df$species,
     showlegend=FALSE,
     marker = list(colors = col_,line = list(color = 'black', width = .5)),
     height = 1000,
@@ -837,6 +840,8 @@ build_col_doc = function(out_dir,
     dplyr::summarise(number_of_sites = length(unique(site_name))) %>%
     tidyr::spread(species, number_of_sites) %>%
     dplyr::rename(`Winter Year` = wyear)
+  # Remove the spaces in the field names (breaks on website/docker)
+  names(survey_table) = gsub(" ", "_", names(survey_table))
 
   descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
 
