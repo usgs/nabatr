@@ -843,7 +843,6 @@ build_col_doc = function(out_dir,
     dplyr::rename(`Winter Year` = wyear)
   # Remove the spaces in the field names (breaks on website/docker)
   names(survey_table) = gsub(" ", "_", names(survey_table))
-  survey_table['Winter_Year'] = as.integer(survey_table['Winter_Year'])
 
   descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
 
