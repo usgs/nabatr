@@ -55,7 +55,7 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
@@ -130,7 +130,7 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
@@ -160,16 +160,17 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 
   if (is.null(error)){
     token = strsplit(bearer, 'Bearer ')[[1]][2]
-    message("Returning a GQL token for NABat.")
     if (is.na(token)){
       message('Error, no token returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
+      return (content)
+      }else {
+      message("Returning a GQL token for NABat.")
+      return (token)
     }
-    # Return token
-    print (token)
-    return (token)
   } else {
     # Post message with error for user
     message(paste0("Error: ", error))
+    return (content)
   }
 }
 
@@ -200,7 +201,7 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
@@ -291,7 +292,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
@@ -375,7 +376,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
@@ -537,7 +538,7 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
@@ -631,7 +632,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
       url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
