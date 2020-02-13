@@ -29,7 +29,8 @@
 #' @export
 #'
 get_observed_nights = function(acoustic_bulk_df){
-  species_df  = bats_df
+
+  species_df  = pkg.env$bats_df
   species     = species_df$species_code
   surveys_    = unique(acoustic_bulk_df$survey_id)
   project_id  = unique(acoustic_bulk_df$project_id)
@@ -52,6 +53,7 @@ get_observed_nights = function(acoustic_bulk_df){
     names(species_df_)[names(species_df_) == 'id'] = 'auto_id'
     ex_grts_df = plyr::join(ex_grts_df, species_df_, by = c('auto_id'), type = "left")
     names(ex_grts_df)[names(ex_grts_df) == 'species_code'] = 'auto_species'
+
     # Manual column
     names(species_df_)[names(species_df_) == 'auto_id'] = 'manual_id'
     ex_grts_df = plyr::join(ex_grts_df, species_df_, by = c('manual_id'), type = "left")

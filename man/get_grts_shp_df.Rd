@@ -4,7 +4,14 @@
 \alias{get_grts_shp_df}
 \title{Build polygons dataframe from GRTS IDs}
 \usage{
-get_grts_shp_df(grts_ids)
+get_grts_shp_df(grts_ids, project_id, project_df)
+}
+\arguments{
+\item{grts_ids}{Character Vector GRTS Ids}
+
+\item{project_id}{Numeric or String a project id}
+
+\item{project_df}{Dataframe output from get_projects()}
 }
 \description{
 Build polygons dataframe from GRTS IDs

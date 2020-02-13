@@ -18,17 +18,39 @@
 #' @description Uses one of the outputs from get_observed_nights() to calculate totals for
 #' number of species present at a GRTS cell or a site ID and then returns a dataframe.
 #'
-#' @param acoustic_bulk_df Dataframe acoustic bulk dataframe from output of get_observed_nights()
+#' @param nightly_df Dataframe acoustic bulk dataframe from output of get_observed_nights().
+#' Note: must run seperately for MANUAL and AUTOMATIC nights dataframes.
 #' @keywords species, bats, NABat
 #' @examples
 #'
 #' \dontrun{
-#' species_totals    = get_species_counts(manual_nights_df)
+#'
+#' # MANUAL
+#' manual_species_totals_w_   = get_species_counts_wide(manual_nights_df_)
+#' # --- totals at sites
+#' manual_species_sites_df_w_ = manual_species_totals_w_$species_site_id_df
+#' # --- totals at GRTS cell id
+#' manual_species_grts_df_w_  = manual_species_totals_w_$species_grts_df
+#'
+#' # AUTOMATIC
+#' auto_species_totals_w_   = get_species_counts_wide(auto_nights_df_)
+#' # --- totals at sites
+#' auto_species_sites_df_w_ = auto_species_totals_w_$species_site_id_df
+#' # --- totals at GRTS cell id
+#' auto_species_grts_df_w_  = auto_species_totals_w_$species_grts_df
+#'
 #' }
 #'
 #' @export
 #'
 get_species_counts_wide = function(nightly_df){
+
+  # Return NULL if no manual checked species found
+  check_values = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id', 'NoID'))
+  if (length(unique(colSums(check_values))) == 1){
+    return(list('species_site_id_df'   = NULL,
+      'species_grts_df' = NULL))
+  }
 
   # Select only the wav file count data to run sums on
   species_grts_df = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id'))
@@ -132,6 +154,17 @@ get_species_counts_wide = function(nightly_df){
 #'
 #' @description
 #' Extracting unique species found for manual or automatic nights acoustic data
+#' @param nights_df Dataframe acoustic bulk dataframe from output of get_observed_nights().
+#' @param filter Boolean filters out species that don't have any counts for that species
+#'
+#'
+#' \dontrun{
+#'
+#' # Individual Manual or Auto
+#' manual_species_totals_l_ = get_species_counts_long(manual_nights_df_, filter=TRUE)
+#' auto_species_totals_l_   = get_species_counts_long(auto_nights_df_, filter=TRUE)
+#'
+#' }
 #'
 #' @export
 #'
@@ -167,6 +200,14 @@ get_species_counts_long = function(nights_df, filter = FALSE){
 #'
 #' @description
 #' Extracting unique species found for manual or automatic nights acoustic data
+#'
+#' \dontrun{
+#'
+#' # Both Manual and Auto
+#' all_species_totals_l_l_ = get_all_species_counts_long(auto_nights_df_, manual_nights_df_, fil = TRUE)
+#'
+#'
+#' }
 #'
 #' @export
 #'

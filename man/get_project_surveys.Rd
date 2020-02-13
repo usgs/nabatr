@@ -4,12 +4,20 @@
 \alias{get_project_surveys}
 \title{Get a project's Stationary Acoustic Surveys}
 \usage{
-get_project_surveys(token, username, project_id)
+get_project_surveys(
+  token,
+  project_df,
+  project_id,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
 
-\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
+\item{project_df}{Dataframe output from get_projects()}
 
 \item{project_id}{Numeric or String a project id}
 }
@@ -20,7 +28,6 @@ Returns all surveys within a single project (project_id)
 
 \dontrun{
 survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-                                username   = 'NABat_Username',
                                 project_id = 'number or string of a number')
 }
 

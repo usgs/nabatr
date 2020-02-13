@@ -1,8 +1,6 @@
-install.packages("ggplot")
-install.packages("ggmap")
-install.packages("httr")
-install.packages("rgdal")
-install.packages('xml2')
+install.packages(c('httr' ,'xml2' ,'jsonlite' ,'plyr' ,'rgdal' ,'sp' ,'htmltools' ,'htmlwidgets' ,
+  'leaflet' ,'rmarkdown' ,'rprojroot' ,'dplyr' ,'devtools' ,'testthat' ,'roxygen2' ,'kableExtra' ,
+  'plotly' ,'magrittr' ,'mapview' ,'officer' ,'caret' ,'plumber' ,'aws.s3' ,'flextable', 'maps',
+  'maptools'))
+devtools::install_github("ropensci/ghql")
 
-install.packages('devtools')
-devtools::install_github("talbertc-usgs/nabatr")

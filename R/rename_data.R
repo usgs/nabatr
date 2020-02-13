@@ -33,6 +33,19 @@ rename_project_df = function(project_df){
   return (project_df)
 }
 
+rename_species_df = function(species_df){
+  #' Return the species dataframe renamed with appropriate field headers
+  #'
+  #' @param project_df Dataframe output from get_species()
+  #'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.id']          = 'id'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.speciesCode'] = 'species_code'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.species']  = 'species'
+  names(species_df)[names(species_df) == 'data.allSpecies.nodes.commonName']  = 'common_name'
+  row.names(species_df) = c()
+  return (species_df)
+}
+
 rename_survey_df = function(survey_df){
   #' Return the survey dataframe renamed with appropriate field headers
   #'
@@ -92,4 +105,21 @@ rename_acoustic_df = function(acoustic_df){
 
 
 
+
+rename_colony_df = function(colony_df){
+  #' Return the colony dataframe renamed with appropriate field headers
+  #'
+  #' @param colony_df Dataframe output from get_colony_bulk_df()
+  #'
+  names(colony_df)[names(colony_df) == 'grtsId'] = 'grts_id'
+  names(colony_df)[names(colony_df) == 'surveyId'] = 'survey_id'
+  names(colony_df)[names(colony_df) == 'dateTimeStart'] = 'date_sampled'
+  names(colony_df)[names(colony_df) == 'eventId'] = 'event_id'
+  names(colony_df)[names(colony_df) == 'siteId'] = 'site_id'
+  names(colony_df)[names(colony_df) == 'siteBySiteId.siteName'] = 'site_name'
+  names(colony_df)[names(colony_df) == 'speciesBySpeciesId.species'] = 'species'
+  names(colony_df)[names(colony_df) == 'countValue'] = 'count'
+  row.names(colony_df) = c()
+  return(colony_df)
+}
 

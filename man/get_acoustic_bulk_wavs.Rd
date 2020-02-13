@@ -4,12 +4,19 @@
 \alias{get_acoustic_bulk_wavs}
 \title{Get Acoustic stationary bulk upload template dataframe for a project}
 \usage{
-get_acoustic_bulk_wavs(token, username, survey_df, project_id)
+get_acoustic_bulk_wavs(
+  token,
+  survey_df,
+  project_id,
+  year = NULL,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
-
-\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 
 \item{survey_df}{Dataframe a survey dataframe from the output of get_project_surveys}
 
@@ -21,8 +28,7 @@ Returns all surveys within a single project (project_id)
 \examples{
 
 \dontrun{
-acoustic_bulk_df = get_acoustic_bulk_wavs(username   = 'NABat_Username',
-                                        token      = 'generated-nabat-gql-token',
+acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
                                         survey_df  = 'dataframe from output of get_project_surveys()',
                                         project_id = 'number or string of a number')
 }

@@ -11,20 +11,92 @@
 # Created: 2019-9-6
 #############################################################################
 
-#' @title NABat species lookup table
+# Global Variables for NABatR
+pkg.env = new.env()
+pkg.env$bats_df = NULL
+
+#' @title NABat GRTS lookup list with csvs of coordinates
 #'
 #' @description
-#' Reads in dataframe for NABat species lookup table
-#' @keywords species, bats, NABat
+#' Used to grab correct coordinates for GRTS lookups
+#' @keywords GRTS, spatial, NABat
 #' @examples
 #'
 #' \dontrun{
-#' nabatr::bats_df
+#' nabatr::grts_lookup_df
 #' }
 #'
 #' @export
 #'
-bats_df =  read.csv('data/bat_species.csv')
+grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'), stringsAsFactors=FALSE),
+  'Alaska' = read.csv(paste0('data/GRTS_coords_Alaska.csv'), stringsAsFactors=FALSE),
+  'Mexico' = read.csv(paste0('data/GRTS_coords_Mexico.csv'), stringsAsFactors=FALSE),
+  'Puerto Rico' = read.csv(paste0('data/GRTS_coords_Puerto_Rico.csv'), stringsAsFactors=FALSE),
+  'Hawaii' = read.csv(paste0('data/GRTS_coords_Hawaii.csv'), stringsAsFactors=FALSE),
+  'Continental US' = read.csv(paste0('data/GRTS_coords_CONUS.csv'), stringsAsFactors=FALSE))
+
+
+#' @title Get the bat species lookup table
+#'
+#' @description
+#' Reads in dataframe for NABat species lookup table
+#'
+#' @param token String token created from get_nabat_gql_token function
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @keywords species, bats, NABat
+#' @examples
+#'
+#' @export
+#'
+get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url = url
+  }
+
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
+
+  # Set empty Query
+  qry = Query$new()
+  # Build query for all projects under user
+  qry$query('speciesDf',
+    paste0('{ allSpecies{
+      nodes{
+        id
+        speciesCode
+        species
+        commonName
+      }
+    }}'))
+
+  # Build dataframe of project data to return
+  species_dat  = cli$exec(qry$queries$speciesDf)
+  species_json = fromJSON(species_dat, flatten = TRUE)
+  species_df   = rename_species_df(as.data.frame(species_json))
+
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    assign('bats_df', species_df, pkg.env)
+  }
+
+  return(species_df)
+}
 
 #' @title NABat login to NABAt Database GQL
 #'
@@ -32,6 +104,7 @@ bats_df =  read.csv('data/bat_species.csv')
 #' Get a NABat GQL token to use for queries
 #' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param password (optional) String it will prompt you for your password
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -57,9 +130,9 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
@@ -87,12 +160,17 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 
   if (is.null(error)){
     token = strsplit(bearer, 'Bearer ')[[1]][2]
-    message("Returning a GQL token for NABat.")
-    # Return token
-    return (token)
+    if (is.na(token)){
+      message('Error, no token returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
+      return (content)
+      }else {
+      message("Returning a GQL token for NABat.")
+      return (token)
+    }
   } else {
     # Post message with error for user
     message(paste0("Error: ", error))
+    return (content)
   }
 }
 
@@ -116,23 +194,34 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 #'
 #' @export
 #'
-get_projects = function(token, branch ='prod', url = NULL){
+get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    print ('URL:')
+    print (paste0(aws_alb, '/graphql'))
+    print ('host:')
+    print (aws_gql)
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
+
   # Sample frame lookup
   sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
     sample_frame_short = c('Mexico', 'Continental US', 'Hawaii', 'Canada', 'Alaska', 'Puerto Rico'),
@@ -167,6 +256,13 @@ get_projects = function(token, branch ='prod', url = NULL){
   proj_json = fromJSON(proj_dat, flatten = TRUE)
   proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
+  # Define package environmental varioables
+  print ('Setting species_df environmental variable')
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb)
+    assign('bats_df', species_df, pkg.env)
+  }
+
   # Return dataframe of projects
   return (proj_df)
 }
@@ -178,6 +274,7 @@ get_projects = function(token, branch ='prod', url = NULL){
 #' @description
 #' Returns all surveys within a single project (project_id)
 #' @param token String token created from get_nabat_gql_token function
+#' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
@@ -188,23 +285,30 @@ get_projects = function(token, branch ='prod', url = NULL){
 #' }
 #'
 #' @export
-get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
+get_project_surveys = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-                          headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
+
   # Set empty Query
   qry = Query$new()
   # Build query for all surveys under user project
@@ -220,9 +324,32 @@ get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
   survey_dat  = cli$exec(qry$queries$allSurveys)
   survey_json = fromJSON(survey_dat, flatten = TRUE)
   survey_df   = rename_survey_df(as.data.frame(survey_json))
+
+  # Define global grts_fname ()
+  grts_fname = get_grts_frame_name(project_df, project_id)
+  assign('grts_fname', grts_fname, pkg.env)
+
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb)
+    assign('bats_df', species_df, pkg.env)
+  }
+
   return (survey_df)
 }
 
+
+
+#' @title Get the GRTS Frame name based on project_id and project_df
+#'
+#' @export
+#'
+get_grts_frame_name = function(project_df, project_id){
+  proj_id = project_id
+  project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
+  print (paste0('Using ', project_sample_frame, ' as the Frame name for GRTS Cells.'))
+  return(project_sample_frame)
+}
 
 
 #' @title Get Acoustic stationary bulk upload template dataframe for a project
@@ -242,23 +369,29 @@ get_project_surveys = function(token, project_id, branch ='prod', url = NULL){
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = 'prod', url = NULL){
+get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -327,7 +460,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = '
       wav_files = data.frame()
       acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
       for (x in 1:dim(acc_events)[1]){
-        if ('location.geojson.coordinates' %in% names(acc_events)){
+        if ('location.geojson.coordinates' %in% names(acc_events) & !is.null(acc_events$location.geojson.coordinates[x][[1]])){
           lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
           lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
         }else {
@@ -335,10 +468,14 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = '
           lat = NA
         }
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
-        id       = acc_events[x,]$id
-        wav_int_files['stationary_acoustic_values_id'] = id
-        wav_int_files['latitude'] = lat
-        wav_int_files['longitude'] = lon
+        if (length(wav_int_files)==0){
+          wav_int_files = data.frame()
+        } else{
+          id       = acc_events[x,]$id
+          wav_int_files['stationary_acoustic_values_id'] = id
+          wav_int_files['latitude'] = lat
+          wav_int_files['longitude'] = lon
+        }
         if (dim(wav_files)[1] <1){
           wav_files = wav_int_files
         }else {
@@ -394,23 +531,29 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year, branch = '
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL){
+get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://dev-api.sciencebase.gov/nabatmonitoring-survey/graphql'
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
     url = url
   }
 
-  cli = GraphqlClient$new(url = url,
-    headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
 
   final_df = data.frame()
   states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
@@ -462,5 +605,123 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL)
     }
   }
   return(final_df)
+}
+
+
+#' @title Get Winter colony count bulk upload template dataframe for a project
+#'
+#' @description
+#' Returns all surveys within a single project (project_id)
+#' @param token String token created from get_nabat_gql_token function
+#' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
+#' @param project_id Numeric or String a project id
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' \dontrun{
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
+#'                                         survey_df  = 'dataframe from output of get_project_surveys()',
+#'                                         project_id = 'number or string of a number')
+#' }
+#'
+#' @export
+get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url = url
+  }
+
+  if (!is.null(aws_gql)){
+    print ('GQL using alb_url and gql_query_endpoint')
+    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+  }else {
+    cli = GraphqlClient$new(url = url,
+      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+  }
+
+  # Define package environmental varioables
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb)
+    assign('bats_df', species_df, pkg.env)
+  }
+
+  # Extract all survey ids from survey_df
+  survey_ids = survey_df$survey_id
+
+  # Set empty dataframe to build acoustic stationary bulk template data in
+  all_colony_count = data.frame()
+
+  # Query each survey through GQL to extract and build a dataframe with all
+  #   acoustic stationary records for these acoustic survey ids
+  for (survey in survey_ids){
+    qry = Query$new()
+
+    qry$query('counts', paste0('{
+      allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+        nodes{
+          id
+          grtsId
+          colonyCountEventsBySurveyId{
+            nodes{
+              id
+              surveyId
+              dateTimeStart
+              dateTimeEnd
+              colonyCountEventSitesByEventId{
+                nodes{
+                  id
+                  eventId
+                  siteId
+                  siteBySiteId{siteName}
+                  winterYearPdPresumed
+                  winterYearWnsPresumed
+                  colonyCountSiteValuesByEventSiteId{
+                    nodes{
+                      id
+                      eventSiteId
+                      speciesId
+                      speciesBySpeciesId{species}
+                      countValue
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      }'))
+
+
+    # Execute Counts GQL Query
+    count_dat <- cli$exec(qry$queries$counts)
+    count_json <- fromJSON(count_dat, flatten = TRUE)
+    count_tb <- as_tibble(count_json$data$allSurveys$nodes) %>% tidyr::unnest() %>% tidyr::unnest() %>% tidyr::unnest()
+    all_colony_count <- rbind(all_colony_count, count_tb)
+  }
+
+  all_colony_count_final <- rename_colony_df(all_colony_count) %>%
+    mutate(date_sampled = ymd(format(ymd_hms(date_sampled), "%Y-%m-%d")),
+           month = as.numeric(format(date_sampled, "%m")),
+           year = as.numeric(format(date_sampled, "%Y")),
+           wyear = case_when(
+             month %in% c(1:8) ~ year,
+             month %in% c(9:12) ~ year + 1
+           )) %>%
+    dplyr::select("grts_id", "date_sampled", "site_name", "winterYearPdPresumed", "winterYearWnsPresumed",
+                  "species", "count", "wyear")
+
+  return(all_colony_count_final)
+
 }
 

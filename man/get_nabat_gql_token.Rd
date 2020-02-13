@@ -4,12 +4,14 @@
 \alias{get_nabat_gql_token}
 \title{NABat login to NABAt Database GQL}
 \usage{
-get_nabat_gql_token(username, password = NULL)
+get_nabat_gql_token(username, password = NULL, branch = "prod", url = NULL)
 }
 \arguments{
 \item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 
 \item{password}{(optional) String it will prompt you for your password}
+
+\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
 }
 \description{
 Get a NABat GQL token to use for queries

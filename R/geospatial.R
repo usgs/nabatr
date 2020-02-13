@@ -11,24 +11,6 @@
 # Created: 2019-10-2
 #############################################################################
 
-
-#' @title Read in GRTS lookup csv for CONUS
-#'
-#' @description
-#' Reads in dataframe that contains all of the GRTS cells and their
-#' 4 corners to build shapefiles from.  Projection: WGS84 and extent: CONUS
-#' @keywords species, bats, NABat, grts, CONUS
-#' @examples
-#'
-#' \dontrun{
-#' nabatr::grts_coords
-#' }
-#'
-#' @export
-#'
-grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
-
-
 #' @title Build leaflet map for Acoustic Stationary report in CONUS
 #'
 #' @import rmarkdown
@@ -39,10 +21,12 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 #' @description
 #' Builds a leaflet map using a vector list of grts cells to add to a leaflet map.  Shows
 #' where the project's grts cells live spatially.  Keep in mind that the project_id
-#' and all_grts must be in CONUS. note: This function does not use any spatial packages.
-#' @param all_grts String Vector all grts cell ids found from the survey_df dataframe by running
-#' unique(survey_df$)
-#' @param grts_with_data (optional) String Vector or NULL
+#' and all_grts must be in CONUS.
+#' @param all_grts Character Vector all grts cell ids found from the survey_df dataframe by running
+#' unique(survey_df$grts_cell_id)
+#' @param project_df Dataframe output from get_projects()
+#' @param project_id Numeric or String a project id
+#' @param grts_with_data (optional) Character Vector or NULL
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -53,11 +37,17 @@ grts_coords = read.csv('data/GRTS_coords_CONUS.csv')
 #'
 #' @export
 #'
-get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
-
-  # Create grts_template_df dataframe and merge with grts_coords
+get_grts_leaflet_map = function(all_grts,
+                                project_df,
+                                project_id,
+                                grts_with_data = NULL){
+  project_id_ = project_id
+  grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
+  # Get grts_fname_df
+  grts_fname_df = grts_lookup_df[grts_fname][[1]]
+  # Create grts_template_df dataframe and merge with grts_fname_df
   grts_template_df = data.frame(GRTS_ID = all_grts)
-  grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
+  grts_df = plyr::join(grts_template_df, grts_fname_df, by = c('GRTS_ID'), type = "left")
 
   # Creating map with an Imagery layer
   m = leaflet() %>% #addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
@@ -124,7 +114,9 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 #'
 #' @description
 #' Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.
-#' @param grts_ids Vector GRTS Ids
+#' @param grts_ids Character Vector GRTS Ids
+#' @param project_df Dataframe output from get_projects()
+#' @param project_id Numeric or String a project id
 #' @keywords species, bats, NABat, grts, CONUS
 #' @examples
 #'
@@ -133,9 +125,9 @@ get_grts_leaflet_map = function(all_grts, grts_with_data = NULL){
 #'
 #' @export
 #'
-get_grts_shp = function(grts_ids){
+get_grts_shp = function(grts_ids, project_id, project_df){
   # Call Build polygons dataframe from GRTS IDs function
-  grts_shp_df = get_grts_shp_df(grts_ids)
+  grts_shp_df = get_grts_shp_df(grts_ids = grts_ids, project_id = project_id, project_df = project_df)
   # Call Build spatial polygons dataframe from GRTS shape dataframe
   grts_spdf   = get_spdf_from_polys_df(grts_shp_df)
   return (grts_spdf)
@@ -149,11 +141,18 @@ get_grts_shp = function(grts_ids){
 #' @import rgdal
 #' @import plyr
 #'
+#' @param grts_ids Character Vector GRTS Ids
+#' @param project_df Dataframe output from get_projects()
+#' @param project_id Numeric or String a project id
+#'
 #' @export
 #'
-get_grts_shp_df = function(grts_ids){
+get_grts_shp_df = function(grts_ids, project_id, project_df){
   grts_template_df = data.frame(GRTS_ID = as.integer(grts_ids))
-  grts_df = plyr::join(grts_template_df, grts_coords, by = c('GRTS_ID'), type = "left")
+  project_id_ = project_id
+  grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
+  grts_fname_df = grts_lookup_df[grts_fname][[1]]
+  grts_df = plyr::join(grts_template_df, grts_fname_df, by = c('GRTS_ID'), type = "left")
 
   print (grts_ids)
   polys_df = data.frame()
@@ -185,6 +184,8 @@ get_grts_shp_df = function(grts_ids){
 #' @import raster
 #' @import rgdal
 #' @import plyr
+#'
+#' @param grts_shp_df Dataframe
 #'
 #' @export
 #'

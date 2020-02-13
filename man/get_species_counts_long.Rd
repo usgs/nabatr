@@ -6,6 +6,20 @@
 \usage{
 get_species_counts_long(nights_df, filter = FALSE)
 }
+\arguments{
+\item{nights_df}{Dataframe acoustic bulk dataframe from output of get_observed_nights().}
+
+\item{filter}{Boolean filters out species that don't have any counts for that species
+
+
+\dontrun{
+
+# Individual Manual or Auto
+manual_species_totals_l_ = get_species_counts_long(manual_nights_df_, filter=TRUE)
+auto_species_totals_l_   = get_species_counts_long(auto_nights_df_, filter=TRUE)
+
+}}
+}
 \description{
 Extracting unique species found for manual or automatic nights acoustic data
 }

@@ -8,4 +8,12 @@ get_all_species_counts_long(auto_nights_df, manual_nights_df, fil = TRUE)
 }
 \description{
 Extracting unique species found for manual or automatic nights acoustic data
+
+\dontrun{
+
+# Both Manual and Auto
+all_species_totals_l_l_ = get_all_species_counts_long(auto_nights_df_, manual_nights_df_, fil = TRUE)
+
+
+}
 }
