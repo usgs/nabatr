@@ -837,6 +837,7 @@ build_col_doc = function(out_dir,
   # Table 1. Summary survey table
 
   survey_table <- colony_bulk_df %>%
+    tidyr::drop_na(wyear, species) %>%
     dplyr::group_by(wyear, species) %>%
     dplyr::summarise(number_of_sites = length(unique(site_name))) %>%
     tidyr::spread(species, number_of_sites) %>%
