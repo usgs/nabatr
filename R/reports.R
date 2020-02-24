@@ -276,7 +276,7 @@ build_ac_doc = function(out_dir,
   selected_year = unique(format(as.Date(acoustic_bulk_df$recording_time), '%Y'))[1]
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
-  # Total number of net nights across all sites
+  # Total number of detector nights across all sites
   net_nights_df = acoustic_bulk_df %>% dplyr::mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
   number_of_net_nights = length(unique(net_nights_df$site_date_nights))
 
@@ -304,7 +304,7 @@ build_ac_doc = function(out_dir,
   # Text for Results using Project Summary Data
   results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells," NABat GRTS cells were surveyed in ",
     selected_year," (Figure 1, Table 1). ", number_of_bat_calls," call files were recorded over ",
-    number_of_net_nights," net nights, and ", number_of_species_detected,
+    number_of_net_nights," detector nights, and ", number_of_species_detected,
     " species were detected (Figure 1, Table 2). Activity rate (average bat passes per night) ranged from ",
     low_avg_per_night," to ", high_avg_per_night,", with a median of ", median_activity_rate," and a mean of ",
     mean_activity_rate," (Figures 3, 4).")
@@ -825,6 +825,9 @@ build_col_doc = function(out_dir,
 
   # Results
 
+  # Remove NA values for winter year and species
+  colony_bulk_df = colony_bulk_df %>% tidyr::drop_na(wyear, species)
+
   ## Set variables to be printed in results section
   spp <- unique(colony_bulk_df$species)
   species_sampled <- paste(length(spp), " species ", "(", paste(spp, collapse = ", "), ")", sep = "")
@@ -837,7 +840,6 @@ build_col_doc = function(out_dir,
   # Table 1. Summary survey table
 
   survey_table <- colony_bulk_df %>%
-    tidyr::drop_na(wyear, species) %>%
     dplyr::group_by(wyear, species) %>%
     dplyr::summarise(number_of_sites = length(unique(site_name))) %>%
     tidyr::spread(species, number_of_sites) %>%
