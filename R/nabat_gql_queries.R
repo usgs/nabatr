@@ -452,6 +452,8 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     proj_id_df  = as.data.frame(grts_json$data$allSurveys$nodes)
     acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes)
 
+
+
     # Build wave files dataframe or raise error message if survey has no data
     if (dim(acc_events)[1] == 0){
       message (paste0('This survey has no Sationary acoustic data present: ', survey))
@@ -460,6 +462,15 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
       wav_files = data.frame()
       acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
       for (x in 1:dim(acc_events)[1]){
+        rename = TRUE
+        this_site_name = acc_events[x,]$site_name
+        # Check for no data in this survey acoustic
+        if (dim(as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x]))[1] == 0){
+          message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
+          rename = FALSE
+        }else{
+        }
+
         if ('location.geojson.coordinates' %in% names(acc_events) & !is.null(acc_events$location.geojson.coordinates[x][[1]])){
           lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
           lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
@@ -467,8 +478,8 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
           lon = NA
           lat = NA
         }
-        wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x])
-        if (length(wav_int_files)==0){
+        wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors=FALSE)
+        if (dim(wav_int_files)[1]==0){
           wav_int_files = data.frame()
         } else{
           id       = acc_events[x,]$id
@@ -483,25 +494,28 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
         }
       }
 
-      # Rename and select from the 3 tables
-      proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
-      wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
-        'manual_id', 'stationary_acoustic_values_id', 'latitude', 'longitude')]
-      acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
-        'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
-        'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id', 'site_name',
-        'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
+      # If rename = TRUE (The acoustic data exists for this site_name)
+      if (rename){
+        # Rename and select from the 3 tables
+        proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
+        wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
+          'manual_id', 'stationary_acoustic_values_id', 'latitude', 'longitude')]
+        acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
+          'survey_end_time', 'device_id', 'microphone_id' ,'microphone_orientation',
+          'microphone_height', 'distance_to_nearest_clutter', 'clutter_type_id', 'site_name',
+          'distance_to_nearest_water', 'water_type', 'percent_clutter', 'habitat_type_id')]
 
-      # Set values for survey, project, and grts ids in dataframe
-      wav_files_rn[,'survey_id']    = survey
-      wav_files_rn[,'project_id']   = project_id
-      wav_files_rn[,'grts_cell_id'] = proj_id_df$grtsId
+        # Set values for survey, project, and grts ids in dataframe
+        wav_files_rn[,'survey_id']    = survey
+        wav_files_rn[,'project_id']   = project_id
+        wav_files_rn[,'grts_cell_id'] = proj_id_df$grtsId
 
-      # Merge wav files dataframe and acoustic events dataframe for all data
-      wav_n_acc = merge(wav_files_rn, acc_events_rn, by = 'stationary_acoustic_values_id')
+        # Merge wav files dataframe and acoustic events dataframe for all data
+        wav_n_acc = merge(wav_files_rn, acc_events_rn, by = 'stationary_acoustic_values_id')
 
-      # Iteratively combine the wav_n_acc dataframes together for each new survey
-      all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
+        # Iteratively combine the wav_n_acc dataframes together for each new survey
+        all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
+      }
     }
   }
 
