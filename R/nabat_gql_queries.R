@@ -453,12 +453,14 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes)
 
 
+    # Get grts cell for this survey
+    grts_cell = subset(survey_df, survey_df$survey_id == survey)$grts_cell_id
 
     # Build wave files dataframe or raise error message if survey has no data
     if (dim(acc_events)[1] == 0){
-      message (paste0('This survey has no Sationary acoustic data present: ', survey))
+      message (paste0('This survey has no Sationary acoustic data present: ', survey, ' GRTS id: ', grts_cell))
     }else{
-      message (paste0('Compiling stationary acoustic data for survey: ', survey))
+      message (paste0('Compiling stationary acoustic data for survey: ', survey, ' GRTS id: ', grts_cell))
       wav_files = data.frame()
       acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
       for (x in 1:dim(acc_events)[1]){
