@@ -601,7 +601,7 @@ build_ac_doc = function(out_dir,
   }
 
   # If in CONUS add State and County.  Otherwise exclude
-  if (grts_fname == 'CONUS'){
+  if (grts_fname == 'Continental US'){
     print ('Build grts_df_final')
     state_county = ll_to_county_state(dplyr::select(grts_df, x, y))
     grts_df['state_county'] = state_county
