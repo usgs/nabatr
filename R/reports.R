@@ -363,6 +363,7 @@ build_ac_doc = function(out_dir,
         addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
         setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3)
 
+      print ('Saving out map')
       # Save out the two maps
       out_maps_dir = paste0(out_dir, '/temps/range_maps/')
       map_out_ = paste0(out_maps_dir, spc, '_grts.png')
@@ -788,6 +789,7 @@ build_ac_doc = function(out_dir,
 
   print ('Set bold and par style')
   # Font for title
+  bold_face_map = shortcuts$fp_bold(font.size = 12)
   bold_face = shortcuts$fp_bold(font.size = 16)
   par_style = fp_par(text.align = "center")
   par_style_left = fp_par(text.align = "left")
