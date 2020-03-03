@@ -253,8 +253,8 @@ build_ac_doc = function(out_dir,
   all_species_totals_l_l = get_all_species_counts_long(auto_nights_df, manual_nights_df, fil = TRUE)
 
   # Select a species to grab it's range from the shapefile
-  selected_species = names(all_species_totals_l_l_ %>% dplyr::select(-c('GRTS', 'type', 'project_id', 'year', 'NoID')))
-  all_grts_with_data = unique(all_species_totals_l_l_$GRTS)
+  selected_species = names(all_species_totals_l_l %>% dplyr::select(-c('GRTS', 'type', 'project_id', 'year', 'NoID')))
+  all_grts_with_data = unique(all_species_totals_l_l$GRTS)
   num_all_grts_with_data = length(all_grts_with_data)
 
   # Read in species ranges
@@ -286,7 +286,7 @@ build_ac_doc = function(out_dir,
       spc_shp = subset(species_shp, species_shp$SCI_NAME == spc_row$species)
 
       # Grab GRTS from data -- Both Auto and Manual species
-      spc_spec_totals_df = subset(all_species_totals_l_l_, all_species_totals_l_l_[spc] > 0)
+      spc_spec_totals_df = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0)
       grts_with_spc      = unique(spc_spec_totals_df$GRTS)
       num_grts_with_spc  = length(grts_with_spc)
       grts_without_spc   = setdiff(all_grts_with_data, grts_with_spc)
@@ -350,7 +350,7 @@ build_ac_doc = function(out_dir,
       zoom_pt = rgeos::gCentroid(spc_shp)
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
-      m_range = leaflet() %>% addProviderTiles(providers$Stamen.Toner) %>%
+      m_range = leaflet() %>% # addProviderTiles(providers$Stamen.Toner) %>%
         addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
         setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3)
 
