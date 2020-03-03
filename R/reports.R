@@ -298,11 +298,11 @@ build_ac_doc = function(out_dir,
 
       # Grab coordinates for the GRTS with data
       grts_with_spc_spdf = get_grts_shp(grts_ids = grts_with_spc,
-        project_id = project_id_,
-        project_df = project_df_)
+        project_id = project_id,
+        project_df = project_df)
       grts_without_spc_spdf = get_grts_shp(grts_ids = grts_without_spc,
-        project_id = project_id_,
-        project_df = project_df_)
+        project_id = project_id,
+        project_df = project_df)
 
       # Build the grts map overlayed by this species range
       m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
