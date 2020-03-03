@@ -359,7 +359,7 @@ build_ac_doc = function(out_dir,
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
       print ('Creating range map with leaflet')
-      m_range = leaflet() %>% addProviderTiles(providers$Stamen.Toner) %>%
+      m_range = leaflet() %>% addTiles() %>%#addProviderTiles(providers$Stamen.Toner) %>%
         addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
         setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3)
 
