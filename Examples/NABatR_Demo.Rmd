@@ -14,6 +14,9 @@ output:
 # library(nabatr)
 # OR
 source('../R/get_nabat_grts.R')
+if(!require(devtools)){install.packages(devtools)}
+devtools::install_github("ennsk/nabatr")
+print ('test for dev branch')
 ```
 
 ```{r, results='hide'}

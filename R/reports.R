@@ -241,8 +241,143 @@ build_ac_doc = function(out_dir,
 
   print ('Enter Report Function')
 
+  # Setup temps directory to store intermediate files
   if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
     dir.create(paste0(out_dir, '/temps/'))
+  }
+  if (dir.exists(paste0(out_dir, '/temps/range_maps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/range_maps/'))
+  }
+
+  # Get all species long
+  all_species_totals_l_l = get_all_species_counts_long(auto_nights_df, manual_nights_df, fil = TRUE)
+
+  # Select a species to grab it's range from the shapefile
+  selected_species = names(all_species_totals_l_l %>% dplyr::select(-c('GRTS', 'type', 'project_id', 'year', 'NoID')))
+  all_grts_with_data = unique(all_species_totals_l_l$GRTS)
+  num_all_grts_with_data = length(all_grts_with_data)
+
+  # Read in species ranges
+  range_file = '/data/bat_species_ranges/'
+  if (file.exists(range_file)){
+    species_shp = readOGR(range_file)[,1:4]
+  }else{
+    species_shp = pkg.env$species_ranges
+  }
+  print (species_shp)
+  # Set CRS to WGS
+  proj4string(species_shp) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
+  # Build species dataframe to merge with NABat's species lookup table
+  species_shp_names_df = data.frame(species = as.character(unique(species_shp$SCI_NAME)),
+    value = rep(1, length(unique(species_shp$SCI_NAME))), stringsAsFactors = FALSE)
+  # Grab the nabatr package environment for NABat's species lookup table
+  species_lookup_df = pkg.env$bats_df
+
+  # Merge the two together
+  species_range_df = species_lookup_df %>%
+    dplyr::left_join(species_shp_names_df, by = c('species'='species')) %>% subset(value == 1) %>%
+    dplyr::select(-value)
+
+  no_species_range = c()
+  species_with_range = c()
+  maps_grts_files = c()
+  maps_range_files = c()
+  # If the species exists in the ranges shapefile than build it otherwise add it to a no_species_range vector
+  for (spc in selected_species){
+    if (spc %in% species_range_df$species_code){
+      # Grab species range
+      spc_row = subset(species_range_df, species_range_df$species_code == spc)
+      spc_shp = subset(species_shp, species_shp$SCI_NAME == spc_row$species)
+
+      # Grab GRTS from data -- Both Auto and Manual species
+      spc_spec_totals_df = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0)
+      grts_with_spc      = unique(spc_spec_totals_df$GRTS)
+      num_grts_with_spc  = length(grts_with_spc)
+      grts_without_spc   = setdiff(all_grts_with_data, grts_with_spc)
+      num_grts_without_spc = length(grts_without_spc)
+
+      # Grab coordinates for the GRTS with data
+      grts_with_spc_spdf = get_grts_shp(grts_ids = grts_with_spc,
+        project_id = project_id,
+        project_df = project_df)
+      grts_without_spc_spdf = get_grts_shp(grts_ids = grts_without_spc,
+        project_id = project_id,
+        project_df = project_df)
+
+      # Build the grts map overlayed by this species range
+      m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
+      if (length(grts_with_spc_spdf) > 0){
+        extent = extent(grts_with_spc_spdf)
+        lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+        lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+        m = m %>% addPolygons(data = grts_with_spc_spdf, color = 'green',  weight=3, opacity=1)
+      }
+      if(length(grts_without_spc_spdf) > 0){
+        extent = extent(grts_without_spc_spdf)
+        lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+        lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+        m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
+      }
+
+      print ('Adding Minimap')
+      m = m %>% setView(lng = lng_, lat = lat_ ,zoom = 8) %>%
+        addMiniMap(toggleDisplay = F,
+          zoomLevelFixed = 2,
+          minimized = FALSE
+        ) %>%
+        htmlwidgets::onRender("
+          function(el, t) {
+          var myMap = this;
+
+          var range = myMap.layerManager._byGroup.species_range;
+          console.log('test', myMap.layerManager)
+          console.log(range)
+          console.log('3',range._latlngs);
+          var range2 = new L.FeatureGroup();
+          Object.keys(range).forEach(k => {
+          if (range[k]._latlngs) {
+          range[k]._latlngs.forEach(f => {
+          var coords = [];
+          f.forEach(c => {
+          coords.push([c.lat, c.lng])
+          })
+          //range2.push(new L.Polygon(coords))
+          range2.addLayer(new L.Polygon(coords))
+          })
+          console.log(range[k]._latlngs)
+          }
+          });
+          console.log(range2);
+          myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
+          }") %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
+
+
+      print ('Getting a zoom point to setView for rangemap')
+      zoom_pt = rgeos::gCentroid(spc_shp)
+      # Build species range map for this species
+      # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
+      print ('Creating range map with leaflet')
+      m_range = leaflet() %>% addTiles() %>%#addProviderTiles(providers$Stamen.Toner) %>%
+        addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
+        setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3)
+
+      print ('Saving out map')
+      # Save out the two maps
+      out_maps_dir = paste0(out_dir, '/temps/range_maps/')
+      map_out_ = paste0(out_maps_dir, spc, '_grts.png')
+      mapshot(m, file = map_out_, remove_controls = c("zoomControl", "layersControl", "homeButton"))
+      range_map_out_ = paste0(out_maps_dir, spc, '_range.png')
+      mapshot(m_range, file = range_map_out_, remove_controls = c("zoomControl", "layersControl", "homeButton"))
+
+      # species with range maps
+      maps_grts_files = c(maps_grts_files, map_out_)
+      maps_range_files = c(maps_range_files, range_map_out_)
+      species_with_range = c(spc, species_with_range)
+    }else {
+      # No species range maps found for these species
+      no_species_range = c(spc, no_species_range)
+    }
   }
 
   print ('Set Variables')
@@ -277,8 +412,15 @@ build_ac_doc = function(out_dir,
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of detector nights across all sites
-  net_nights_df = acoustic_bulk_df %>% dplyr::mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
-  number_of_net_nights = length(unique(net_nights_df$site_date_nights))
+  net_nights_df = acoustic_bulk_df %>% dplyr::distinct() %>%
+    dplyr::mutate(survey_end_time = as.POSIXct(survey_end_time,format="%Y-%m-%dT%H:%M", tz = 'UTC')) %>%
+    dplyr::mutate(survey_start_time = as.Date(survey_start_time)) %>%
+    dplyr::mutate(end_day = ifelse(format(survey_end_time, '%H') < 12, format(survey_end_time - (60*60*24), "%Y-%m-%dT%H:%M"),
+      survey_end_time)) %>%
+    dplyr::mutate(end_day = as.Date(end_day)) %>%
+    dplyr::mutate(site_date_nights = as.integer(end_day - survey_start_time + 1))
+
+  number_of_net_nights = sum(net_nights_df$site_date_nights)
 
   # If the manual_species_grts_df_w is not null
   if (!is.null(manual_species_grts_df_w)){
@@ -642,6 +784,7 @@ build_ac_doc = function(out_dir,
 
   print ('Set bold and par style')
   # Font for title
+  bold_face_map = shortcuts$fp_bold(font.size = 12)
   bold_face = shortcuts$fp_bold(font.size = 16)
   par_style = fp_par(text.align = "center")
   par_style_left = fp_par(text.align = "left")
@@ -767,8 +910,32 @@ build_ac_doc = function(out_dir,
 
     # Figure 4
     body_add_par(value = descr_fig4, style = "Normal") %>%
-    slip_in_img(src = fig4_f, width = 6.5, height = 5)
+    slip_in_img(src = fig4_f, width = 6.5, height = 5) %>%
+    body_add_break()
 
+
+    # Add species range maps
+    map_c = 0
+    letters_ = myLetters(length(maps_range_files))
+    for (range_m in maps_range_files){
+      map_c = map_c + 1
+      grts_m = maps_grts_files[map_c]
+      spc_range_name = str_split(str_split(sub('\\.png$', '', range_m), 'range_maps/')[[1]][2], '_range')[[1]][1]
+      spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
+      descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
+      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").")
+
+      # Add the maps to the doc
+      doc = doc %>%
+        body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
+        body_add_par(value = descr_fig5, style = "Normal") %>%
+        slip_in_img(src = range_m, width = 5.5, height = 3.5) %>%
+        body_add_par(value = "", style = "Normal") %>%
+        body_add_par(value = "", style = "Normal") %>%
+        body_add_par(value = descr_fig6, style = "Normal") %>%
+        slip_in_img(src = grts_m, width = 5.5, height = 3.5) %>%
+        body_add_break()
+    }
   return(doc)
 }
 
