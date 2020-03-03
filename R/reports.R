@@ -918,7 +918,6 @@ build_ac_doc = function(out_dir,
     # Add species range maps
     map_c = 0
     letters_ = myLetters(length(maps_range_files))
-    doc = read_docx()
     for (range_m in maps_range_files){
       map_c = map_c + 1
       grts_m = maps_grts_files[map_c]
