@@ -353,7 +353,7 @@ build_ac_doc = function(out_dir,
           });
           console.log(range2);
           myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
-          }") %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1) %>%
+          }") %>%
         addLegend('bottomright',labels = c(paste0(spc, ' Found'), paste0(spc, ' Not Found')), colors = c('#198a00', '#ff0000'), opacity =1)
 
 
