@@ -9,17 +9,14 @@ output:
 ### Demonstration of using the NABatR library to query and display GRTS cells.
 
 ```{r, echo=FALSE, include = FALSE}
-<<<<<<< HEAD
 # if(!require(devtools)){install.packages(devtools)}
 # devtools::install_github("talbertc-usgs/nabatr")
 # library(nabatr)
 # OR
 source('../R/get_nabat_grts.R')
-=======
 if(!require(devtools)){install.packages(devtools)}
 devtools::install_github("ennsk/nabatr")
 print ('test for dev branch')
->>>>>>> 7dcabb1ac5e0355134ce74b1e832709883f0604a
 ```
 
 ```{r, results='hide'}
