@@ -935,11 +935,11 @@ build_ac_doc = function(out_dir,
       doc = doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
         body_add_par(value = descr_fig5, style = "Normal") %>%
-        slip_in_img(src = range_m, width = 5.5, height = 3.5) %>%
+        slip_in_img(src = range_m, width = 5.7, height = 4) %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = descr_fig6, style = "Normal") %>%
-        slip_in_img(src = grts_m, width = 5.5, height = 3.5) %>%
+        slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
     }
   return(doc)
