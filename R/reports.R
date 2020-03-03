@@ -259,7 +259,11 @@ build_ac_doc = function(out_dir,
 
   # Read in species ranges
   range_file = '/data/bat_species_ranges/'
-  species_shp = readOGR(range_file)
+  if (file.exists(range_file)){
+    species_shp = readOGR(range_file)
+  }else{
+    species_shp = pkg.env$species_ranges
+  }
   # Set CRS to WGS
   proj4string(species_shp) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
