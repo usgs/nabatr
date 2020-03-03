@@ -305,6 +305,9 @@ build_ac_doc = function(out_dir,
         project_id = project_id,
         project_df = project_df)
 
+      all_grts_spdf = rbind(grts_with_spc_spdf, grts_without_spc_spdf)
+      full_extent = extent(all_grts_spdf)
+
       # Build the grts map overlayed by this species range
       m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
       if (length(grts_with_spc_spdf) > 0){
@@ -321,7 +324,7 @@ build_ac_doc = function(out_dir,
       }
 
       print ('Adding Minimap')
-      m = m %>% setView(lng = lng_, lat = lat_ ,zoom = 8) %>%
+      m = m %>% fitBounds(full_extent@xmin, full_extent@ymin, full_extent@xmax, full_extent@ymax) %>%
         addMiniMap(toggleDisplay = F,
           zoomLevelFixed = 2,
           minimized = FALSE
@@ -359,10 +362,11 @@ build_ac_doc = function(out_dir,
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
       print ('Creating range map with leaflet')
-      m_range = leaflet() %>% addTiles() %>%#addProviderTiles(providers$Stamen.Toner) %>%
+      m_range = leaflet() %>% addProviderTiles(providers$Stamen.Toner) %>%
         addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
         setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3) %>%
-        addLegend('bottomright',labels = paste0(spc, ' Species Range'), colors = c('blue'), opacity =1)
+        addLegend('bottomright',labels = paste0(spc, ' Species Range'), colors = c('blue'), opacity =1) %>%
+        fitBounds(range_extent@xmin, range_extent@ymin, range_extent@xmax, range_extent@ymax)
 
       print ('Saving out map')
       # Save out the two maps
