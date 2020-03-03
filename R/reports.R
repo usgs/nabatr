@@ -318,9 +318,10 @@ build_ac_doc = function(out_dir,
         lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
         m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
       }
+
+      print ('Adding Minimap')
       m = m %>% setView(lng = lng_, lat = lat_ ,zoom = 8) %>%
-        addMiniMap(tiles = 'Esri',
-          toggleDisplay = F,
+        addMiniMap(toggleDisplay = F,
           zoomLevelFixed = 2,
           minimized = FALSE
         ) %>%
@@ -351,10 +352,12 @@ build_ac_doc = function(out_dir,
           }") %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
 
 
+      print ('Getting a zoom point to setView for rangemap')
       zoom_pt = rgeos::gCentroid(spc_shp)
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
-      m_range = leaflet() %>% addTiles() %>%# addProviderTiles(providers$Stamen.Toner) %>%
+      print ('Creating range map with leaflet')
+      m_range = leaflet() %>% addProviderTiles(providers$Stamen.Toner) %>%
         addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
         setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3)
 
