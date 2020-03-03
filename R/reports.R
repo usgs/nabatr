@@ -627,25 +627,27 @@ build_ac_doc = function(out_dir,
   descr_table1 = paste0("Table 1. NABat GRTS cells surveyed in ",selected_year,". Number of detector points, detector nights, and species detected are shown for each cell.")
   descr_table3 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed, ",selected_year,". Years with detections and method of species identification are shown for each species in each cell. ")
 
-  print ('Build flextable 1')
   # Table 1
+  print ('Build flextable 1')
   ft1_names_list = list()
   for (name in names(grts_df_final)){
     ft1_names_list[name] = gsub("_", " ", name)
   }
+  print (ft1_names_list)
   ft1 = flextable::flextable(grts_df_final)
   ft1 = set_header_labels(ft1, values = ft1_names_list)
   ft1 = flextable::height(ft1, height =.7, part = 'header')
   ft1 = flextable::width(ft1, width = 1)
   ft1 = flextable::fontsize(ft1, size = 10, part = "all")
   # Table 3
+  print ('Build flextable 3')
   ft3_names_list = list()
   for (name in names(table3_df)){
     ft3_names_list[name] = gsub("_", " ", name)
   }
-  print ('Build flextable 3')
+  print (ft3_names_list)
   ft3 = flextable::flextable(table3_df)
-  ft1 = set_header_labels(ft3, values = ft3_names_list)
+  ft3 = set_header_labels(ft3, values = ft3_names_list)
   ft3 = flextable::height(ft3, height =.5, part = 'header')
   ft3 = flextable::width(ft3, width =2)
   ft3 = flextable::merge_v(ft3, j = 'GRTS')
