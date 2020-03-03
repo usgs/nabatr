@@ -892,7 +892,7 @@ build_ac_doc = function(out_dir,
     # Figure 1
     body_add_par(value = descr_fig1, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_img(src = map_out_, width = 6, height = 4, style= 'centered') %>%
+    body_add_img(src = map_out_, width = 5.7, height = 4, style= 'centered') %>%
     body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
