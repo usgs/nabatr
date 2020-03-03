@@ -237,7 +237,8 @@ build_ac_doc = function(out_dir,
   manual_nights_df,
   cover_photo = NULL,
   date = format(Sys.time(), "%B %d, %Y"),
-  map = NULL){
+  map = NULL,
+  range_maps = TRUE){
 
   print ('Enter Report Function')
 
@@ -279,113 +280,116 @@ build_ac_doc = function(out_dir,
     dplyr::left_join(species_shp_names_df, by = c('species'='species')) %>% subset(value == 1) %>%
     dplyr::select(-value)
 
-  no_species_range = c()
-  species_with_range = c()
-  maps_grts_files = c()
-  maps_range_files = c()
-  # If the species exists in the ranges shapefile than build it otherwise add it to a no_species_range vector
-  for (spc in selected_species){
-    if (spc %in% species_range_df$species_code){
-      # Grab species range
-      spc_row = subset(species_range_df, species_range_df$species_code == spc)
-      spc_shp = subset(species_shp, species_shp$SCI_NAME == spc_row$species)
+  if (range_maps){
+    no_species_range = c()
+    species_with_range = c()
+    maps_grts_files = c()
+    maps_range_files = c()
+    # If the species exists in the ranges shapefile than build it otherwise add it to a no_species_range vector
+    for (spc in selected_species){
+      if (spc %in% species_range_df$species_code){
+        # Grab species range
+        spc_row = subset(species_range_df, species_range_df$species_code == spc)
+        spc_shp = subset(species_shp, species_shp$SCI_NAME == spc_row$species)
 
-      # Grab GRTS from data -- Both Auto and Manual species
-      spc_spec_totals_df = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0)
-      grts_with_spc      = unique(spc_spec_totals_df$GRTS)
-      num_grts_with_spc  = length(grts_with_spc)
-      grts_without_spc   = setdiff(all_grts_with_data, grts_with_spc)
-      num_grts_without_spc = length(grts_without_spc)
+        # Grab GRTS from data -- Both Auto and Manual species
+        spc_spec_totals_df = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0)
+        grts_with_spc      = unique(spc_spec_totals_df$GRTS)
+        num_grts_with_spc  = length(grts_with_spc)
+        grts_without_spc   = setdiff(all_grts_with_data, grts_with_spc)
+        num_grts_without_spc = length(grts_without_spc)
 
-      # Grab coordinates for the GRTS with data
-      grts_with_spc_spdf = get_grts_shp(grts_ids = grts_with_spc,
-        project_id = project_id,
-        project_df = project_df)
-      grts_without_spc_spdf = get_grts_shp(grts_ids = grts_without_spc,
-        project_id = project_id,
-        project_df = project_df)
+        # Grab coordinates for the GRTS with data
+        grts_with_spc_spdf = get_grts_shp(grts_ids = grts_with_spc,
+          project_id = project_id,
+          project_df = project_df)
+        grts_without_spc_spdf = get_grts_shp(grts_ids = grts_without_spc,
+          project_id = project_id,
+          project_df = project_df)
 
-      all_grts_spdf = rbind(grts_with_spc_spdf, grts_without_spc_spdf)
-      full_extent = extent(all_grts_spdf)
+        all_grts_spdf = rbind(grts_with_spc_spdf, grts_without_spc_spdf)
+        full_extent = extent(all_grts_spdf)
 
-      # Build the grts map overlayed by this species range
-      m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
-      if (length(grts_with_spc_spdf) > 0){
-        extent = extent(grts_with_spc_spdf)
-        lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
-        lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
-        m = m %>% addPolygons(data = grts_with_spc_spdf, color = 'green',  weight=3, opacity=1)
-      }
-      if(length(grts_without_spc_spdf) > 0){
-        extent = extent(grts_without_spc_spdf)
-        lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
-        lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
-        m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
-      }
+        # Build the grts map overlayed by this species range
+        m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
+        if (length(grts_with_spc_spdf) > 0){
+          extent = extent(grts_with_spc_spdf)
+          lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+          lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+          m = m %>% addPolygons(data = grts_with_spc_spdf, color = 'green',  weight=3, opacity=1)
+        }
+        if(length(grts_without_spc_spdf) > 0){
+          extent = extent(grts_without_spc_spdf)
+          lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+          lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+          m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
+        }
 
-      print ('Adding Minimap')
-      m = m %>% fitBounds(full_extent@xmin, full_extent@ymin, full_extent@xmax, full_extent@ymax) %>%
-        addMiniMap(toggleDisplay = F,
-          zoomLevelFixed = 2,
-          minimized = FALSE
-        ) %>%
-        htmlwidgets::onRender("
-          function(el, t) {
-          var myMap = this;
+        print ('Adding Minimap')
+        m = m %>% fitBounds(full_extent@xmin, full_extent@ymin, full_extent@xmax, full_extent@ymax) %>%
+          addMiniMap(toggleDisplay = F,
+            zoomLevelFixed = 2,
+            minimized = FALSE
+          ) %>%
+          htmlwidgets::onRender("
+            function(el, t) {
+            var myMap = this;
 
-          var range = myMap.layerManager._byGroup.species_range;
-          console.log('test', myMap.layerManager)
-          console.log(range)
-          console.log('3',range._latlngs);
-          var range2 = new L.FeatureGroup();
-          Object.keys(range).forEach(k => {
-          if (range[k]._latlngs) {
-          range[k]._latlngs.forEach(f => {
-          var coords = [];
-          f.forEach(c => {
-          coords.push([c.lat, c.lng])
-          })
-          //range2.push(new L.Polygon(coords))
-          range2.addLayer(new L.Polygon(coords))
-          })
-          console.log(range[k]._latlngs)
-          }
-          });
-          console.log(range2);
-          myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
-          }") %>%
+            var range = myMap.layerManager._byGroup.species_range;
+            console.log('test', myMap.layerManager)
+            console.log(range)
+            console.log('3',range._latlngs);
+            var range2 = new L.FeatureGroup();
+            Object.keys(range).forEach(k => {
+            if (range[k]._latlngs) {
+            range[k]._latlngs.forEach(f => {
+            var coords = [];
+            f.forEach(c => {
+            coords.push([c.lat, c.lng])
+            })
+            //range2.push(new L.Polygon(coords))
+            range2.addLayer(new L.Polygon(coords))
+            })
+            console.log(range[k]._latlngs)
+            }
+            });
+            console.log(range2);
+            myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
+            }") %>%
         addLegend('bottomright',labels = c(paste0(spc, ' Found'), paste0(spc, ' Not Found')), colors = c('#198a00', '#ff0000'), opacity =1)
 
 
-      print ('Getting a zoom point to setView for rangemap')
-      zoom_pt = rgeos::gCentroid(spc_shp)
-      range_extent = extent(spc_shp)
-      # Build species range map for this species
-      # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
-      print ('Creating range map with leaflet')
-      m_range = leaflet() %>% addTiles() %>%
-        addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
-        setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3) %>%
-        addLegend('bottomright',labels = paste0(spc, ' Species Range'), colors = c('blue'), opacity =1) %>%
-        fitBounds(range_extent@xmin, range_extent@ymin, range_extent@xmax, range_extent@ymax)
+        print ('Getting a zoom point to setView for rangemap')
+        zoom_pt = rgeos::gCentroid(spc_shp)
+        range_extent = extent(spc_shp)
+        # Build species range map for this species
+        # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
+        print ('Creating range map with leaflet')
+        m_range = leaflet() %>% addTiles() %>%
+          addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
+          setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3) %>%
+          addLegend('bottomright',labels = paste0(spc, ' Species Range'), colors = c('blue'), opacity =1) %>%
+          fitBounds(range_extent@xmin, range_extent@ymin, range_extent@xmax, range_extent@ymax)
 
-      print ('Saving out map')
-      # Save out the two maps
-      out_maps_dir = paste0(out_dir, '/temps/range_maps/')
-      map_out_ = paste0(out_maps_dir, spc, '_grts.png')
-      mapshot(m, file = map_out_, remove_controls = c("zoomControl", "layersControl", "homeButton"))
-      range_map_out_ = paste0(out_maps_dir, spc, '_range.png')
-      mapshot(m_range, file = range_map_out_, remove_controls = c("zoomControl", "layersControl", "homeButton"))
+        print ('Saving out map')
+        # Save out the two maps
+        out_maps_dir = paste0(out_dir, '/temps/range_maps/')
+        map_out_ = paste0(out_maps_dir, spc, '_grts.png')
+        mapshot(m, file = map_out_, remove_controls = c("zoomControl", "layersControl", "homeButton"))
+        range_map_out_ = paste0(out_maps_dir, spc, '_range.png')
+        mapshot(m_range, file = range_map_out_, remove_controls = c("zoomControl", "layersControl", "homeButton"))
 
-      # species with range maps
-      maps_grts_files = c(maps_grts_files, map_out_)
-      maps_range_files = c(maps_range_files, range_map_out_)
-      species_with_range = c(spc, species_with_range)
-    }else {
-      # No species range maps found for these species
-      no_species_range = c(spc, no_species_range)
+        # species with range maps
+        maps_grts_files = c(maps_grts_files, map_out_)
+        maps_range_files = c(maps_range_files, range_map_out_)
+        species_with_range = c(spc, species_with_range)
+      }else {
+        # No species range maps found for these species
+        no_species_range = c(spc, no_species_range)
+      }
     }
   }
+
 
   print ('Set Variables')
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
@@ -934,6 +938,7 @@ build_ac_doc = function(out_dir,
 
 
     # Add species range maps
+  if (range_maps){
     map_c = 0
     letters_ = myLetters(length(maps_range_files))
     for (range_m in maps_range_files){
@@ -954,6 +959,7 @@ build_ac_doc = function(out_dir,
         slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
     }
+  }
   return(doc)
 }
 
