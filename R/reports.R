@@ -359,6 +359,7 @@ build_ac_doc = function(out_dir,
 
       print ('Getting a zoom point to setView for rangemap')
       zoom_pt = rgeos::gCentroid(spc_shp)
+      range_extent = extent(spc_shp)
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
       print ('Creating range map with leaflet')
