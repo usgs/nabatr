@@ -264,6 +264,7 @@ build_ac_doc = function(out_dir,
   }else{
     species_shp = pkg.env$species_ranges
   }
+  print (species_shp)
   # Set CRS to WGS
   proj4string(species_shp) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
@@ -353,6 +354,7 @@ build_ac_doc = function(out_dir,
 
 
       print ('Getting a zoom point to setView for rangemap')
+      print (spc_shp)
       zoom_pt = rgeos::gCentroid(spc_shp)
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
