@@ -381,17 +381,6 @@ build_ac_doc = function(out_dir,
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
   print ('Set Variables')
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
@@ -424,8 +413,15 @@ build_ac_doc = function(out_dir,
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of detector nights across all sites
-  net_nights_df = acoustic_bulk_df %>% dplyr::mutate(site_date_nights = paste0(acoustic_bulk_df$site_name, '___', as.Date(acoustic_bulk_df$recording_time)))
-  number_of_net_nights = length(unique(net_nights_df$site_date_nights))
+  net_nights_df = acoustic_bulk_df %>% dplyr::distinct() %>%
+    dplyr::mutate(survey_end_time = as.POSIXct(survey_end_time,format="%Y-%m-%dT%H:%M", tz = 'UTC')) %>%
+    dplyr::mutate(survey_start_time = as.Date(survey_start_time)) %>%
+    dplyr::mutate(end_day = ifelse(format(survey_end_time, '%H') < 12, format(survey_end_time - (60*60*24), "%Y-%m-%dT%H:%M"),
+      survey_end_time)) %>%
+    dplyr::mutate(end_day = as.Date(end_day)) %>%
+    dplyr::mutate(site_date_nights = as.integer(end_day - survey_start_time + 1))
+
+  number_of_net_nights = sum(net_nights_df$site_date_nights)
 
   # If the manual_species_grts_df_w is not null
   if (!is.null(manual_species_grts_df_w)){
@@ -915,22 +911,29 @@ build_ac_doc = function(out_dir,
 
     # Figure 4
     body_add_par(value = descr_fig4, style = "Normal") %>%
-    slip_in_img(src = fig4_f, width = 6.5, height = 5)
+    slip_in_img(src = fig4_f, width = 6.5, height = 5) %>%
+    body_add_break()
 
 
     # Add species range maps
     map_c = 0
+    letters_ = myLetters(length(maps_range_files))
+    doc = read_docx()
     for (range_m in maps_range_files){
       map_c = map_c + 1
       grts_m = maps_grts_files[map_c]
-      spc_range_name = sub('\\.png$', '', range_m)
-      spc_grts_name = sub('\\.png$', '', grts_m)
+      spc_range_name = str_split(str_split(sub('\\.png$', '', range_m), 'range_maps/')[[1]][2], '_range')[[1]][1]
+      spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
+      descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
+      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").")
       doc = doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'centered') %>%
+        body_add_par(value = descr_fig5, style = "Normal") %>%
         slip_in_img(src = range_m, width = 5.5, height = 3.5) %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_grts_name), prop = bold_face_map), fp_p = par_style ), style = 'centered') %>%
+        body_add_par(value = descr_fig6, style = "Normal") %>%
         slip_in_img(src = grts_m, width = 5.5, height = 3.5) %>%
         body_add_break()
     }
