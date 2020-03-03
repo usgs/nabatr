@@ -925,19 +925,18 @@ build_ac_doc = function(out_dir,
       spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
       descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
       descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").")
+
+      # Add the maps to the doc
       doc = doc %>%
-        body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'centered') %>%
+        body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
         body_add_par(value = descr_fig5, style = "Normal") %>%
         slip_in_img(src = range_m, width = 5.5, height = 3.5) %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = "", style = "Normal") %>%
-        body_add_fpar(fpar(ftext(paste0('Species:  ',spc_grts_name), prop = bold_face_map), fp_p = par_style ), style = 'centered') %>%
         body_add_par(value = descr_fig6, style = "Normal") %>%
         slip_in_img(src = grts_m, width = 5.5, height = 3.5) %>%
         body_add_break()
     }
-
-
   return(doc)
 }
 
