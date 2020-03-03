@@ -305,6 +305,9 @@ build_ac_doc = function(out_dir,
         project_id = project_id,
         project_df = project_df)
 
+      all_grts_spdf = rbind(grts_with_spc_spdf, grts_without_spc_spdf)
+      full_extent = extent(all_grts_spdf)
+
       # Build the grts map overlayed by this species range
       m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
       if (length(grts_with_spc_spdf) > 0){
@@ -321,7 +324,7 @@ build_ac_doc = function(out_dir,
       }
 
       print ('Adding Minimap')
-      m = m %>% setView(lng = lng_, lat = lat_ ,zoom = 8) %>%
+      m = m %>% fitBounds(full_extent@xmin, full_extent@ymin, full_extent@xmax, full_extent@ymax) %>%
         addMiniMap(toggleDisplay = F,
           zoomLevelFixed = 2,
           minimized = FALSE
@@ -350,17 +353,21 @@ build_ac_doc = function(out_dir,
           });
           console.log(range2);
           myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
-          }") %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
+          }") %>%
+        addLegend('bottomright',labels = c(paste0(spc, ' Found'), paste0(spc, ' Not Found')), colors = c('#198a00', '#ff0000'), opacity =1)
 
 
       print ('Getting a zoom point to setView for rangemap')
       zoom_pt = rgeos::gCentroid(spc_shp)
+      range_extent = extent(spc_shp)
       # Build species range map for this species
       # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
       print ('Creating range map with leaflet')
-      m_range = leaflet() %>% addTiles() %>%#addProviderTiles(providers$Stamen.Toner) %>%
+      m_range = leaflet() %>% addTiles() %>%
         addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
-        setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3)
+        setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3) %>%
+        addLegend('bottomright',labels = paste0(spc, ' Species Range'), colors = c('blue'), opacity =1) %>%
+        fitBounds(range_extent@xmin, range_extent@ymin, range_extent@xmax, range_extent@ymax)
 
       print ('Saving out map')
       # Save out the two maps
@@ -599,7 +606,7 @@ build_ac_doc = function(out_dir,
   }
 
   # If in CONUS add State and County.  Otherwise exclude
-  if (grts_fname == 'CONUS'){
+  if (grts_fname == 'Continental US'){
     print ('Build grts_df_final')
     state_county = ll_to_county_state(dplyr::select(grts_df, x, y))
     grts_df['state_county'] = state_county
@@ -885,7 +892,7 @@ build_ac_doc = function(out_dir,
     # Figure 1
     body_add_par(value = descr_fig1, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_img(src = map_out_, width = 6, height = 4, style= 'centered') %>%
+    body_add_img(src = map_out_, width = 5.7, height = 4, style= 'centered') %>%
     body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
@@ -923,17 +930,16 @@ build_ac_doc = function(out_dir,
       spc_range_name = str_split(str_split(sub('\\.png$', '', range_m), 'range_maps/')[[1]][2], '_range')[[1]][1]
       spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
       descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
-      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").")
-
+      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").  Green GRTS cells represent the presence of ",spc_range_name," found using Automatic, Manual, or both methods of detection.  Red GRTS cells represent no detections found for ",spc_range_name,".")
       # Add the maps to the doc
       doc = doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
         body_add_par(value = descr_fig5, style = "Normal") %>%
-        slip_in_img(src = range_m, width = 5.5, height = 3.5) %>%
+        slip_in_img(src = range_m, width = 5.7, height = 4) %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = descr_fig6, style = "Normal") %>%
-        slip_in_img(src = grts_m, width = 5.5, height = 3.5) %>%
+        slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
     }
   return(doc)
