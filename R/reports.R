@@ -260,7 +260,7 @@ build_ac_doc = function(out_dir,
   # Read in species ranges
   range_file = '/data/bat_species_ranges/'
   if (file.exists(range_file)){
-    species_shp = readOGR(range_file)
+    species_shp = readOGR(range_file)[,1:4]
   }else{
     species_shp = pkg.env$species_ranges
   }
