@@ -49,7 +49,7 @@ grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'),
 #'
 #' @export
 #'
-get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
+get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -64,13 +64,25 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
     url = url
   }
 
+  if (docker){
+    # If Docker 3_5_3 use this headers_
+    if(!is.null(aws_gql)){
+      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+    }else {
+      headers_ = list(Authorization = paste0("Bearer ", token))
+    }
+  } else{
+    # If Local, use this headers_
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+  }
+
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
     cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+      headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
-      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+      headers = headers_)
   }
 
   # Set empty Query
@@ -272,7 +284,7 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
   # Define package environmental varioables
   print ('Setting species_df environmental variable')
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb)
+    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -356,7 +368,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb)
+    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -729,7 +741,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb)
+    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
