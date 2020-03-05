@@ -11,7 +11,8 @@ get_colony_bulk_counts(
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
-  aws_alb = NULL
+  aws_alb = NULL,
+  docker = FALSE
 )
 }
 \arguments{

@@ -10,7 +10,8 @@ get_nabat_banding_by_states(
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
-  aws_alb = NULL
+  aws_alb = NULL,
+  docker = FALSE
 )
 }
 \arguments{

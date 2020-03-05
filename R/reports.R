@@ -265,6 +265,7 @@ build_ac_doc = function(out_dir,
   }else{
     species_shp = pkg.env$species_ranges
   }
+
   print (species_shp)
   # Set CRS to WGS
   proj4string(species_shp) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
@@ -360,14 +361,14 @@ build_ac_doc = function(out_dir,
 
 
         print ('Getting a zoom point to setView for rangemap')
-        zoom_pt = rgeos::gCentroid(spc_shp)
+        # zoom_pt = rgeos::gCentroid(spc_shp)
         range_extent = extent(spc_shp)
         # Build species range map for this species
         # website for diff providers: http://leaflet-extras.github.io/leaflet-providers/preview/
         print ('Creating range map with leaflet')
         m_range = leaflet() %>% addTiles() %>%
           addPolygons(data = spc_shp, label = spc, group = 'species_range') %>%
-          setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3) %>%
+          # setView(lng = zoom_pt@coords[,1], lat = zoom_pt@coords[,2], zoom = 3) %>%
           addLegend('bottomright',labels = paste0(spc, ' Species Range'), colors = c('blue'), opacity =1) %>%
           fitBounds(range_extent@xmin, range_extent@ymin, range_extent@xmax, range_extent@ymax)
 
@@ -819,9 +820,9 @@ build_ac_doc = function(out_dir,
   print ('Begin .docx build')
   doc = read_docx() %>%
     # Add title/header
-    # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
+    # 'Normal', 'heading 1', '  heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
     # body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
-    body_add_fpar(fpar(ftext('Acoustic Stationary Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext('Stationary Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
