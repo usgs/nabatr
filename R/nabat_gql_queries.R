@@ -195,7 +195,7 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 #'
 #' @export
 #'
-get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL){
+get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -210,6 +210,18 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     url = url
   }
 
+  if (docker){
+    # If Docker 3_5_3 use this headers_
+    if(!is.null(aws_gql)){
+      headers_ = list(Authorization = paste0("Bearer ", this_token), host = aws_gql)
+    }else {
+      headers_ = list(Authorization = paste0("Bearer ", this_token))
+    }
+  } else{
+    # If Local, use this headers_
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+  }
+
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
     print ('URL:')
@@ -217,10 +229,10 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     print ('host:')
     print (aws_gql)
     cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token), host = aws_gql)))
+      headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
-      headers = add_headers(.headers = c(Authorization = paste0('Bearer ', token))))
+      headers = headers_)
   }
 
   # Sample frame lookup
