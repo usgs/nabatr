@@ -661,7 +661,7 @@ build_ac_doc = function(out_dir,
   ft3 = flextable::merge_v(ft3, j = 'GRTS')
   ft3 = flextable::fontsize(ft3, size = 10, part = "all")
   ft3 = flextable::italic(ft3, j = 2)
-  ft3 = flextable::hline(ft3, border = fp_border(width = .75, color = "black"), part = "body")
+  ft3 = flextable::hline(ft3, border = fp_border(color = "black"), part = "body")
 
   print ('Save out map')
   # Figure 1
