@@ -740,12 +740,12 @@ build_ac_doc = function(out_dir,
   m = list(t = 70)
 
   fig2_p_base = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
-    width = 850, height = 700,
+    width = 850, height = 850,
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = c('#ff8400', '#337acc', '#23992f')) # orange/blue/green
 
   # fig 2a
-  fig2_p = fig2_p_base %>% layout( xaxis = x, yaxis = y,
+  fig2_p = fig2_p_base %>% layout(xaxis = x, yaxis = y,
     title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f),
     margin = m, font = leg, showlegend = TRUE, autosize=T, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
@@ -923,13 +923,13 @@ build_ac_doc = function(out_dir,
 
     # Figure 2a
     body_add_par(value = descr_fig2a, style = "Normal") %>%
-    slip_in_img(src = fig2a_f, width = 6.5, height = 5) %>%
+    slip_in_img(src = fig2a_f, width = 6.5, height = 6.5) %>%
 
     body_add_break() %>%
 
     # Figure 2b
     body_add_par(value = descr_fig2b, style = "Normal") %>%
-    slip_in_img(src = fig2b_f, width = 6.5, height = 5) %>%
+    slip_in_img(src = fig2b_f, width = 6.5, height = 6.5) %>%
 
     body_add_break() %>%
 
