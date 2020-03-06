@@ -740,7 +740,7 @@ build_ac_doc = function(out_dir,
   m = list(t = 70)
 
   fig2_p_base = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
-    width = 850, height = 850,
+    # width = 850, height = 850,
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = c('#ff8400', '#337acc', '#23992f')) # orange/blue/green
 
