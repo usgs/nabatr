@@ -768,16 +768,16 @@ build_ac_doc = function(out_dir,
   col_ = rainbow(n = length(fig3_data_df$species))
 
   # fig 3
-  pie_species = plot_ly(values = fig3_data_df$counts, type = 'pie', width='100%',
-    labels = fig3_data_df$species,
-    showlegend=FALSE,
-    marker = list(colors = col_,line = list(color = 'black', width = .5)),
-    height = 1000,
-    textinfo = 'label+value') %>%
-    layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f), font = ll)
-  print ('Save out plotly fig3')
-  fig3_f = paste0(out_dir, "/temps/fig3.png")
-  plotly::export(pie_species, file = fig3_f)
+  # pie_species = plot_ly(values = fig3_data_df$counts, type = 'pie', width='100%',
+  #   labels = fig3_data_df$species,
+  #   showlegend=FALSE,
+  #   marker = list(colors = col_,line = list(color = 'black', width = .5)),
+  #   height = 1000,
+  #   textinfo = 'label+value') %>%
+  #   layout(title = list(x = .1, y = .9, text = 'Automatic Detection Counts', font = f), font = ll)
+  # print ('Save out plotly fig3')
+  # fig3_f = paste0(out_dir, "/temps/fig3.png")
+  # plotly::export(pie_species, file = fig3_f)
 
 
   # Fig 4
@@ -929,11 +929,11 @@ build_ac_doc = function(out_dir,
 
     body_add_break() %>%
 
-    # Figure 3
-    body_add_par(value = descr_fig3, style = "Normal") %>%
-    slip_in_img(src = fig3_f, width = 6.5, height = 7) %>%
-
-    body_add_break() %>%
+    # # Figure 3
+    # body_add_par(value = descr_fig3, style = "Normal") %>%
+    # slip_in_img(src = fig3_f, width = 6.5, height = 7) %>%
+    #
+    # body_add_break() %>%
 
     # Figure 4
     body_add_par(value = descr_fig4, style = "Normal") %>%
