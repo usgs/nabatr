@@ -500,6 +500,7 @@ build_ac_doc = function(out_dir,
       # MANUAL names
       man_species_names = as.character(subset(pkg.env$bats_df, pkg.env$bats_df$species_code %in% grts_species_man)$species)
       man_species_names = man_species_names[man_species_names != ""]
+      man_species_names = man_species_names[!is.na(man_species_names)]
     }
 
 
@@ -514,9 +515,11 @@ build_ac_doc = function(out_dir,
 
     # AUTO names
     auto_species_names = as.character(subset(pkg.env$bats_df, pkg.env$bats_df$species_code %in% grts_species_auto)$species)
+    auto_species_names = auto_species_names[auto_species_names != ""]
+    auto_species_names = auto_species_names[!is.na(auto_species_names)]
 
     all_species_names = unique(c(man_species_names, auto_species_names))
-    all_species_names = all_species_names[all_species_names != ""]
+
 
     # Build Method of species ID
     methods = c()
