@@ -739,8 +739,8 @@ build_ac_doc = function(out_dir,
   y = list(title = "Average No. of Bat Passes",titlefont = l)
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   # Setting the margin for these plots
-  m_fig_2     = list(t = 50, b = 30, l = 30, r = 15, xpad = 40, ypad = 0)
-  m_fig_2_log = list(t = 50, b = 40, l = 30, r = 15, pad = 15)
+  m_fig_2     = list(t = 50, b = 30, l = 30, r = 15, pad = 0)
+  m_fig_2_log = list(t = 50, b = 40, l = 45, r = 15, pad = 0)
   m_fig_4     = list(t = 50, b = 20, l = 20, r = 10, pad = 0)
   # m = list(t = 60, b = 50, l = 50, r = 15, pad = 25)
 
@@ -819,7 +819,7 @@ build_ac_doc = function(out_dir,
     marker = list(line = list(color = 'black', width = .5)),
     color = 'blue', colors = c('#ff8400', '#337acc', '#23992f')) %>% # orange/blue/green
     layout(margin = m_fig_4, font = leg, xaxis = x, yaxis = y, showlegend = F, autosize=F, bargap = .6,
-      title = 'Average Bat Calls at Each GRTS',
+      title = 'Average Bat Calls at each GRTS',
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   print ('Save out plotly fig4')
   # Export to a file to be used to upload into the .docx
