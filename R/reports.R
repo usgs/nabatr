@@ -737,7 +737,8 @@ build_ac_doc = function(out_dir,
   x = list(title = "", titlefont = leg)
   y = list(title = "Average No. of Bat Passes",titlefont = l)
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
-  m = list(t = 70)
+  # Setting the margin for these plots
+  m = list(t = 150, b = 150, pad = 5)
 
   fig2_p_base = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
     # width = 850, height = 850,
@@ -746,11 +747,13 @@ build_ac_doc = function(out_dir,
 
   # fig 2a
   fig2_p = fig2_p_base %>% layout(xaxis = x, yaxis = y,
+    width = 850, height = 650,
     title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f),
     margin = m, font = leg, showlegend = TRUE, autosize=T, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
   fig2_p_log = fig2_p_base %>% layout(xaxis = x, yaxis = y_log,
+    width = 850, height = 650,
     title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f),
     margin = m, font = leg, showlegend = TRUE, autosize=T, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
@@ -923,13 +926,13 @@ build_ac_doc = function(out_dir,
 
     # Figure 2a
     body_add_par(value = descr_fig2a, style = "Normal") %>%
-    slip_in_img(src = fig2a_f, width = 6.5, height = 6.5) %>%
+    slip_in_img(src = fig2a_f, width = 6.5, height = 5) %>%
 
     body_add_break() %>%
 
     # Figure 2b
     body_add_par(value = descr_fig2b, style = "Normal") %>%
-    slip_in_img(src = fig2b_f, width = 6.5, height = 6.5) %>%
+    slip_in_img(src = fig2b_f, width = 6.5, height = 5) %>%
 
     body_add_break() %>%
 
