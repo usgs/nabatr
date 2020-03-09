@@ -735,7 +735,7 @@ build_ac_doc = function(out_dir,
   leg = list(family = "cambria", size = 16, color = "#6b6b6b")
   # ti = list(title = "Bat Activity rate", titlefont = f)
   x_ = list(title = "Bat Species", titlefont = l)
-  x_log = list(title = "Bat Species", titlefont = l)
+  x_log = list(title = "Bat Species")
   y = list(title = "Average No. of Bat Passes",titlefont = l)
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   # Setting the margin for these plots
