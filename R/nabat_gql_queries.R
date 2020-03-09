@@ -331,7 +331,9 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      #Temporary fix
+      headers_ = list(Authorization = paste0("Bearer ", token))
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -342,7 +344,10 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
-    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #Temporary fix
+    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #   headers = headers_)
+    cli = GraphqlClient$new(url = 'https://api.sciencebase.gov/nabat-graphql/graphql',
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
