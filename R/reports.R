@@ -738,7 +738,8 @@ build_ac_doc = function(out_dir,
   y = list(title = "Average No. of Bat Passes",titlefont = l)
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   # Setting the margin for these plots
-  m = list(t = 50, b = 30, l = 30, r = 15, pad = 15)
+  # m = list(t = 50, b = 30, l = 30, r = 15, pad = 15)
+  m = list(t = 60, b = 50, l = 50, r = 15, pad = 25)
 
   fig2_p_base = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
     width = 850, height = 650,
