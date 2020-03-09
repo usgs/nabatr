@@ -225,7 +225,7 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = httr::add_headers(.headers = c(Authorization = paste0("Bearer ", token), host = aws_gql))
+      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -233,6 +233,7 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     # If Local, use this headers_
     headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
   }
+  print (headers_)
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
@@ -277,7 +278,9 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
                      }'))
 
   # Build dataframe of project data to return
+  print ('running query')
   proj_dat  = cli$exec(qry$queries$projIds)
+  print ('query complete')
   proj_json = fromJSON(proj_dat, flatten = TRUE)
   proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
