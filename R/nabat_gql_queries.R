@@ -67,7 +67,9 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      #Temporary fix
+      headers_ = list(Authorization = paste0("Bearer ", token))
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -78,7 +80,10 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
-    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #Temporary fix
+    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #   headers = headers_)
+    cli = GraphqlClient$new(url = url,
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
@@ -225,7 +230,9 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      #Temporary fix
+      headers_ = list(Authorization = paste0("Bearer ", token))
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -233,15 +240,13 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     # If Local, use this headers_
     headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
   }
-  print (headers_)
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
-    print ('URL:')
-    print (paste0(aws_alb, '/graphql'))
-    print ('host:')
-    print (aws_gql)
-    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #Temporary fix
+    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #   headers = headers_)
+    cli = GraphqlClient$new(url = url,
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
@@ -347,7 +352,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
     #Temporary fix
     # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
     #   headers = headers_)
-    cli = GraphqlClient$new(url = 'https://api.sciencebase.gov/nabat-graphql/graphql',
+    cli = GraphqlClient$new(url = url,
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
@@ -432,7 +437,9 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      #Temporary fix
+      headers_ = list(Authorization = paste0("Bearer ", token))
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -443,7 +450,10 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
-    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #Temporary fix
+    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #   headers = headers_)
+    cli = GraphqlClient$new(url = url,
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
@@ -622,7 +632,9 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      #Temporary fix
+      headers_ = list(Authorization = paste0("Bearer ", token))
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -631,10 +643,12 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
     headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
   }
 
-
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
-    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #Temporary fix
+    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #   headers = headers_)
+    cli = GraphqlClient$new(url = url,
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
@@ -729,7 +743,9 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      #Temporary fix
+      headers_ = list(Authorization = paste0("Bearer ", token))
     }else {
       headers_ = list(Authorization = paste0("Bearer ", token))
     }
@@ -740,7 +756,10 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
 
   if (!is.null(aws_gql)){
     print ('GQL using alb_url and gql_query_endpoint')
-    cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #Temporary fix
+    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
+    #   headers = headers_)
+    cli = GraphqlClient$new(url = url,
       headers = headers_)
   }else {
     cli = GraphqlClient$new(url = url,
