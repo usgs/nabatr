@@ -747,15 +747,17 @@ build_ac_doc = function(out_dir,
 
   # fig 2a
   fig2_p = fig2_p_base %>% layout(xaxis = x, yaxis = y,
-    width = 850, height = 650,
+    # width = 850, height = 650,
+    # margin = m,
     title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f),
-    margin = m, font = leg, showlegend = TRUE, autosize=T, bargap = .6,
+    font = leg, showlegend = TRUE, autosize=T, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
   fig2_p_log = fig2_p_base %>% layout(xaxis = x, yaxis = y_log,
-    width = 850, height = 650,
+    # width = 850, height = 650,
+    # margin = m,
     title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f),
-    margin = m, font = leg, showlegend = TRUE, autosize=T, bargap = .6,
+    font = leg, showlegend = TRUE, autosize=T, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
 
   print ('Save out plotly fig2')
