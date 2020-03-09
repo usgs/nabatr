@@ -738,7 +738,7 @@ build_ac_doc = function(out_dir,
   y = list(title = "Average No. of Bat Passes",titlefont = l)
   y_log = list(title = "Average No. of Bat Passes(Log Scale)",titlefont = l, type = 'log')
   # Setting the margin for these plots
-  m = list(t = 150, b = 100, pad = 5)
+  m = list(t = 0, b = 0, pad = 5)
 
   fig2_p_base = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
     # width = 850, height = 850,
@@ -748,17 +748,18 @@ build_ac_doc = function(out_dir,
   # fig 2a
   fig2_p = fig2_p_base %>% layout(xaxis = x, yaxis = y,
     # width = 850, height = 650,
-    width = 650, height = 650,
-    # margin = m,
+    width = 850, height = 650,
+    margin = m,
     title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f),
     font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
   fig2_p_log = fig2_p_base %>% layout(xaxis = x, yaxis = y_log,
     # width = 850, height = 650,
-    width = 650, height = 650,
+    width = 850, height = 650,
     # margin = m,
-    title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f),
+    # title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f),
+    title = list(text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f),
     font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
     legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
 
