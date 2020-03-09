@@ -12,7 +12,8 @@ get_acoustic_bulk_wavs(
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
-  aws_alb = NULL
+  aws_alb = NULL,
+  docker = FALSE
 )
 }
 \arguments{

@@ -18,7 +18,8 @@ build_ac_doc(
   manual_nights_df,
   cover_photo = NULL,
   date = format(Sys.time(), "\%B \%d, \%Y"),
-  map = NULL
+  map = NULL,
+  range_maps = TRUE
 )
 }
 \arguments{

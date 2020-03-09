@@ -4,7 +4,14 @@
 \alias{get_species}
 \title{Get the bat species lookup table}
 \usage{
-get_species(token, branch = "prod", url = NULL, aws_gql = NULL, aws_alb = NULL)
+get_species(
+  token,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE
+)
 }
 \arguments{
 \item{token}{String token created from get_nabat_gql_token function}
