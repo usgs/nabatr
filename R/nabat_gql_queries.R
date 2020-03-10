@@ -75,7 +75,7 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
   }
 
   if (!is.null(aws_gql)){
@@ -238,7 +238,7 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
   }
 
   if (!is.null(aws_gql)){
@@ -344,7 +344,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
   }
 
   if (!is.null(aws_gql)){
@@ -445,7 +445,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
   }
 
   if (!is.null(aws_gql)){
@@ -640,7 +640,7 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
   }
 
   if (!is.null(aws_gql)){
@@ -751,7 +751,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token_)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
   }
 
   if (!is.null(aws_gql)){
