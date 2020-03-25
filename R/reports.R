@@ -424,13 +424,11 @@ build_ac_doc = function(out_dir,
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of detector nights across all sites
-  net_nights_df = acoustic_bulk_df %>% dplyr::distinct() %>%
-    dplyr::mutate(survey_end_time = as.POSIXct(survey_end_time,format="%Y-%m-%dT%H:%M", tz = 'UTC')) %>%
-    dplyr::mutate(survey_start_time = as.Date(survey_start_time)) %>%
-    dplyr::mutate(end_day = ifelse(format(survey_end_time, '%H') < 12, format(survey_end_time - (60*60*24), "%Y-%m-%dT%H:%M"),
-      survey_end_time)) %>%
-    dplyr::mutate(end_day = as.Date(end_day)) %>%
-    dplyr::mutate(site_date_nights = as.integer(end_day - survey_start_time + 1))
+  net_nights_df = acoustic_bulk_df %>%
+    dplyr::select(stationary_acoustic_values_id, survey_end_time, survey_start_time) %>% dplyr::distinct() %>%
+    dplyr::mutate(start_day = as.Date(survey_start_time)) %>%
+    dplyr::mutate(end_day = as.Date(survey_end_time)) %>%
+    dplyr::mutate(site_date_nights = as.integer(end_day - start_day))
 
   number_of_net_nights = sum(net_nights_df$site_date_nights)
 
