@@ -64,18 +64,22 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
     url = url
   }
 
+  # Refresh the access_token using the refresh_token
+  token = get_refresh_token(token, url = url)
+  access_token = token$access_token
+
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
       # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
       #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
   }
 
   if (!is.null(aws_gql)){
@@ -102,6 +106,8 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
         commonName
       }
     }}'))
+
+  print ('query bats sp')
 
   # Build dataframe of project data to return
   species_dat  = cli$exec(qry$queries$speciesDf)
@@ -161,7 +167,9 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   # Mutation to get token
   query = 'mutation loging($l:LoginInput!){
     login(input:$l){
-      token
+      access_token,
+      refresh_token,
+      expires_in
     }
   }'
   # Finalize json request
@@ -174,16 +182,20 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   # Extract token
   content = content(res)
   error  = content$data$login$error
-  bearer = content$data$login$token
+  bearer = content$data$login$access_token
+  refresh_token = content$data$login$refresh_token
+
 
   if (is.null(error)){
-    token = strsplit(bearer, 'Bearer ')[[1]][2]
-    if (is.na(token)){
-      message('Error, no token returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
+    access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+    if (is.na(access_token)){
+      message('Error, no tokens returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
       return (content)
-      }else {
-      message("Returning a GQL token for NABat.")
-      return (token)
+    }else {
+      message("Returning a GQL tokens for NABat.")
+      expires_in_half = content$data$login$expires_in - (60 * 10)
+      refresh_at_this = Sys.time() + expires_in_half
+      return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
     }
   } else {
     # Post message with error for user
@@ -191,6 +203,88 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
     return (content)
   }
 }
+
+
+#' @title NABat login to NABAt Database GQL and get access_token
+#'
+#' @description
+#' Get a NABat GQL token to use for queries
+#' @param refresh_token String token received in get_nabat_gql_token
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @keywords bats, NABat, GQL
+#' @examples
+#'
+#' \dontrun{
+#' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
+#' -- Prompts for password
+#' }
+#'
+#' @export
+#'
+get_refresh_token = function(token, branch = 'prod', url = NULL, force = FALSE){
+
+  # When url is not passed in use these two, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url = url
+  }
+
+  expires_in = token$refresh_at - Sys.time()
+  # If the token has expired than refresh the access_token and use this new one
+  if (expires_in < 0 | force){
+    # print ('Token is expired, Returning a new one.')
+    # Username and password
+    variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
+    # Mutation to get token
+    query = 'mutation loging($l:LoginInput!){
+    login(input:$l){
+    access_token,
+    refresh_token,
+    expires_in
+    }
+  }'
+  # Finalize json request
+    pbody = list(query = query, variables = variables)
+    # POST to url
+    res = POST(url, body = pbody, encode="json")
+    # Extract token
+    content = content(res)
+    error  = content$data$login$error
+    bearer = content$data$login$access_token
+    # refresh_token  = content$data$login$refresh_token
+
+    if (is.null(error)){
+      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+      if (is.na(access_token)){
+        return (content)
+      }else {
+        expires_in_half = content$data$login$expires_in - (60 * 10) # if it's older than 5 minutes
+        refresh_at_this = Sys.time() + expires_in_half
+        return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
+      }
+    } else {
+      # Post message with error for user
+      message(paste0("Error: ", error))
+      return (content)
+    }
+  }else{
+    # If the access token has not expired, then use the original one from token$access_token
+    # print ('Token is still good. Returning original')
+    refresh_at_this = token$refresh_at
+    refresh_token = token$refresh_token
+    access_token = token$access_token
+    return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
+  }
+}
+
+
 
 
 #' @title Find your NABat Projects
@@ -227,22 +321,26 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     url = url
   }
 
+  # Refresh the access_token using the refresh_token
+  token = get_refresh_token(token, url = url)
+  access_token = token$access_token
+
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
       # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
       #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
   }
 
   if (!is.null(aws_gql)){
-    print ('GQL using alb_url and gql_query_endpoint')
+    # print ('GQL using alb_url and gql_query_endpoint')
     #Temporary fix
     # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
     #   headers = headers_)
@@ -283,16 +381,14 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
                      }'))
 
   # Build dataframe of project data to return
-  print ('running query')
   proj_dat  = cli$exec(qry$queries$projIds)
-  print ('query complete')
   proj_json = fromJSON(proj_dat, flatten = TRUE)
   proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
   # Define package environmental varioables
   print ('Setting species_df environmental variable')
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -333,18 +429,22 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
     url = url
   }
 
+  # Refresh the access_token using the refresh_token
+  token = get_refresh_token(token, url = url)
+  access_token = token$access_token
+
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", access_token), host = aws_gql)
       #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
   }
 
   if (!is.null(aws_gql)){
@@ -381,7 +481,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -434,18 +534,22 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     url = url
   }
 
+  # Refresh the access_token using the refresh_token
+  token = get_refresh_token(token, url = url)
+  access_token = token$access_token
+
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", access_token), host = aws_gql)
       #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
   }
 
   if (!is.null(aws_gql)){
@@ -629,18 +733,23 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
     url = url
   }
 
+  # Refresh the access_token using the refresh_token
+  token = get_refresh_token(token, url = url)
+  access_token = token$access_token
+
+
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
       # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
       #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
   }
 
   if (!is.null(aws_gql)){
@@ -740,18 +849,22 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     url = url
   }
 
+  # Refresh the access_token using the refresh_token
+  token = get_refresh_token(token, url = url)
+  access_token = token$access_token
+
   if (docker){
     # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
+      # headers_ = list(Authorization = paste0("Bearer ", access_token), host = aws_gql)
       #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", token))
+      headers_ = list(Authorization = paste0("Bearer ", access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', token)))
+    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
   }
 
   if (!is.null(aws_gql)){
@@ -768,7 +881,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
