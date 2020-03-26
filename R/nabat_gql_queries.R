@@ -214,10 +214,6 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
-#' \dontrun{
-#' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
-#' -- Prompts for password
-#' }
 #'
 #' @export
 #'
