@@ -254,7 +254,7 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, force = FALSE){
     content = content(res)
     error  = content$data$login$error
     bearer = content$data$login$access_token
-    # refresh_token  = content$data$login$refresh_token
+    refresh_token  = content$data$login$refresh_token
 
     if (is.null(error)){
       access_token = strsplit(bearer, 'Bearer ')[[1]][2]
