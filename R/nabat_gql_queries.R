@@ -246,10 +246,12 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, force = FALSE){
     expires_in
     }
   }'
-  # Finalize json request
+  # Finalize json request0
     pbody = list(query = query, variables = variables)
     # POST to url
-    res = POST(url, body = pbody, encode="json")
+    print ('Posting')
+    res = httr::POST(url, body = pbody, encode="json")
+    print ('Done Posting')
     # Extract token
     content = content(res)
     error  = content$data$login$error
