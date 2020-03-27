@@ -56,63 +56,44 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
   }
 
-  # Refresh the access_token using the refresh_token
-  token = get_refresh_token(token, url = url)
-  access_token = token$access_token
-
   if (docker){
-    # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
-      #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
-  if (!is.null(aws_gql)){
-    print ('GQL using alb_url and gql_query_endpoint')
-    #Temporary fix
-    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-    #   headers = headers_)
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }else {
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }
-
-  # Set empty Query
-  qry = Query$new()
-  # Build query for all projects under user
-  qry$query('speciesDf',
-    paste0('{ allSpecies{
-      nodes{
-        id
-        speciesCode
-        species
-        commonName
-      }
-    }}'))
-
-  print ('query bats sp')
-
-  # Build dataframe of project data to return
-  species_dat  = cli$exec(qry$queries$speciesDf)
-  species_json = fromJSON(species_dat, flatten = TRUE)
-  species_df   = rename_species_df(as.data.frame(species_json))
+  # Set Query
+  query =   '{ allSpecies{
+                nodes{
+                  id
+                  speciesCode
+                  species
+                  commonName
+                }
+              }}'
+  pbody = list(query = query)
+  # Post to nabat GQL
+  res       = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  species_json = fromJSON(content, flatten = TRUE)
+  species_df   = rename_species_df(as.data.frame(species_json, stringsAsFactors = FALSE))
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
@@ -139,7 +120,7 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url = NULL){
+get_nabat_gql_token = function(username, password =NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(password)){
@@ -149,17 +130,30 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   # Returns a message with username
   message(paste0("Logging into the NABat database as ", username))
 
-  # When url is not passed in use these two, otherwise use the url passed through
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
+  }
+
+  if (docker){
+    # If Docker 3_5_3 use this headers_
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      headers_ = httr::add_headers(host = aws_gql)
+    }else {
+      headers_ = httr::add_headers(Accept = "")
+    }
+  } else{
+    # If Local, use this headers_
+    headers_ = httr::add_headers(Accept = "")
   }
 
   # Username and password
@@ -175,8 +169,7 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
   # Finalize json request
   pbody = list(query = query, variables = variables)
   # POST to url
-  res = POST(url, body = pbody, encode="json")
-  print (res)
+  res = POST(url_, headers_, body = pbody, encode="json")
   # Remove variables with Password
   rm(password, variables, pbody)
   # Extract token
@@ -187,14 +180,14 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 
 
   if (is.null(error)){
-    access_token = strsplit(bearer, 'Bearer ')[[1]][2]
-    if (is.na(access_token)){
+    if (is.null(bearer)){
       message('Error, no tokens returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
       return (content)
     }else {
+      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
       message("Returning a GQL tokens for NABat.")
-      expires_in_half = content$data$login$expires_in - (60 * 10)
-      refresh_at_this = Sys.time() + expires_in_half
+      expires = content$data$login$expires_in - (60 * 10)
+      refresh_at_this = Sys.time() + expires
       return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
     }
   } else {
@@ -217,20 +210,34 @@ get_nabat_gql_token = function(username, password = NULL, branch = 'prod', url =
 #'
 #' @export
 #'
-get_refresh_token = function(token, branch = 'prod', url = NULL, force = FALSE){
+get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE, force = FALSE){
 
-  # When url is not passed in use these two, otherwise use the url passed through
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
   }
+
+  if (docker){
+    # If Docker 3_5_3 use this headers_
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      headers_ = httr::add_headers(host = aws_gql)
+    }else {
+      headers_ = httr::add_headers(Accept = "")
+    }
+  } else{
+    # If Local, use this headers_
+    headers_ = httr::add_headers(Accept = "")
+  }
+
 
   expires_in = token$refresh_at - Sys.time()
   # If the token has expired than refresh the access_token and use this new one
@@ -240,31 +247,31 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, force = FALSE){
     variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
     # Mutation to get token
     query = 'mutation loging($l:LoginInput!){
-    login(input:$l){
-    access_token,
-    refresh_token,
-    expires_in
-    }
-  }'
+      login(input:$l){
+        access_token,
+        refresh_token,
+        expires_in
+      }
+    }'
   # Finalize json request0
     pbody = list(query = query, variables = variables)
     # POST to url
-    print ('Posting')
-    res = httr::POST(url, body = pbody, encode="json")
-    print ('Done Posting')
+    res = httr::POST(url_, headers_, body = pbody, encode="json")
     # Extract token
     content = content(res)
     error  = content$data$login$error
     bearer = content$data$login$access_token
     refresh_token  = content$data$login$refresh_token
+    print ('refresh token:')
+    print (refresh_token)
 
     if (is.null(error)){
-      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
-      if (is.na(access_token)){
+      if (is.null(bearer)){
         return (content)
       }else {
-        expires_in_half = content$data$login$expires_in - (60 * 10) # if it's older than 5 minutes
-        refresh_at_this = Sys.time() + expires_in_half
+        access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+        expires = content$data$login$expires_in - (60 * 10) # if it's older than 5 minutes
+        refresh_at_this = Sys.time() + expires
         return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
       }
     } else {
@@ -311,42 +318,27 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
   }
 
-  # Refresh the access_token using the refresh_token
-  token = get_refresh_token(token, url = url)
-  access_token = token$access_token
-
   if (docker){
-    # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
-      #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
-  }
-
-  if (!is.null(aws_gql)){
-    # print ('GQL using alb_url and gql_query_endpoint')
-    #Temporary fix
-    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-    #   headers = headers_)
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }else {
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
   # Sample frame lookup
@@ -355,38 +347,36 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
     sample_frame_description = c('Mexico 10x10km Grid', 'Conus (Continental US) 10x10km Grid', 'Hawaii 5x5km Grid', 'Canada 10x10km Grid',
       'Alaska 10x10km Grid', 'Puerto Rico 5x5km Grid'))
 
-  # Set empty Query
-  qry = Query$new()
-  # Build query for all projects under user
-  qry$query('projIds',
-            paste0('{allProjects{
+  # Set Query
+  query = '{allProjects{
                        nodes{
-                         id
-                         projectName
-                         projectKey
-                         description
-                         mrOwnerEmail
-                         sampleFrameId
-                         organizationByOwningOrganizationId{
-                           name
-                           address
-                           city
-                           stateProvince
-                           postalCode
-                         }
-                       }
-                       }
-                     }'))
-
-  # Build dataframe of project data to return
-  proj_dat  = cli$exec(qry$queries$projIds)
-  proj_json = fromJSON(proj_dat, flatten = TRUE)
-  proj_df   = rename_project_df(as.data.frame(proj_json)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
+                          id
+                          projectName
+                          projectKey
+                          description
+                          mrOwnerEmail
+                          sampleFrameId
+                          organizationByOwningOrganizationId{
+                          name
+                          address
+                          city
+                          stateProvince
+                          postalCode
+                          }
+                        }
+                        }
+          }'
+  pbody = list(query = query)
+  # Post to nabat GQL
+  res       = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  proj_json = fromJSON(content, flatten = TRUE)
+  proj_df   = rename_project_df(as.data.frame(proj_json, stringsAsFactors = FALSE)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
   # Define package environmental varioables
   print ('Setting species_df environmental variable')
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -419,58 +409,43 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
   }
 
-  # Refresh the access_token using the refresh_token
-  token = get_refresh_token(token, url = url)
-  access_token = token$access_token
-
   if (docker){
-    # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", access_token), host = aws_gql)
-      #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
-  if (!is.null(aws_gql)){
-    print ('GQL using alb_url and gql_query_endpoint')
-    #Temporary fix
-    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-    #   headers = headers_)
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }else {
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }
-
-  # Set empty Query
-  qry = Query$new()
-  # Build query for all surveys under user project
-  qry$query('allSurveys',
-            paste0('{allSurveys (filter :{projectId:{equalTo:',as.numeric(project_id),'}}){
+  # Set Query
+  query = paste0('{allSurveys (filter :{projectId:{equalTo:', as.numeric(project_id) ,'}}){
                        nodes{
-                         id
-                         projectId
-                         grtsId
-                       }
-                     }
-                   }'))
-  survey_dat  = cli$exec(qry$queries$allSurveys)
-  survey_json = fromJSON(survey_dat, flatten = TRUE)
+                            id
+                            projectId
+                            grtsId
+                          }
+                          }
+          }')
+  pbody = list(query = query)
+  # Post to nabat GQL
+  res       = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  survey_json = fromJSON(content, flatten = TRUE)
   survey_df   = rename_survey_df(as.data.frame(survey_json))
 
   # Define global grts_fname ()
@@ -479,7 +454,7 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -524,43 +499,14 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
   }
 
-  # Refresh the access_token using the refresh_token
-  token = get_refresh_token(token, url = url)
-  access_token = token$access_token
-
-  if (docker){
-    # If Docker 3_5_3 use this headers_
-    if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", access_token), host = aws_gql)
-      #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
-    }else {
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
-  }
-
-  if (!is.null(aws_gql)){
-    print ('GQL using alb_url and gql_query_endpoint')
-    #Temporary fix
-    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-    #   headers = headers_)
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }else {
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -571,55 +517,72 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
   # Query each survey through GQL to extract and build a dataframe with all
   #   acoustic stationary records for these acoustic survey ids
   for (survey in survey_ids){
-    qry = Query$new()
-    qry$query('grtsIds', paste0('{
+
+    # Attempt to refresh token every loop
+    if (docker){
+      if(!is.null(aws_gql)){
+        url_ = paste0(aws_alb, '/graphql')
+        token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+        headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+      }else {
+        token = get_refresh_token(token, url = url_)
+        headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+      }
+    } else{
+      # If Local, use this headers_
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+    }
+
+    # Set Query
+    query = paste0('{
       allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
-      nodes{
-      id
-      projectId
-      grtsId
-      stationaryAcousticEventsBySurveyId {
-        nodes{
-          id
-          locationName
-          surveyId
-          location{
-            geojson
-          }
-          activationStartTime
-          activationEndTime
-          deviceId
-          microphoneId
-          microphoneOrientationId
-          microphoneHeight
-          distanceToClutterMeters
-          clutterTypeId
-          distanceToWater
-          waterType
-          percentClutterMethod
-          habitatTypeId
-          stationaryAcousticValuesBySaSurveyId{
             nodes{
-              wavFileName
-              recordingTime
-              softwareId
-              speciesId
-              manualId
+            id
+            projectId
+            grtsId
+            stationaryAcousticEventsBySurveyId {
+              nodes{
+                id
+                locationName
+                surveyId
+                location{
+                  geojson
             }
-          }
+            activationStartTime
+            activationEndTime
+            deviceId
+            microphoneId
+            microphoneOrientationId
+            microphoneHeight
+            distanceToClutterMeters
+            clutterTypeId
+            distanceToWater
+            waterType
+            percentClutterMethod
+            habitatTypeId
+            stationaryAcousticValuesBySaSurveyId{
+              nodes{
+                wavFileName
+                recordingTime
+                softwareId
+                speciesId
+                manualId
+            }
+            }
+            }
+            }
+            }
         }
-      }
-      }
-      }
-  }'))
+      }')
+    pbody = list(query = query)
 
+    res       = httr::POST(url_, headers_, body = pbody, encode='json')
+    content   = httr::content(res, as = 'text')
+    grts_json = fromJSON(content, flatten = TRUE)
 
-    # Execute GRTS GQL Query
-    grts_dat  = cli$exec(qry$queries$grtsIds)
-    grts_json = fromJSON(grts_dat, flatten = TRUE)
-
-    proj_id_df  = as.data.frame(grts_json$data$allSurveys$nodes)
-    acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes)
+    proj_id_df  = as.data.frame(grts_json$data$allSurveys$nodes, stringsAsFactors = FALSE)
+    acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes, stringsAsFactors = FALSE)
 
 
     # Get grts cell for this survey
@@ -636,15 +599,15 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
         rename = TRUE
         this_site_name = acc_events[x,]$site_name
         # Check for no data in this survey acoustic
-        if (dim(as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x]))[1] == 0){
+        if (dim(as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors = FALSE))[1] == 0){
           message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
           rename = FALSE
         }else{
         }
 
         if ('location.geojson.coordinates' %in% names(acc_events) & !is.null(acc_events$location.geojson.coordinates[x][[1]])){
-          lon = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][1]
-          lat = as.data.frame(acc_events$location.geojson.coordinates[x])[,1][2]
+          lon = as.data.frame(acc_events$location.geojson.coordinates[x], stringsAsFactors = FALSE)[,1][1]
+          lat = as.data.frame(acc_events$location.geojson.coordinates[x], stringsAsFactors = FALSE)[,1][2]
         }else {
           lon = NA
           lat = NA
@@ -723,44 +686,29 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
+    url_ = url
   }
 
-  # Refresh the access_token using the refresh_token
-  token = get_refresh_token(token, url = url)
-  access_token = token$access_token
-
-
   if (docker){
-    # If Docker 3_5_3 use this headers_
     if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", token), host = aws_gql)
-      #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
     }else {
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
     }
   } else{
     # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
-  if (!is.null(aws_gql)){
-    print ('GQL using alb_url and gql_query_endpoint')
-    #Temporary fix
-    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-    #   headers = headers_)
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }else {
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }
 
   final_df = data.frame()
   states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
@@ -770,42 +718,42 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
 
   for (state in states){
     if (state %in% states_check){
-      qry = Query$new()
-      print (state)
-      qry$query('bandingData',
-        paste0('{ allBatbandings (filter :{state:{equalTo:"',state,'"}}) {
-          nodes{
-          observers
-          captureId
-          date
-          siteDescr
-          state
-          countyName
-          countyName
-          xCoordCentroid
-          yCoordCentroid
-          xySource
-          species
-          markRecapture
-          unknownBandId
-          sex
-          age
-          reproduction
-          forearmLength
-          weight
-          progrm
+      # Set Query
+      query = paste0('{ allBatbandings (filter :{state:{equalTo:"',state,'"}}) {
+            nodes{
+                observers
+                captureId
+                date
+                siteDescr
+                state
+                countyName
+                countyName
+                xCoordCentroid
+                yCoordCentroid
+                xySource
+                species
+                markRecapture
+                unknownBandId
+                sex
+                age
+                reproduction
+                forearmLength
+                weight
+                progrm
+            }
           }
-        }
-      }'))
-      proj_dat  = cli$exec(qry$queries$bandingData)
-      proj_json = fromJSON(proj_dat, flatten = TRUE)
-      proj_df   = as.data.frame(proj_json)
-      names(proj_df) = substring(names(proj_df), 27)
+          }')
+      pbody = list(query = query)
+
+      res       = httr::POST(url_, headers_, body = pbody, encode='json')
+      content   = httr::content(res, as = 'text')
+      state_json = fromJSON(content, flatten = TRUE)
+      names(state_json) = substring(names(state_json), 27)
 
       if (dim(final_df)[1]==0){
-        final_df = proj_df
+        final_df = state_json
       }else {
-        final_df = rbind(final_df, proj_df)
+        final_df = rbind(final_df, state_json)
       }
     }else{
       message(paste0('Error: Spelling for this state is incorrect.. ', states))
@@ -813,6 +761,7 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
   }
   return(final_df)
 }
+
 
 
 #' @title Get Winter colony count bulk upload template dataframe for a project
@@ -839,47 +788,17 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
-      url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
     } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
     }
   }else {
-    url = url
-  }
-
-  # Refresh the access_token using the refresh_token
-  token = get_refresh_token(token, url = url)
-  access_token = token$access_token
-
-  if (docker){
-    # If Docker 3_5_3 use this headers_
-    if(!is.null(aws_gql)){
-      # headers_ = list(Authorization = paste0("Bearer ", access_token), host = aws_gql)
-      #Temporary fix
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
-    }else {
-      headers_ = list(Authorization = paste0("Bearer ", access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    headers_ = httr::add_headers(.headers = c(Authorization = paste0('Bearer ', access_token)))
-  }
-
-  if (!is.null(aws_gql)){
-    print ('GQL using alb_url and gql_query_endpoint')
-    #Temporary fix
-    # cli = GraphqlClient$new(url = paste0(aws_alb, '/graphql'),
-    #   headers = headers_)
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
-  }else {
-    cli = GraphqlClient$new(url = url,
-      headers = headers_)
+    url_ = url
   }
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -892,9 +811,24 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   # Query each survey through GQL to extract and build a dataframe with all
   #   acoustic stationary records for these acoustic survey ids
   for (survey in survey_ids){
-    qry = Query$new()
 
-    qry$query('counts', paste0('{
+    if (docker){
+      if(!is.null(aws_gql)){
+        url_ = paste0(aws_alb, '/graphql')
+        token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+        headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+      }else {
+        token = get_refresh_token(token, url = url_)
+        headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+      }
+    } else{
+      # If Local, use this headers_
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+    }
+
+    # Set Query
+    query = paste0('{
       allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
         nodes{
           id
@@ -914,12 +848,12 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
                   winterYearPdPresumed
                   winterYearWnsPresumed
                   colonyCountSiteValuesByEventSiteId{
-                    nodes{
-                      id
-                      eventSiteId
-                      speciesId
-                      speciesBySpeciesId{species}
-                      countValue
+                  nodes{
+                    id
+                    eventSiteId
+                    speciesId
+                    speciesBySpeciesId{species}
+                    countValue
                     }
                   }
                 }
@@ -928,17 +862,17 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
           }
         }
       }
-      }'))
+    }')
+    pbody = list(query = query)
 
-
-    # Execute Counts GQL Query
-    count_dat <- cli$exec(qry$queries$counts)
-    count_json <- fromJSON(count_dat, flatten = TRUE)
-    count_tb <- as_tibble(count_json$data$allSurveys$nodes) %>% tidyr::unnest() %>% tidyr::unnest() %>% tidyr::unnest()
-    all_colony_count <- rbind(all_colony_count, count_tb)
+    res       = httr::POST(url_, headers_, body = pbody, encode='json')
+    content   = httr::content(res, as = 'text')
+    count_json = fromJSON(content, flatten = TRUE)
+    count_tb = as_tibble(count_json$data$allSurveys$nodes) %>% tidyr::unnest() %>% tidyr::unnest() %>% tidyr::unnest()
+    all_colony_count = rbind(all_colony_count, count_tb)
   }
 
-  all_colony_count_final <- rename_colony_df(all_colony_count) %>%
+  all_colony_count_final = rename_colony_df(all_colony_count) %>%
     mutate(date_sampled = ymd(format(ymd_hms(date_sampled), "%Y-%m-%d")),
            month = as.numeric(format(date_sampled, "%m")),
            year = as.numeric(format(date_sampled, "%Y")),

@@ -4,7 +4,15 @@
 \alias{get_nabat_gql_token}
 \title{NABat login to NABAt Database GQL}
 \usage{
-get_nabat_gql_token(username, password = NULL, branch = "prod", url = NULL)
+get_nabat_gql_token(
+  username,
+  password = NULL,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE
+)
 }
 \arguments{
 \item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}

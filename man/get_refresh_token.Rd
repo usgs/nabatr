@@ -4,7 +4,15 @@
 \alias{get_refresh_token}
 \title{NABat login to NABAt Database GQL and get access_token}
 \usage{
-get_refresh_token(token, branch = "prod", url = NULL, force = FALSE)
+get_refresh_token(
+  token,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE,
+  force = FALSE
+)
 }
 \arguments{
 \item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
