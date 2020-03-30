@@ -622,7 +622,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
       message (paste0('Compiling stationary acoustic data for survey: ', survey, ' GRTS id: ', grts_cell))
       wav_files = data.frame()
       acc_events = acc_events %>% dplyr::left_join(geom_df, by= c('eventGeometryId'= 'event_geometry_id')) %>%
-                    mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$location_name))
+                    mutate(site_name = paste0(proj_id_df$grtsId, '_', location_name))
       for (x in 1:dim(acc_events)[1]){
         rename = TRUE
         this_site_name = acc_events[x,]$site_name
