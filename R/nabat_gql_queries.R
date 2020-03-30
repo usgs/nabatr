@@ -507,6 +507,39 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     url_ = url
   }
 
+  # Attempt to refresh token every loop
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  # Pull in geoms dataframe
+  query ='{allEventGeometries {
+        nodes{
+      id
+      name
+      geom{
+      geojson
+      }
+    }
+    }
+  }'
+  pbody = list(query = query)
+
+  res = httr::POST(url_, headers_, body = pbody, encode='json')
+  content = httr::content(res, as = 'text')
+  geom_json = fromJSON(content, flatten = TRUE)
+  geom_df   = rename_geoms_df(as.data.frame(geom_json, stringsAsFactors = FALSE))
 
   # Extract all survey ids from survey_df
   survey_ids = survey_df$survey_id
@@ -535,46 +568,41 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     }
 
     # Set Query
-    query = paste0('{
-      allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+    query = paste0('{allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
             nodes{
-            id
-            projectId
-            grtsId
-            stationaryAcousticEventsBySurveyId {
-              nodes{
-                id
-                locationName
-                surveyId
-                location{
-                  geojson
-            }
-            activationStartTime
-            activationEndTime
-            deviceId
-            microphoneId
-            microphoneOrientationId
-            microphoneHeight
-            distanceToClutterMeters
-            clutterTypeId
-            distanceToWater
-            waterType
-            percentClutterMethod
-            habitatTypeId
-            stationaryAcousticValuesBySaSurveyId{
-              nodes{
-                wavFileName
-                recordingTime
-                softwareId
-                speciesId
-                manualId
-            }
-            }
-            }
-            }
-            }
-        }
-      }')
+      id
+      projectId
+      grtsId
+      stationaryAcousticEventsBySurveyId {
+      nodes{
+      id
+      surveyId
+      activationStartTime
+      activationEndTime
+      deviceId
+      microphoneId
+      microphoneOrientationId
+      microphoneHeight
+      distanceToClutterMeters
+      clutterTypeId
+      distanceToWater
+      waterType
+      percentClutterMethod
+      habitatTypeId
+      eventGeometryId
+      stationaryAcousticValuesBySaSurveyId{
+      nodes{
+      wavFileName
+      recordingTime
+      softwareId
+      speciesId
+      manualId
+      }
+      }
+      }
+      }
+      }
+    }}')
     pbody = list(query = query)
 
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
@@ -583,7 +611,6 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
 
     proj_id_df  = as.data.frame(grts_json$data$allSurveys$nodes, stringsAsFactors = FALSE)
     acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes, stringsAsFactors = FALSE)
-
 
     # Get grts cell for this survey
     grts_cell = subset(survey_df, survey_df$survey_id == survey)$grts_cell_id
@@ -594,7 +621,8 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     }else{
       message (paste0('Compiling stationary acoustic data for survey: ', survey, ' GRTS id: ', grts_cell))
       wav_files = data.frame()
-      acc_events = acc_events %>% mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$locationName))
+      acc_events = acc_events %>% dplyr::left_join(geom_df, by= c('eventGeometryId'= 'event_geometry_id')) %>%
+                    mutate(site_name = paste0(proj_id_df$grtsId, '_', acc_events$location_name))
       for (x in 1:dim(acc_events)[1]){
         rename = TRUE
         this_site_name = acc_events[x,]$site_name
@@ -602,16 +630,17 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
         if (dim(as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors = FALSE))[1] == 0){
           message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
           rename = FALSE
-        }else{
         }
 
-        if ('location.geojson.coordinates' %in% names(acc_events) & !is.null(acc_events$location.geojson.coordinates[x][[1]])){
-          lon = as.data.frame(acc_events$location.geojson.coordinates[x], stringsAsFactors = FALSE)[,1][1]
-          lat = as.data.frame(acc_events$location.geojson.coordinates[x], stringsAsFactors = FALSE)[,1][2]
-        }else {
+        if (acc_events$geom_type[x] == 'Point'){
+          # defining the lat/lon for this accoustic Event
+          lon = acc_events$geom_coordinates[x][[1]][1]
+          lat = acc_events$geom_coordinates[x][[1]][2]
+        } else{
           lon = NA
           lat = NA
         }
+
         wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors=FALSE)
         if (dim(wav_int_files)[1]==0){
           wav_int_files = data.frame()
@@ -652,6 +681,8 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
       }
     }
   }
+
+  return (all_wav_n_acc)
 
   # Return the combined data in the format of the acoustic stationary bulk upload template form
   if (is.null(year)){

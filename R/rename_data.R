@@ -33,6 +33,19 @@ rename_project_df = function(project_df){
   return (project_df)
 }
 
+rename_geoms_df = function(geoms_df){
+  #' Return the geometry dataframe renamed with appropriate field headers
+  #'
+  #' @param geoms_df dataframe from geom gql query
+  #'
+  names(geoms_df)[names(geoms_df) == 'data.allEventGeometries.nodes.name']          = 'location_name'
+  names(geoms_df)[names(geoms_df) == 'data.allEventGeometries.nodes.id'] = 'event_geometry_id'
+  names(geoms_df)[names(geoms_df) == 'data.allEventGeometries.nodes.geom.geojson.type']  = 'geom_type'
+  names(geoms_df)[names(geoms_df) == 'data.allEventGeometries.nodes.geom.geojson.coordinates']  = 'geom_coordinates'
+  row.names(geoms_df) = c()
+  return (geoms_df)
+}
+
 rename_species_df = function(species_df){
   #' Return the species dataframe renamed with appropriate field headers
   #'
