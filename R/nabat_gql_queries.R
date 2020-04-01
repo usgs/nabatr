@@ -688,7 +688,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
   if (is.null(year)){
     return (all_wav_n_acc)
   }else {
-    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == year )
+    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == as.integer(year))
     return(all_wav_n_acc)
   }
 }

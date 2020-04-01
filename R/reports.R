@@ -295,35 +295,63 @@ build_ac_doc = function(out_dir,
 
         # Grab GRTS from data -- Both Auto and Manual species
         spc_spec_totals_df = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0)
+        spc_spec_totals_df_aut = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0 & all_species_totals_l_l$type == 'auto')
+        spc_spec_totals_df_man = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0 & all_species_totals_l_l$type == 'manual')
+
+        man_grts = spc_spec_totals_df_man$GRTS
+        aut_grts = spc_spec_totals_df_aut$GRTS
+
+        # Get GRTS with species Man/Auto/Both
+        both_grts = intersect(man_grts, aut_grts)
+        man_only_grts = setdiff(man_grts, both_grts)
+        aut_only_grts = setdiff(aut_grts, both_grts)
+        # Get GRTS without species
         grts_with_spc      = unique(spc_spec_totals_df$GRTS)
-        num_grts_with_spc  = length(grts_with_spc)
         grts_without_spc   = setdiff(all_grts_with_data, grts_with_spc)
-        num_grts_without_spc = length(grts_without_spc)
 
         # Grab coordinates for the GRTS with data
-        grts_with_spc_spdf = get_grts_shp(grts_ids = grts_with_spc,
+        man_grts_with_spc_spdf = get_grts_shp(grts_ids = man_only_grts,
+          project_id = project_id,
+          project_df = project_df)
+        aut_grts_with_spc_spdf = get_grts_shp(grts_ids = aut_only_grts,
+          project_id = project_id,
+          project_df = project_df)
+        both_grts_with_spc_spdf = get_grts_shp(grts_ids = both_grts,
           project_id = project_id,
           project_df = project_df)
         grts_without_spc_spdf = get_grts_shp(grts_ids = grts_without_spc,
           project_id = project_id,
           project_df = project_df)
 
-        all_grts_spdf = rbind(grts_with_spc_spdf, grts_without_spc_spdf)
+        all_grts_spdf = rbind(man_grts_with_spc_spdf, aut_grts_with_spc_spdf, both_grts_with_spc_spdf, grts_without_spc_spdf)
         full_extent = extent(all_grts_spdf)
 
         # Build the grts map overlayed by this species range
+        #c ('#ff8400', '#337acc', '#23992f')) %>% # orange/blue/green
         m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
-        if (length(grts_with_spc_spdf) > 0){
-          extent = extent(grts_with_spc_spdf)
+        if (length(man_grts_with_spc_spdf) > 0){
+          extent = extent(man_grts_with_spc_spdf)
           lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
           lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
-          m = m %>% addPolygons(data = grts_with_spc_spdf, color = 'green',  weight=3, opacity=1)
+          m = m %>% addPolygons(data = man_grts_with_spc_spdf, color = 'black', fillOpacity = 1, fillColor = '#23992f', weight=1, opacity=1)
+        }
+        if (length(aut_grts_with_spc_spdf) > 0){
+          extent = extent(aut_grts_with_spc_spdf)
+          lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+          lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+          m = m %>% addPolygons(data = aut_grts_with_spc_spdf, color = 'black', fillOpacity = 1, fillColor = '#337acc', weight=1, opacity=1)
+        }
+        if (length(both_grts_with_spc_spdf) > 0){
+          extent = extent(both_grts_with_spc_spdf)
+          lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+          lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+          m = m %>% addPolygons(data = both_grts_with_spc_spdf, color = 'black', fillOpacity = 1, fillColor = '#ff8400', weight=1, opacity=1)
         }
         if(length(grts_without_spc_spdf) > 0){
           extent = extent(grts_without_spc_spdf)
           lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
           lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
-          m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
+          m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'black', fillOpacity = 0, fillColor = 'rgb(0,0,0,0)', weight=1, opacity=1)
         }
 
         print ('Adding Minimap')
@@ -357,8 +385,8 @@ build_ac_doc = function(out_dir,
             console.log(range2);
             myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
             }") %>%
-        addLegend('bottomright',labels = c(paste0(spc, ' Found'), paste0(spc, ' Not Found')), colors = c('#198a00', '#ff0000'), opacity =1)
-
+          addLegend('bottomright', labels = c(paste0(spc, ' Automatic & Manual'), paste0(spc, ' Automatic Only'),
+            paste0(spc, ' Manual Only'), paste0(spc, ' Not Found')), colors = c('#ff8400', '#337acc', '#23992f', 'rgb(0,0,0,0)'), opacity =1)
 
         print ('Getting a zoom point to setView for rangemap')
         # zoom_pt = rgeos::gCentroid(spc_shp)
@@ -834,6 +862,7 @@ build_ac_doc = function(out_dir,
     italic = FALSE, underlined = FALSE, font.family = "Cambria",
     vertical.align = "baseline", shading.color = "transparent")
   black_bracket = fp_text(color = "black", font.size = 12, font.family = "Cambria")
+  fig6_font = fp_text(color = "black", font.size = 10, font.family = "Cambria")
 
   print ('Begin .docx build')
   doc = read_docx() %>%
@@ -966,15 +995,15 @@ build_ac_doc = function(out_dir,
       spc_range_name = str_split(str_split(sub('\\.png$', '', range_m), 'range_maps/')[[1]][2], '_range')[[1]][1]
       spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
       descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
-      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").  Green GRTS cells represent the presence of ",spc_range_name," found using Automatic, Manual, or both methods of detection.  Red GRTS cells represent no detections found for ",spc_range_name,".")
+      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").  Green GRTS cells represent the presence of ",spc_range_name," found using only Manual detection.  Blue GRTS cells represent the presence of ",spc_range_name," found using only Automatic detection.  Orange GRTS cells represent the presence of ",spc_range_name," found using both Automatic and Manual detection.  Transparent GRTS cells represent no detections found for ",spc_range_name,".")
       # Add the maps to the doc
       doc = doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
-        body_add_par(value = descr_fig5, style = "Normal") %>%
+        body_add_fpar(fpar(ftext(descr_fig5, prop = fig6_font)), style = 'Normal') %>%
         slip_in_img(src = range_m, width = 5.7, height = 4) %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = "", style = "Normal") %>%
-        body_add_par(value = descr_fig6, style = "Normal") %>%
+        body_add_fpar(fpar(ftext(descr_fig6, prop = fig6_font)), style = 'Normal') %>%
         slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
     }
