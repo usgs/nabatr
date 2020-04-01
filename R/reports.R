@@ -385,8 +385,8 @@ build_ac_doc = function(out_dir,
             console.log(range2);
             myMap.minimap.changeLayer(new L.LayerGroup([L.tileLayer.provider('Esri.NatGeoWorldMap'), range2]));
             }") %>%
-        addLegend('bottomright',labels = c(paste0(spc, ' Found'), paste0(spc, ' Not Found')), colors = c('#198a00', '#ff0000'), opacity =1)
-
+          addLegend('bottomright', labels = c(paste0(spc, ' Automatic & Manual'), paste0(spc, ' Automatic Only'),
+            paste0(spc, ' Manual Only'), paste0(spc, ' Not Found')), colors = c('#ff8400', '#337acc', '#23992f', 'rgb(0,0,0,0)'), opacity =1)
 
         print ('Getting a zoom point to setView for rangemap')
         # zoom_pt = rgeos::gCentroid(spc_shp)
@@ -994,7 +994,7 @@ build_ac_doc = function(out_dir,
       spc_range_name = str_split(str_split(sub('\\.png$', '', range_m), 'range_maps/')[[1]][2], '_range')[[1]][1]
       spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
       descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
-      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").  Green GRTS cells represent the presence of ",spc_range_name," found using Automatic, Manual, or both methods of detection.  Red GRTS cells represent no detections found for ",spc_range_name,".")
+      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").  Green GRTS cells represent the presence of ",spc_range_name," found using only Manual detection.  Blue GRTS cells represent the presence of ",spc_range_name," found using only Automatic detection.  Orange GRTS cells represent the presence of ",spc_range_name," found using both Automatic and Manual detection.  Transparent GRTS cells represent no detections found for ",spc_range_name,".")
       # Add the maps to the doc
       doc = doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
