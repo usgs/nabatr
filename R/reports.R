@@ -862,6 +862,7 @@ build_ac_doc = function(out_dir,
     italic = FALSE, underlined = FALSE, font.family = "Cambria",
     vertical.align = "baseline", shading.color = "transparent")
   black_bracket = fp_text(color = "black", font.size = 12, font.family = "Cambria")
+  fig6_font = fp_text(color = "black", font.size = 10, font.family = "Cambria")
 
   print ('Begin .docx build')
   doc = read_docx() %>%
@@ -998,11 +999,11 @@ build_ac_doc = function(out_dir,
       # Add the maps to the doc
       doc = doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
-        body_add_par(value = descr_fig5, style = "Normal") %>%
+        body_add_fpar(fpar(ftext(descr_fig5, prop = fig6_font)), style = 'Normal') %>%
         slip_in_img(src = range_m, width = 5.7, height = 4) %>%
         body_add_par(value = "", style = "Normal") %>%
         body_add_par(value = "", style = "Normal") %>%
-        body_add_par(value = descr_fig6, style = "Normal") %>%
+        body_add_fpar(fpar(ftext(descr_fig6, prop = fig6_font)), style = 'Normal') %>%
         slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
     }
