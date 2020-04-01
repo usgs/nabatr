@@ -67,7 +67,7 @@ get_acoustic_project_summary = function(token, project_id, branch ='prod', url =
       'Alaska 10x10km Grid', 'Puerto Rico 5x5km Grid'))
 
   # Set Query
-  query = paste0('{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id_,'}}){
+  query = paste0('{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
       projectId
       grtsId
@@ -89,12 +89,15 @@ get_acoustic_project_summary = function(token, project_id, branch ='prod', url =
   # Rename field names to snake case instead of camel case
   cont_df   = as.data.frame(cont_json$data$allVwStationaryAcousticSummaries$nodes, stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
-  # Add a year field that is a string split from the event field
-  cont_df$year = data.frame(do.call('rbind', strsplit(as.character(cont_df$event),' ',fixed=TRUE)), stringsAsFactors = FALSE)[,3]
+  if (dim(cont_df)[1] > 0){
+    # Add a year field that is a string split from the event field
+    cont_df$year = gsub("^.* ", "", cont_df$event)
+    names(cont_df)[names(cont_df) == 'grts_id']    = 'grts_cell_id'
+  }
 
   # Define package environmental varioables
-  print ('Setting species_df environmental variable')
   if (is.null(pkg.env$bats_df)){
+    print ('Setting species_df environmental variable')
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
