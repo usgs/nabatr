@@ -295,35 +295,63 @@ build_ac_doc = function(out_dir,
 
         # Grab GRTS from data -- Both Auto and Manual species
         spc_spec_totals_df = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0)
+        spc_spec_totals_df_aut = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0 & all_species_totals_l_l$type == 'auto')
+        spc_spec_totals_df_man = subset(all_species_totals_l_l, all_species_totals_l_l[spc] > 0 & all_species_totals_l_l$type == 'manual')
+
+        man_grts = spc_spec_totals_df_man$GRTS
+        aut_grts = spc_spec_totals_df_aut$GRTS
+
+        # Get GRTS with species Man/Auto/Both
+        both_grts = intersect(man_grts, aut_grts)
+        man_only_grts = setdiff(man_grts, both_grts)
+        aut_only_grts = setdiff(aut_grts, both_grts)
+        # Get GRTS without species
         grts_with_spc      = unique(spc_spec_totals_df$GRTS)
-        num_grts_with_spc  = length(grts_with_spc)
         grts_without_spc   = setdiff(all_grts_with_data, grts_with_spc)
-        num_grts_without_spc = length(grts_without_spc)
 
         # Grab coordinates for the GRTS with data
-        grts_with_spc_spdf = get_grts_shp(grts_ids = grts_with_spc,
+        man_grts_with_spc_spdf = get_grts_shp(grts_ids = man_only_grts,
+          project_id = project_id,
+          project_df = project_df)
+        aut_grts_with_spc_spdf = get_grts_shp(grts_ids = aut_only_grts,
+          project_id = project_id,
+          project_df = project_df)
+        both_grts_with_spc_spdf = get_grts_shp(grts_ids = both_grts,
           project_id = project_id,
           project_df = project_df)
         grts_without_spc_spdf = get_grts_shp(grts_ids = grts_without_spc,
           project_id = project_id,
           project_df = project_df)
 
-        all_grts_spdf = rbind(grts_with_spc_spdf, grts_without_spc_spdf)
+        all_grts_spdf = rbind(man_grts_with_spc_spdf, aut_grts_with_spc_spdf, both_grts_with_spc_spdf, grts_without_spc_spdf)
         full_extent = extent(all_grts_spdf)
 
         # Build the grts map overlayed by this species range
+        #c ('#ff8400', '#337acc', '#23992f')) %>% # orange/blue/green
         m = leaflet() %>% addTiles() %>% addPolygons(data = spc_shp, label = spc, group = 'species_range')
-        if (length(grts_with_spc_spdf) > 0){
-          extent = extent(grts_with_spc_spdf)
+        if (length(man_grts_with_spc_spdf) > 0){
+          extent = extent(man_grts_with_spc_spdf)
           lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
           lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
-          m = m %>% addPolygons(data = grts_with_spc_spdf, color = 'green',  weight=3, opacity=1)
+          m = m %>% addPolygons(data = man_grts_with_spc_spdf, color = 'black', fillOpacity = 1, fillColor = '#23992f', weight=1, opacity=1)
+        }
+        if (length(aut_grts_with_spc_spdf) > 0){
+          extent = extent(aut_grts_with_spc_spdf)
+          lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+          lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+          m = m %>% addPolygons(data = aut_grts_with_spc_spdf, color = 'black', fillOpacity = 1, fillColor = '#337acc', weight=1, opacity=1)
+        }
+        if (length(both_grts_with_spc_spdf) > 0){
+          extent = extent(both_grts_with_spc_spdf)
+          lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
+          lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
+          m = m %>% addPolygons(data = both_grts_with_spc_spdf, color = 'black', fillOpacity = 1, fillColor = '#ff8400', weight=1, opacity=1)
         }
         if(length(grts_without_spc_spdf) > 0){
           extent = extent(grts_without_spc_spdf)
           lng_ = extent@xmin + ((extent@xmax - extent@xmin)/2)
           lat_ = extent@ymin + ((extent@ymax - extent@ymin)/2)
-          m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'red',  weight=3, opacity=1)
+          m = m %>% addPolygons(data = grts_without_spc_spdf, color = 'black', fillOpacity = 0, fillColor = 'rgb(0,0,0,0)', weight=1, opacity=1)
         }
 
         print ('Adding Minimap')
