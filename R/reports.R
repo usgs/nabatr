@@ -1002,8 +1002,8 @@ build_ac_doc = function(out_dir,
         body_add_fpar(fpar(ftext(descr_fig5, prop = fig6_font)), style = 'Normal') %>%
         slip_in_img(src = range_m, width = 5.7, height = 4) %>%
         body_add_par(value = "", style = "Normal") %>%
-        body_add_par(value = "", style = "Normal") %>%
         body_add_fpar(fpar(ftext(descr_fig6, prop = fig6_font)), style = 'Normal') %>%
+        body_add_par(value = "", style = "Normal") %>%
         slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
     }
