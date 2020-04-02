@@ -20,6 +20,7 @@
 #' Returns a dataframe with all of a project's acoustic stationary data down to the event
 #' @param token String token created from get_nabat_gql_token function
 #' @param project_id Numeric project id for a nabat project
+#' @param project_df Dataframe project dataframe for a nabat project
 #' @param branch (optional) String 'prod' | 'dev' | 'beta' | 'local'
 #' @param url (optional) String testing option
 #' @param aws_gql (optional) String option for AWS
@@ -30,7 +31,7 @@
 #'
 #' @export
 #'
-get_acoustic_project_summary = function(token, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_acoustic_project_summary = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -60,12 +61,6 @@ get_acoustic_project_summary = function(token, project_id, branch ='prod', url =
     headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
-  # Sample frame lookup
-  sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
-    sample_frame_short = c('Mexico', 'Continental US', 'Hawaii', 'Canada', 'Alaska', 'Puerto Rico'),
-    sample_frame_description = c('Mexico 10x10km Grid', 'Conus (Continental US) 10x10km Grid', 'Hawaii 5x5km Grid', 'Canada 10x10km Grid',
-      'Alaska 10x10km Grid', 'Puerto Rico 5x5km Grid'))
-
   # Set Query
   query = paste0('{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
@@ -89,13 +84,18 @@ get_acoustic_project_summary = function(token, project_id, branch ='prod', url =
   # Rename field names to snake case instead of camel case
   cont_df   = as.data.frame(cont_json$data$allVwStationaryAcousticSummaries$nodes, stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
+  # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
-    # Add a year field that is a string split from the event field
-    cont_df$year = gsub("^.* ", "", cont_df$event)
+    cont_df$year = as.integer(gsub("^.* ", "", cont_df$event))
     names(cont_df)[names(cont_df) == 'grts_id']    = 'grts_cell_id'
+    row.names(cont_df) = NULL
   }
 
-  # Define package environmental varioables
+  # Define global grts_fname()
+  grts_fname = get_grts_frame_name(project_df, project_id)
+  assign('grts_fname', grts_fname, pkg.env)
+
+  # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     print ('Setting species_df environmental variable')
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
