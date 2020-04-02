@@ -267,6 +267,7 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
 
     if (is.null(error)){
       if (is.null(bearer)){
+        # prompt login with username/password
         return (content)
       }else {
         access_token = strsplit(bearer, 'Bearer ')[[1]][2]
@@ -542,7 +543,17 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
   geom_df   = rename_geoms_df(as.data.frame(geom_json, stringsAsFactors = FALSE))
 
   # Extract all survey ids from survey_df
-  survey_ids = survey_df$survey_id
+  if (is.null(year)){
+    year_ = unique(survey_df$year)[1]
+    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+  } else if (year == 'all'){
+    survey_ids = unique(survey_df$survey_id)
+    year_ = NULL
+  } else{
+    year_ = year
+    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+  }
+  print (year_)
 
   # Set empty dataframe to build acoustic stationary bulk template data in
   all_wav_n_acc = data.frame()
@@ -574,31 +585,31 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
       projectId
       grtsId
       stationaryAcousticEventsBySurveyId {
-      nodes{
-      id
-      surveyId
-      activationStartTime
-      activationEndTime
-      deviceId
-      microphoneId
-      microphoneOrientationId
-      microphoneHeight
-      distanceToClutterMeters
-      clutterTypeId
-      distanceToWater
-      waterType
-      percentClutterMethod
-      habitatTypeId
-      eventGeometryId
-      stationaryAcousticValuesBySaSurveyId{
-      nodes{
-      wavFileName
-      recordingTime
-      softwareId
-      speciesId
-      manualId
-      }
-      }
+        nodes{
+          id
+          surveyId
+          activationStartTime
+          activationEndTime
+          deviceId
+          microphoneId
+          microphoneOrientationId
+          microphoneHeight
+          distanceToClutterMeters
+          clutterTypeId
+          distanceToWater
+          waterType
+          percentClutterMethod
+          habitatTypeId
+          eventGeometryId
+          stationaryAcousticValuesBySaSurveyId{
+            nodes{
+              wavFileName
+              recordingTime
+              softwareId
+              speciesId
+              manualId
+            }
+        }
       }
       }
       }
@@ -613,7 +624,7 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     acc_events = as.data.frame(proj_id_df$stationaryAcousticEventsBySurveyId.nodes, stringsAsFactors = FALSE)
 
     # Get grts cell for this survey
-    grts_cell = subset(survey_df, survey_df$survey_id == survey)$grts_cell_id
+    grts_cell = unique(subset(survey_df, survey_df$survey_id == survey)$grts_cell_id)
 
     # Build wave files dataframe or raise error message if survey has no data
     if (dim(acc_events)[1] == 0){
@@ -681,14 +692,11 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
       }
     }
   }
-
-  return (all_wav_n_acc)
-
   # Return the combined data in the format of the acoustic stationary bulk upload template form
-  if (is.null(year)){
+  if (is.null(year_)){
     return (all_wav_n_acc)
   }else {
-    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == as.integer(year))
+    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == as.integer(year_))
     return(all_wav_n_acc)
   }
 }
