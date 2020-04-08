@@ -68,16 +68,33 @@ get_observed_nights = function(acoustic_bulk_df){
     # Remove rows with no wave files
     ex_grts_df = subset(ex_grts_df, !is.na(ex_grts_df$recording_time))
 
-    # Edit dates
-    ex_grts_df$survey_start_time = as.POSIXct(ex_grts_df$survey_start_time, tryFormats = c('%Y-%m-%dT%H:%M:%S', '%m/%d/%y %H:%M','%Y-%m-%dT%H:%M:%S+%Z'))
-    ex_grts_df$survey_end_time = as.POSIXct(ex_grts_df$survey_end_time, tryFormats = c('%Y-%m-%dT%H:%M:%S', '%m/%d/%y %H:%M','%Y-%m-%dT%H:%M:%S+%Z'))
-    ex_grts_df$recording_time = as.Date(ex_grts_df$recording_time)
-    survey_dates = unique(ex_grts_df$recording_time)
+    # # Edit dates
+    # ex_grts_df$survey_start_time = as.POSIXct(ex_grts_df$survey_start_time, tryFormats = c('%Y-%m-%dT%H:%M:%S', '%m/%d/%y %H:%M','%Y-%m-%dT%H:%M:%S+%Z'))
+    # ex_grts_df$survey_end_time = as.POSIXct(ex_grts_df$survey_end_time, tryFormats = c('%Y-%m-%dT%H:%M:%S', '%m/%d/%y %H:%M','%Y-%m-%dT%H:%M:%S+%Z'))
+    # ex_grts_df$recording_time = as.Date(ex_grts_df$recording_time)
 
+    # Remove T from date fields
+    ex_grts_df$recording_time = gsub("T", " ", ex_grts_df$recording_time, fixed = TRUE)
+    ex_grts_df$survey_start_time = gsub("T", " ", ex_grts_df$survey_start_time, fixed = TRUE)
+    ex_grts_df$survey_end_time = gsub("T", " ", ex_grts_df$survey_end_time, fixed = TRUE)
+    # Convert to POSIXct datetime
+    ex_grts_df$recording_time = as.POSIXct(ex_grts_df$recording_time, tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
+    ex_grts_df$survey_start_time = as.POSIXct(ex_grts_df$survey_start_time, tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
+    ex_grts_df$survey_end_time = as.POSIXct(ex_grts_df$survey_end_time, tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
+
+    #Set a field for observed_night
+    ex_grts_df = ex_grts_df %>%
+      dplyr::mutate(observed_night = ifelse(format(recording_time, '%H') >=12,
+        format(recording_time, '%Y-%m-%d %H:%M:%S') ,
+        format(recording_time - days(1), '%Y-%m-%d %H:%M:%S'))) %>%
+      dplyr::mutate(observed_night_posix = as.POSIXct(observed_night, tryFormats = c('%Y-%m-%d %H:%M:%S'), tz=Sys.timezone())) %>%
+      dplyr::mutate(observed_night = as.Date(observed_night))
+
+    survey_dates = unique(ex_grts_df$observed_night)
     for (x in c(1:length(survey_dates))){
       date = survey_dates[x]
       if (length(date) != 0){
-        night_data = subset(ex_grts_df, ex_grts_df$recording_time == date)
+        night_data = subset(ex_grts_df, ex_grts_df$observed_night == date)
         locations = unique(night_data$location_name)
         manual_night_row = data.frame(GRTS = GRTS_id)
         auto_night_row   = data.frame(GRTS = GRTS_id)
