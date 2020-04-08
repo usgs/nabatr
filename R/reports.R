@@ -452,13 +452,7 @@ build_ac_doc = function(out_dir,
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of detector nights across all sites
-  net_nights_df = acoustic_bulk_df %>%
-    dplyr::select(stationary_acoustic_values_id, survey_end_time, survey_start_time) %>% dplyr::distinct() %>%
-    dplyr::mutate(start_day = as.Date(survey_start_time)) %>%
-    dplyr::mutate(end_day = as.Date(survey_end_time)) %>%
-    dplyr::mutate(site_date_nights = as.integer(end_day - start_day))
-
-  number_of_net_nights = sum(net_nights_df$site_date_nights)
+  number_of_net_nights = dim(auto_nights_df)[1]
 
   # If the manual_species_grts_df_w is not null
   if (!is.null(manual_species_grts_df_w)){
@@ -597,7 +591,6 @@ build_ac_doc = function(out_dir,
   row.names(all_rows_auto) = NULL
   row.names(all_rows_man) = NULL
   row.names(all_grts_rows) = NULL
-
 
   print ('Build dataframe with center points')
 
