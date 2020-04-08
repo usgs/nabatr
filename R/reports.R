@@ -750,7 +750,11 @@ build_ac_doc = function(out_dir,
     }
   }
 
+
   bat_id_type = all_bat_id_types$bat_types
+  bat_id_color_df = data.frame(colors = c('#ff8400','#337acc', '#23992f'),
+    types = c('At least one manual ID/site', 'Auto ID only', 'Manual ID only'), stringsAsFactors = FALSE)
+  bat_id_colors = subset(bat_id_color_df, bat_id_color_df$types %in% bat_id_type)$colors
   bat_auto_counts = all_bat_id_types$auto_count / length(grts_df_final$GRTS)
   bat_species = all_bat_id_types$species
 
@@ -774,7 +778,7 @@ build_ac_doc = function(out_dir,
   fig2_p = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
     width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
-    color = bat_id_type, colors = c('#ff8400', '#337acc', '#23992f')) %>%
+    color = bat_id_type, colors = bat_id_colors) %>%
     layout(xaxis = x_, yaxis = y,
       margin = m_fig_2,
       # title = list(x = .1, y = 1.4, text = 'Average Bat Activity Rate', font = f),
@@ -785,7 +789,7 @@ build_ac_doc = function(out_dir,
   fig2_p_log = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
     width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
-    color = bat_id_type, colors = c('#ff8400', '#337acc', '#23992f')) %>%
+    color = bat_id_type, colors = bat_id_colors) %>%
     layout(xaxis = x_log, yaxis = y_log,
       margin = m_fig_2_log,
       # title = list(x = .1, y = 1.1, text = 'Average Bat Activity Rate using a Logarithmic Scale', font = f),
@@ -843,7 +847,7 @@ build_ac_doc = function(out_dir,
   fig4_p = plot_ly(x = fig_4_grts, y = fig_4_sums, type = 'bar',
     width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
-    color = 'blue', colors = c('#ff8400', '#337acc', '#23992f')) %>% # orange/blue/green
+    color = '#337acc', colors = c('#337acc')) %>%
     layout(margin = m_fig_4, font = leg, xaxis = x, yaxis = y, showlegend = F, autosize=F, bargap = .6,
       title = 'Average Bat Calls at each GRTS',
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
@@ -856,6 +860,7 @@ build_ac_doc = function(out_dir,
   # Font for title
   bold_face_map = shortcuts$fp_bold(font.size = 12)
   bold_face = shortcuts$fp_bold(font.size = 16)
+  date_font = fp_text(color = 'black', font.family = 'Cambria', font.size = 12)
   par_style = fp_par(text.align = "center")
   par_style_left = fp_par(text.align = "left")
   example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
@@ -870,7 +875,7 @@ build_ac_doc = function(out_dir,
     # 'Normal', 'heading 1', '  heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
     # body_add_img(src = logo_img_, width = 2, height = .75, style= 'centered', pos = 'before') %>%
     body_add_fpar(fpar(ftext('Stationary Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
-    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar(ftext(paste0(selected_year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     # body_add_par(value = title, style = "graphic title") %>%
