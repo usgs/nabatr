@@ -10,7 +10,7 @@ vignette: >
 
 
 
-### Get a Graphical QL (GQL) token for NABat Database
+### Get a token for NABat Database
 ```
 library(nabatr)
 # Enter your NABat username here
@@ -21,10 +21,15 @@ token_
 # If you are not using R-Studio or are not prompted for a password use this code below
 #  to manually add in your password with the password variable:
 # token_ = get_nabat_gql_token(username = username_, password = 'your-password')
+
+# Note: if you leave run token_ = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
 ```
 
 ### Get Project dataframe which contains all of your acoustic stationary projects in the NABat Database
 ```
+# Refresh token
+token_ = get_refresh_token(token_)
 # Get your projects lookup table
 project_df_ = get_projects(token = token_)
 # Display your projects lookup table
@@ -34,6 +39,8 @@ project_df_
 
 ### Get Species dataframe which contains a species lookup table for auto and manual ids
 ```
+# Refresh token
+token_ = get_refresh_token(token_)
 # Get your species lookup table
 species_df_ = get_species(token = token_)
 # Display your species lookup table
@@ -43,34 +50,35 @@ species_df_
 
 ### Get all Acoustic Stationary Surveys within a single Project set with project_id_
 ```
+# Refresh token
+token_ = get_refresh_token(token_)
 # Fill in project id using the project_df_ lookup table
 project_id_ = 284 # Set equal to one of your project ids
 
 # Get survey dataframe 
-survey_df_ = get_project_surveys(token      = token_,
-                                 project_df = project_df_,
-                                 project_id = project_id_)
+survey_df_ = get_acoustic_project_summary(token = token_, 
+                                          project_id = project_id_, 
+                                          project_df = project_df_)
+                                          
+proj_dates = unique(survey_df_$year)
 # Display survey dataframe
 survey_df_
 ```
 
 ### Get all Acoustic Stationary Survey wav file data.  Format: Acoustic Stationary Bulk Upload Template
 ```
+# Select Year for project (defaults to 1st available year)
+year_ = proj_dates[1]
+
+# Refresh token
+token_ = get_refresh_token(token_)
 # Get stationary acoustic bulk upload format dataframe
 acoustic_bulk_df_ = get_acoustic_bulk_wavs(token      = token_, 
                                            survey_df  = survey_df_,
-                                           project_id = project_id_)
+                                           project_id = project_id_,
+                                           year = year_)
 # Display stationary acoustic bulk upload format dataframe
 acoustic_bulk_df_
-
-# If you want to subset and run the reporting tools later for only a select
-#   few GRTS cells then you can use this code:
-
-# Select first 1 unique GRTS
-these_grts = unique(acoustic_bulk_df_$grts_cell_id)[1]
-# Subset the acoustic_bulk_df_
-grts_acoustic_bulk_df = subset(acoustic_bulk_df_, acoustic_bulk_df_$grts_cell_id %in% these_grts)
-grts_acoustic_bulk_df
 ```
 
 ### Use the Acoustic Stationary acoustic bulk dataframe to build a dataframe for auto and manual species id data
@@ -118,52 +126,41 @@ auto_species_grts_df_w_  = auto_species_totals_w_$species_grts_df
 
 ### Setup a leaflet map to show 
 ```
-grts_map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
-                                grts_with_data = unique(auto_nights_df_$GRTS))
+grts_map = get_grts_leaflet_map(all_grts       = unique(subset(survey_df_, survey_df_$year == year_)$grts_cell_id),
+                                grts_with_data = unique(auto_nights_df_$GRTS),
+                                project_df = project_df_,
+                                project_id = project_id_)
 # Display the grts map
 grts_map
 ```
 
-### Build Acoustic stationary .docx report
+### Build Acoustic stationary .docx report (will take more time if range_maps = TRUE)
 ```
+# Refresh token
+token_ = get_refresh_token(token_)
+
 # Edit This file path to your own output directory to store the report (No trailing '/')
 out_dir_doc = '/path/to/output/directory'
 # Build report and return the doc to then save out
 doc_ = build_ac_doc(out_dir = out_dir_doc,
-                    file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
-                    project_df = project_df_,
-                    project_id = project_id_,
-                    auto_nights_df = auto_nights_df_,
-                    manual_nights_df = manual_nights_df_,
-                    cover_photo = '/path/to/your/cover/photo.png',
-                    map = grts_map,
-                    manual_species_grts_df_w = manual_species_grts_df_w_,
-                    auto_species_grts_df_w = auto_species_grts_df_w_,
-                    auto_species_totals_l = auto_species_totals_l_,
-                    manual_species_totals_l = manual_species_totals_l_,
-                    date = format(Sys.time(), "%B %d, %Y"),
-                    acoustic_bulk_df = acoustic_bulk_df_)
+                  file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
+                  project_df = project_df_,
+                  project_id = project_id_,
+                  auto_nights_df = auto_nights_df_,
+                  manual_nights_df = manual_nights_df_,
+                  map = grts_map,
+                  manual_species_grts_df_w = manual_species_grts_df_w_,
+                  auto_species_grts_df_w = auto_species_grts_df_w_,
+                  auto_species_totals_l = auto_species_totals_l_,
+                  manual_species_totals_l = manual_species_totals_l_,
+                  date = format(Sys.time(), "%B %d, %Y"),
+                  acoustic_bulk_df = acoustic_bulk_df_,
+                  range_maps = FALSE)
+
+# Note:  Setting range_maps = FALSE will significantly decrease processing time
 
 # Save it out to a local directory
 print(doc_, target = paste0(out_dir_doc, '/', paste0(year_, '_doc_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
-```
-
-### Build Acoustic stationary HTML report
-```
-# Edit This file path to your own output directory to store the report (No trailing '/')
-out_dir_html = '/path/to/output/directory'
-
-# Build Report and save out the report
-get_acoustic_stationary_report(token      = token_,
-                               output_dir = out_dir_html,
-                               file_name  = paste0('report_',project_id_,'_',Sys.Date(),'','.html'),
-                               nightly_plots_type = 'sites', # 'grts' | 'sites'
-                               output_type = 'html',
-                               project_id = project_id_,
-                               survey_df = survey_df_,
-                               acoustic_bulk_df = acoustic_bulk_df_,
-                               nightly_observed_list = nightly_observed_list_,
-                               num_plots = 20)
 ```
 
 
