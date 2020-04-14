@@ -120,9 +120,12 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username, password =NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_nabat_gql_token = function(username=NULL, password =NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
 
   # Prompts password input incase password isn't included in function call
+  if (is.null(username)){
+    username = .rs.askForPassword('Username')
+  }
   if (is.null(password)){
     password = .rs.askForPassword('Password')
   }
@@ -253,7 +256,7 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
         expires_in
       }
     }'
-  # Finalize json request0
+    # Finalize json request0
     pbody = list(query = query, variables = variables)
     # POST to url
     res = httr::POST(url_, headers_, body = pbody, encode="json")
@@ -264,6 +267,10 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     refresh_token  = content$data$login$refresh_token
     print ('refresh token:')
     print (refresh_token)
+
+    if (res$status_code != 200){
+      return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
+    }
 
     if (is.null(error)){
       if (is.null(bearer)){
@@ -355,7 +362,6 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
                           projectName
                           projectKey
                           description
-                          mrOwnerEmail
                           sampleFrameId
                           organizationByOwningOrganizationId{
                           name

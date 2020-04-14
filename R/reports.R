@@ -426,7 +426,7 @@ build_ac_doc = function(out_dir,
   proj_id = project_id
   project_row_df = subset(project_df, project_df$project_id == proj_id)
   title        = project_row_df$project_name
-  by           = project_row_df$owner_email
+  # by           = project_row_df$owner_email
   organization = project_row_df$organization
   this_project_description = project_row_df$project_description
 
@@ -873,7 +873,7 @@ build_ac_doc = function(out_dir,
     body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     # body_add_par(value = title, style = "graphic title") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = paste0('By ', by), style = "centered") %>%
+    # body_add_par(value = paste0('By ', by), style = "centered") %>%
     body_add_par(value = organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
 
@@ -1050,7 +1050,7 @@ build_col_doc = function(out_dir,
   proj_id = project_id
   project_row_df = subset(project_df, project_df$project_id == proj_id)
   title        = project_row_df$project_name
-  by           = project_row_df$owner_email
+  # by           = project_row_df$owner_email
   organization = project_row_df$organization
   this_project_description = project_row_df$project_description
 
@@ -1138,7 +1138,7 @@ build_col_doc = function(out_dir,
     body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     # body_add_par(value = title, style = "graphic title") %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_par(value = paste0('By ', by), style = "centered") %>%
+    # body_add_par(value = paste0('By ', by), style = "centered") %>%
     body_add_par(value = organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
