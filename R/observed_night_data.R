@@ -17,6 +17,7 @@
 #' data at each site id.
 #'
 #' @param acoustic_bulk_df Dataframe acoustic bulk dataframe from output of get_acoustic_bulk()
+#'
 #' @keywords species, bats, NABat
 #' @examples
 #'

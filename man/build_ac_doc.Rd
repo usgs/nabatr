@@ -53,6 +53,8 @@ build_ac_doc(
 doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
                     project_df = project_df_,
+                    manual_species_grts_df_w,
+                    auto_species_grts_df_w,
                     project_id = project_id_,
                     auto_nights_df = auto_nights_df_,
                     manual_nights_df = manual_nights_df_,

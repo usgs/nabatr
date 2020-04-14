@@ -14,14 +14,28 @@ get_species(
 )
 }
 \arguments{
-\item{token}{String token created from get_nabat_gql_token function}
+\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
 
 \item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+
+\item{url}{(optional) String url to use for GQL}
+
+\item{aws_gql}{(optional) String url to use in aws}
+
+\item{aws_alb}{(optional) String url to use in aws}
+
+\item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
 Reads in dataframe for NABat species lookup table
 }
 \examples{
+
+\dontrun{
+species_df = get_species(token = get_nabat_gql_token())
+-- Prompts for username/password
+-- username and password can be arguments in get_nabat_gql_token(username,password)
+}
 
 }
 \keyword{NABat}

@@ -15,11 +15,19 @@ get_nabat_gql_token(
 )
 }
 \arguments{
-\item{username}{String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
+\item{username}{(optional) String your NABat username from https://sciencebase.usgs.gov/nabat/#/home}
 
 \item{password}{(optional) String it will prompt you for your password}
 
 \item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+
+\item{url}{(optional) String url to use for GQL}
+
+\item{aws_gql}{(optional) String url to use in aws}
+
+\item{aws_alb}{(optional) String url to use in aws}
+
+\item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
 Get a NABat GQL token to use for queries

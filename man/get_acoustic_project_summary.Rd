@@ -16,26 +16,32 @@ get_acoustic_project_summary(
 )
 }
 \arguments{
-\item{token}{String token created from get_nabat_gql_token function}
+\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
 
-\item{project_df}{Dataframe project dataframe for a nabat project}
+\item{project_df}{Dataframe output from get_projects()}
 
-\item{project_id}{Numeric project id for a nabat project}
+\item{project_id}{Numeric or String a project id}
 
-\item{branch}{(optional) String 'prod' | 'dev' | 'beta' | 'local'}
+\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
 
-\item{url}{(optional) String testing option}
+\item{url}{(optional) String url to use for GQL}
 
-\item{aws_gql}{(optional) String option for AWS}
+\item{aws_gql}{(optional) String url to use in aws}
 
-\item{aws_alb}{(optional) String option for AWS}
+\item{aws_alb}{(optional) String url to use in aws}
 
-\item{docker}{(optional) Boolean option for docker}
+\item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
 Returns a dataframe with all of a project's acoustic stationary data down to the event
 }
 \examples{
+
+\dontrun{
+survey_df = get_project_surveys(token,
+                                get_projects(token),
+                                project_id)
+}
 
 }
 \keyword{GQL}
