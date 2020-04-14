@@ -5,7 +5,7 @@
 \title{NABat login to NABAt Database GQL}
 \usage{
 get_nabat_gql_token(
-  username,
+  username = NULL,
   password = NULL,
   branch = "prod",
   url = NULL,
