@@ -260,6 +260,9 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     pbody = list(query = query, variables = variables)
     # POST to url
     res = httr::POST(url_, headers_, body = pbody, encode="json")
+    if (res$status_code != 200){
+      return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
+    }
     # Extract token
     content = content(res)
     error  = content$data$login$error
@@ -268,9 +271,6 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     print ('refresh token:')
     print (refresh_token)
 
-    if (res$status_code != 200){
-      return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
-    }
 
     if (is.null(error)){
       if (is.null(bearer)){
