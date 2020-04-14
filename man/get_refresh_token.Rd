@@ -15,15 +15,27 @@ get_refresh_token(
 )
 }
 \arguments{
+\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+
 \item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
 
-\item{refresh_token}{String token received in get_nabat_gql_token}
+\item{url}{(optional) String url to use for GQL}
+
+\item{aws_gql}{(optional) String url to use in aws}
+
+\item{aws_alb}{(optional) String url to use in aws}
+
+\item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
 Get a NABat GQL token to use for queries
 }
 \examples{
 
+#' \dontrun{
+nabat_gql_token = get_refresh_token(token)
+-- Prompts for password
+}
 
 }
 \keyword{GQL}

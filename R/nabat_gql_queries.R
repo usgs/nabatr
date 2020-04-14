@@ -16,10 +16,11 @@ pkg.env = new.env()
 pkg.env$bats_df = NULL
 pkg.env$species_ranges = readOGR('data/bat_species_ranges/')[,1:4]
 
-#' @title NABat GRTS lookup list with csvs of coordinates
+#' @title NABat GRTS lookup list with csvs of coordinates for all GRTS in a region
 #'
 #' @description
 #' Used to grab correct coordinates for GRTS lookups
+#'
 #' @keywords GRTS, spatial, NABat
 #' @examples
 #'
@@ -42,10 +43,21 @@ grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'),
 #' @description
 #' Reads in dataframe for NABat species lookup table
 #'
-#' @param token String token created from get_nabat_gql_token function
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
 #' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
 #' @keywords species, bats, NABat
 #' @examples
+#'
+#' \dontrun{
+#' species_df = get_species(token = get_nabat_gql_token())
+#' -- Prompts for username/password
+#' -- username and password can be arguments in get_nabat_gql_token(username,password)
+#' }
 #'
 #' @export
 #'
@@ -107,9 +119,14 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 #'
 #' @description
 #' Get a NABat GQL token to use for queries
-#' @param username String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
+#' @param username (optional) String your NABat username from https://sciencebase.usgs.gov/nabat/#/home
 #' @param password (optional) String it will prompt you for your password
 #' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -120,7 +137,7 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username=NULL, password =NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){
@@ -205,11 +222,20 @@ get_nabat_gql_token = function(username=NULL, password =NULL, branch = 'prod', u
 #'
 #' @description
 #' Get a NABat GQL token to use for queries
-#' @param refresh_token String token received in get_nabat_gql_token
+#'
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
 #' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
+#' #' \dontrun{
+#' nabat_gql_token = get_refresh_token(token)
+#' -- Prompts for password
+#' }
 #'
 #' @export
 #'
@@ -260,6 +286,8 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     pbody = list(query = query, variables = variables)
     # POST to url
     res = httr::POST(url_, headers_, body = pbody, encode="json")
+    print (res$status_code)
+    print (res$status_code)
     if (res$status_code != 200){
       return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
     }
@@ -275,7 +303,7 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     if (is.null(error)){
       if (is.null(bearer)){
         # prompt login with username/password
-        return (content)
+        return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
       }else {
         access_token = strsplit(bearer, 'Bearer ')[[1]][2]
         expires = content$data$login$expires_in - (60 * 10) # if it's older than 5 minutes
@@ -298,23 +326,23 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
 }
 
 
-
-
-#' @title Find your NABat Projects
-#'
-#' @import httr
-#' @import jsonlite
-#' @import ghql
-#' @import plyr
+#' @title Search NABat Projects
 #'
 #' @description
 #' Returns all projects that the user has permissions to view
-#' @param token String token created from get_nabat_gql_token function
+#'
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
 #' \dontrun{
-#' project_df = get_projects(token = 'generated-nabat-gql-token')
+#' project_df = get_projects(token)
 #' }
 #'
 #' @export
@@ -393,19 +421,28 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
 
 
 
-#' @title Get a project's Stationary Acoustic Surveys
+#' @title Get a project's Stationary Acoustic Surveys (DEPRECIATED) see get_acoustic_project_summary()
 #'
 #' @description
+#' (DEPRECIATED)
 #' Returns all surveys within a single project (project_id)
-#' @param token String token created from get_nabat_gql_token function
+#'
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
-#' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-#'                                 project_id = 'number or string of a number')
+#' survey_df = get_project_surveys(token,
+#'                                 get_projects(token),
+#'                                 project_id)
 #' }
 #'
 #' @export
@@ -472,6 +509,24 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 
 #' @title Get the GRTS Frame name based on project_id and project_df
 #'
+#' @description returns the name of the grts frame region. Used to assign
+#' a pkg.env global variable for what coordinates csv to use for this project
+#'  -- project specific
+#'  ex:  When you pull survey data for a project in the US, the package imports
+#'         the GRTS coordinates for Continental United states.  If your project
+#'         is in Canada, it imports the Canadian coordinates .. etc for Hawaii,
+#'         Puerto Rico, Alaska, and Mexico.
+#'
+#' @param project_df Dataframe output from get_projects()
+#' @param project_id Numeric or String a project id
+#'
+#' @examples
+#'
+#' \dontrun{
+#' grts_fname = get_project_surveys(get_projects(token),
+#'                                  project_id)
+#' }
+#'
 #' @export
 #'
 get_grts_frame_name = function(project_df, project_id){
@@ -482,20 +537,29 @@ get_grts_frame_name = function(project_df, project_id){
 }
 
 
+
 #' @title Get Acoustic stationary bulk upload template dataframe for a project
 #'
 #' @description
 #' Returns all surveys within a single project (project_id)
-#' @param token String token created from get_nabat_gql_token function
-#' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param survey_df Dataframe a survey dataframe from the output of get_acoustic_project_summary()
 #' @param project_id Numeric or String a project id
+#' @param year (optional) Numeric year of data to be returned.
+#'               NULL = first year, 'all' = all years, 2018 = only 2018 data
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
-#'                                         survey_df  = 'dataframe from output of get_project_surveys()',
-#'                                         project_id = 'number or string of a number')
+#' acoustic_bulk_df = get_acoustic_bulk_wavs(token,
+#'                                           get_acoustic_project_summary(),
+#'                                           project_id)
 #' }
 #'
 #' @export
@@ -514,7 +578,6 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
     url_ = url
   }
 
-  # Attempt to refresh token every loop
   if (docker){
     if(!is.null(aws_gql)){
       url_ = paste0(aws_alb, '/graphql')
@@ -712,15 +775,29 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
 #' @title Get Bat banding data for States
 #'
 #' @description
-#' Returns a dataframe of all the bat banding data from that/those states
-#' @param token String token created from get_nabat_gql_token function
-#' @param project_id Numeric or String a project id
+#' Returns a dataframe of all the bat banding data from state/states selected
+#'
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param states String Vector state or states.  options:
+#' 'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware',
+#' 'Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky',
+#' 'Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi',
+#' 'Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico',
+#' 'New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania',
+#' 'Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont',
+#' 'Virginia','Washington','West Virgina','Wisconsin','Wyoming'
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
 #' @keywords bats, NABat, GQL, Surveys
 #' @examples
 #'
 #' \dontrun{
-#' survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-#'                                 project_id = 'number or string of a number')
+#' survey_df = get_project_surveys(token,
+#'                                 project_id)
 #' }
 #'
 #' @export
@@ -811,21 +888,30 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
 
 #' @title Get Winter colony count bulk upload template dataframe for a project
 #'
-#' @description
-#' Returns all surveys within a single project (project_id)
-#' @param token String token created from get_nabat_gql_token function
-#' @param survey_df Dataframe a survey dataframe from the output of get_project_surveys
+#' @description Returns all surveys within a single project (project_id)
+#'
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param survey_df Dataframe a survey dataframe from the output of get_acoustic_project_summary()
 #' @param project_id Numeric or String a project id
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#'
 #' @keywords bats, NABat, GQL, Surveys
+#'
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_acoustic_bulk_wavs(token      = 'generated-nabat-gql-token',
-#'                                         survey_df  = 'dataframe from output of get_project_surveys()',
-#'                                         project_id = 'number or string of a number')
+#' acoustic_bulk_df = get_colony_bulk_counts(token,
+#'                                           get_acoustic_project_summary(),
+#'                                           project_id)
 #' }
 #'
 #' @export
+#'
 get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through

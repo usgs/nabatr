@@ -192,6 +192,8 @@ get_acoustic_stationary_report = function(token,
 #' @param out_dir String output directory to save report .html file ex: /path/to/directory
 #' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
 #' @param project_df Dataframe from running get_projects()
+#' @param manual_species_grts_df_w Dataframe manual species df wide get_species_counts_wide()
+#' @param auto_species_grts_df_w Dataframe auto species df wide get_species_counts_wide()
 #' @param project_id Integer project id from NABat ex: 105
 #' @param auto_nights_df Dataframe from running get_observed_nights()
 #' @param manual_nights_df Dataframe from running get_observed_nights()
@@ -208,6 +210,8 @@ get_acoustic_stationary_report = function(token,
 #' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
 #'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
 #'                     project_df = project_df_,
+#'                     manual_species_grts_df_w,
+#'                     auto_species_grts_df_w,
 #'                     project_id = project_id_,
 #'                     auto_nights_df = auto_nights_df_,
 #'                     manual_nights_df = manual_nights_df_,

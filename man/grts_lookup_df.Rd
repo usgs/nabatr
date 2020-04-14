@@ -3,7 +3,7 @@
 \docType{data}
 \name{grts_lookup_df}
 \alias{grts_lookup_df}
-\title{NABat GRTS lookup list with csvs of coordinates}
+\title{NABat GRTS lookup list with csvs of coordinates for all GRTS in a region}
 \format{An object of class \code{list} of length 6.}
 \usage{
 grts_lookup_df

@@ -6,6 +6,25 @@
 \usage{
 get_grts_frame_name(project_df, project_id)
 }
+\arguments{
+\item{project_df}{Dataframe output from get_projects()}
+
+\item{project_id}{Numeric or String a project id}
+}
 \description{
-Get the GRTS Frame name based on project_id and project_df
+returns the name of the grts frame region. Used to assign
+a pkg.env global variable for what coordinates csv to use for this project
+ -- project specific
+ ex:  When you pull survey data for a project in the US, the package imports
+        the GRTS coordinates for Continental United states.  If your project
+        is in Canada, it imports the Canadian coordinates .. etc for Hawaii,
+        Puerto Rico, Alaska, and Mexico.
+}
+\examples{
+
+\dontrun{
+grts_fname = get_project_surveys(get_projects(token),
+                                 project_id)
+}
+
 }

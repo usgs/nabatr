@@ -2,7 +2,7 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_project_surveys}
 \alias{get_project_surveys}
-\title{Get a project's Stationary Acoustic Surveys}
+\title{Get a project's Stationary Acoustic Surveys (DEPRECIATED) see get_acoustic_project_summary()}
 \usage{
 get_project_surveys(
   token,
@@ -16,20 +16,32 @@ get_project_surveys(
 )
 }
 \arguments{
-\item{token}{String token created from get_nabat_gql_token function}
+\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
 
 \item{project_df}{Dataframe output from get_projects()}
 
 \item{project_id}{Numeric or String a project id}
+
+\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+
+\item{url}{(optional) String url to use for GQL}
+
+\item{aws_gql}{(optional) String url to use in aws}
+
+\item{aws_alb}{(optional) String url to use in aws}
+
+\item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
+(DEPRECIATED)
 Returns all surveys within a single project (project_id)
 }
 \examples{
 
 \dontrun{
-survey_df = get_project_surveys(token      = 'generated-nabat-gql-token',
-                                project_id = 'number or string of a number')
+survey_df = get_project_surveys(token,
+                                get_projects(token),
+                                project_id)
 }
 
 }
