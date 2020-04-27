@@ -14,6 +14,17 @@ get_sa_project_summary(
   aws_alb = NULL,
   docker = FALSE
 )
+
+get_sa_project_summary(
+  token,
+  project_df,
+  project_id,
+  branch = "prod",
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE
+)
 }
 \arguments{
 \item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
@@ -34,8 +45,17 @@ get_sa_project_summary(
 }
 \description{
 Returns a dataframe with all of a project's acoustic stationary data down to the event
+
+Returns a dataframe with all of a project's colony count data down to the event
 }
 \examples{
+
+\dontrun{
+survey_df = get_project_surveys(token,
+                                get_projects(token),
+                                project_id)
+}
+
 
 \dontrun{
 survey_df = get_project_surveys(token,

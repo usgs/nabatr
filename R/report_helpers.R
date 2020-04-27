@@ -6,19 +6,19 @@
 #' from NABat database and converts the date format into a POSIX object
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param species_df Dataframe species_df
 #' @param year Integer Project year with mobile acoustic data
 #'
 #' @examples
 #'
 #' \dontrun{
-#' get_ma_results(ma_bulk_df, token, year)
+#' get_ma_results(ma_bulk_df, species_df, year)
 #' }
 #'
 #' @export
 #'
 
-get_ma_results = function(ma_bulk_df, token, year){
+get_ma_results = function(ma_bulk_df, species_df, year){
   # Is number of routes the Site ID? not the number of days they recorded across the route?
   num_routes = length(unique(ma_bulk_df$location_name))
   num_cells = length(unique(ma_bulk_df$grts_cell_id))
@@ -40,8 +40,6 @@ get_ma_results = function(ma_bulk_df, token, year){
   num_detector_nights = dim(nights_per_transect)[1]
 
   # Get species at this project
-  token = get_refresh_token(token)
-  species_df = get_species(token = token)
   project_species = (data.frame(id = unique(auto_ids), stringsAsFactors = FALSE) %>%
       dplyr::left_join(species_df, by = 'id'))
   species_table = project_species %>% dplyr::select(species_code, species, common_name, bat_call)
@@ -113,23 +111,35 @@ get_ma_examples = function(){
 #' and species detected are also shown for each cell.
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
+#' @param species_df Dataframe species_df
 #' @param year Integer Project year with mobile acoustic data
 #'
 #' @examples
 #'
 #' \dontrun{
-#' ma_table_1 = build_ma_table_1(ma_bulk_df, year)
+#' ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
 #' }
 #'
 #' @export
 #'
 
-build_ma_table_1 = function(ma_bulk_df, year = NULL){
+build_ma_table_1 = function(ma_bulk_df, species_df, year = NULL){
 
   # Create table description
   ma_descr_tbl_1 = paste0("Table 1. NABat GRTS cells surveyed in ",
     year,
     ". Number of unique mobile transect routes, detector nights, and species detected are also shown for each cell.")
+
+  auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
+  manual_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$manual_id))$manual_id
+
+  project_species = (data.frame(id = unique(auto_ids), stringsAsFactors = FALSE) %>%
+      dplyr::left_join(species_df, by = 'id'))
+  species_table = project_species %>% dplyr::select(species_code, species, common_name, bat_call)
+
+  species_found = subset(project_species, project_species$bat_call)
+  species_detected_wav = subset(ma_bulk_df, ma_bulk_df$auto_id %in% species_found$id)
+
   grts = unique(ma_bulk_df$grts_cell_id)
   # Calculate transect routes per grts
   grts_cell_by_transect = ma_bulk_df %>% dplyr::select(grts_cell_id, location_name) %>%
@@ -153,8 +163,6 @@ build_ma_table_1 = function(ma_bulk_df, year = NULL){
   ma_table_1 = transect_routes_df %>% dplyr::left_join(detector_nights_df, by = 'grts_cell_id') %>%
     dplyr::left_join(species_detected_grts, by = 'grts_cell_id') %>%
     dplyr::rename('GRTS' = grts_cell_id)
-
-
 
   # Now add Counties if they exist
   project_id_ = project_id
@@ -238,31 +246,31 @@ build_ma_table_1 = function(ma_bulk_df, year = NULL){
 #' Bat species table for this input ma_bulk_df
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param species_df Dataframe species dataframe
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @examples
 #'
 #' \dontrun{
-#' ma_table_2 = build_ma_table_2(ma_bulk_df, token, year)
+#' ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
 #' }
 #'
 #' @export
 #'
 
-build_ma_table_2 = function(ma_bulk_df, token, year = NULL){
+build_ma_table_2 = function(ma_bulk_df, species_df, year = NULL){
   ma_descr_tbl_2 = paste0("Table 2. Bat species detected in ",
     year,
     ". Common name, geographic range, and number of transect routes with detections are displayed for all species.")
+
+  auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
+  manual_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$manual_id))$manual_id
 
   nights_per_transect = ma_bulk_df %>%
     dplyr::select(location_name, observed_night) %>%
     dplyr::group_by(location_name, observed_night) %>%
     dplyr::distinct()
 
-  # Get species at this project
-  token = get_refresh_token(token)
-  species_df = get_species(token = token)
   project_species = (data.frame(id = unique(auto_ids), stringsAsFactors = FALSE) %>%
       dplyr::left_join(species_df, by = 'id'))
   species_table = project_species %>% dplyr::select(species_code, species, common_name, bat_call)
@@ -308,20 +316,20 @@ build_ma_table_2 = function(ma_bulk_df, token, year = NULL){
 #' detected species table.
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param species_df Dataframe Species dataframe
 #' @param nightly_observed_list (optional) List from running get_observed_nights()
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @examples
 #'
 #' \dontrun{
-#' ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, token, year)
+#' ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
 #' }
 #'
 #' @export
 #'
 
-build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, token, year = NULL){
+build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year = NULL){
   # Create descriptions for the 2 tables
   ma_descr_tbl_3b = paste0("Table 3b. Number of manual calls from each detected species in all GRTS cells surveyed by mobile transect in ",year,".")
   ma_descr_tbl_3a = paste0("Table 3a. Number of automatic calls from each detected species in all GRTS cells surveyed by mobile transect in ",year,".")
@@ -393,6 +401,7 @@ build_ma_figure_1 = function(ma_bulk_df, year = NULL){
   grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
   # Get grts_fname_df
   grts_fname_df = grts_lookup_df[grts_fname][[1]]
+  print (grts_fname)
   # Create grts_fname_df
   grts_df = data.frame(GRTS_ID = all_grts) %>% dplyr::left_join(grts_fname_df, by = c('GRTS_ID'), type = "left")
 
@@ -471,27 +480,24 @@ build_ma_figure_1 = function(ma_bulk_df, year = NULL){
 #' Creates a Number of bat passes for each species plot
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param species_df Dataframe Species Dataframe
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @examples
 #'
 #' \dontrun{
-#' ma_figure_2 = build_ma_figure_2(ma_bulk_df, token, year)
+#' ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
 #' }
 #'
 #' @export
 #'
 
-build_ma_figure_2 = function(ma_bulk_df, token, year = NULL){
+build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
   # Create descriptions
   ma_descr_fig2a = paste0("Figure 2a. ",year," bat activity rate (average number of bat passes per night) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   ma_descr_fig2b = paste0("Figure 2b. ",year," bat activity rate (average number of bat passes per night using a logarithmic scale) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
   manual_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$manual_id))$manual_id
-  # Get species at this project
-  token = get_refresh_token(token)
-  species_df = get_species(token = token)
 
   project_species_auto = (data.frame(id = auto_ids, stringsAsFactors = FALSE) %>%
       dplyr::left_join(species_df, by = 'id')) %>% subset(bat_call) %>%
@@ -609,27 +615,23 @@ build_ma_figure_2 = function(ma_bulk_df, token, year = NULL){
 #' @description
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param species_df Dataframe species_df
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @examples
 #'
 #' \dontrun{
-#' ma_figure_3 = build_ma_figure_3(ma_bulk_df, token, year)
+#' ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
 #' }
 #'
 #' @export
 #'
 
-build_ma_figure_3 = function(ma_bulk_df, token, year = NULL){
+build_ma_figure_3 = function(ma_bulk_df, species_df, year = NULL){
   # Create description
   ma_descr_fig3 = paste0("Figure 3. ",
     year,
     " bat activity rate (average number of bat passes per survey) recorded in each NABat GRTS cell.")
-
-  # Get species at this project
-  token = get_refresh_token(token)
-  species_df = get_species(token = token)
 
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
 
@@ -663,8 +665,6 @@ build_ma_figure_3 = function(ma_bulk_df, token, year = NULL){
 
   return (list(figure = fig3_p, description = ma_descr_fig3))
 }
-
-
 
 
 
