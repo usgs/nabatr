@@ -112,6 +112,8 @@ get_ma_examples = function(){
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe species_df
+#' @param project_id Integer project id
+#' @param project_df Dataframe project_df
 #' @param year Integer Project year with mobile acoustic data
 #'
 #' @examples
@@ -123,7 +125,7 @@ get_ma_examples = function(){
 #' @export
 #'
 
-build_ma_table_1 = function(ma_bulk_df, species_df, year = NULL){
+build_ma_table_1 = function(ma_bulk_df, project_id, project_df, species_df, year = NULL){
 
   # Create table description
   ma_descr_tbl_1 = paste0("Table 1. NABat GRTS cells surveyed in ",
@@ -380,6 +382,8 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
 #'  Creates a leaflet Map for mobile acoustic data
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
+#' @param project_id Integer project id
+#' @param project_df Dataframe project_df
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @examples
@@ -391,7 +395,7 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
 #' @export
 #'
 
-build_ma_figure_1 = function(ma_bulk_df, year = NULL){
+build_ma_figure_1 = function(ma_bulk_df, project_id, project_df, year = NULL){
 
   ma_descr_fig1  = paste0("Figure 1. Map of all NABat GRTS cells surveyed in ",year," and detector points in each surveyed cell. ")
 

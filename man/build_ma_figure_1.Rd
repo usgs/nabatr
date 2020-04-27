@@ -4,10 +4,14 @@
 \alias{build_ma_figure_1}
 \title{Build Mobile Acoustic Report Figure 1}
 \usage{
-build_ma_figure_1(ma_bulk_df, year = NULL)
+build_ma_figure_1(ma_bulk_df, project_id, project_df, year = NULL)
 }
 \arguments{
 \item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
+
+\item{project_id}{Integer project id}
+
+\item{project_df}{Dataframe project_df}
 
 \item{year}{Integer (optional) Project year with mobile acoustic data}
 }
