@@ -21,14 +21,14 @@
 #' @import stringr
 #'
 #' @description
-#' Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
+#' Using the outputs from get_projects(), get_sa_project_summary(), get_acoustic_bulk_wavs(),
 #' and get_observed_nights() this function will create a report .html file to an output_dir.
 #' This function can run with these outputs or without.
 #' @param token String token created from get_nabat_gql_token function
 #' @param project_id String or Integer project id from NABat ex: 105 or '105'
 #' @param output_dir String output directory to save report .html file ex: /path/to/directory
 #' @param file_name (optional) String output file name ex: 'my_report.html' ex: my_report.html
-#' @param survey_df (optional) Dataframe from running get_project_surveys()
+#' @param survey_df (optional) Dataframe from running get_sa_project_summary()
 #' @param acoustic_bulk_df (optional) Dataframe from running get_acoustic_bulk_wavs()
 #' @param manual_nights_df (optional) Dataframe from running get_observed_nights()
 #' @param auto_nights_df (optional) Dataframe from running get_observed_nights()
@@ -48,7 +48,7 @@
 #'
 #' @export
 #'
-get_acoustic_stationary_report = function(token,
+get_sa_html_report = function(token,
                                           project_id,
                                           output_dir,
                                           output_type = 'html',
@@ -70,20 +70,21 @@ get_acoustic_stationary_report = function(token,
     message(nabat_png)
 
     # Get Project dataframe
-    project_df = get_projects(token    = token)
+    project_df = get_projects(token = token)
     this_project_id = project_id
     project_name = subset(project_df, project_df$project_id == this_project_id)$project_name
 
     # Get survey dataframe
     if (is.null(survey_df)){
-      survey_df = get_project_surveys(
+      survey_df = get_sa_project_summary(
         token      = token,
-        project_id = project_id)
+        project_id = project_id,
+        project_df = project_df)
     }
 
     # Get stationary acoustic bulk upload format dataframe
     if (is.null(acoustic_bulk_df)){
-      acoustic_bulk_df = get_acoustic_bulk_wavs(token      = token,
+      acoustic_bulk_df = get_sa_bulk_wavs(token      = token,
         survey_df  = survey_df,
         project_id = project_id)
     }
@@ -176,9 +177,9 @@ get_acoustic_stationary_report = function(token,
 
 
 
-#' @title Build Report document in .docx file for Acoustic Stationary Project Data
+#' @title Build Stationary Acoustic Report document in .docx file
 #'
-#' @description Using the outputs from get_projects(), get_project_surveys(), get_acoustic_bulk_wavs(),
+#' @description Using the outputs from get_projects(), get_sa_project_summary(), get_as_bulk_wavs(),
 #' and get_observed_nights() this function will create a report .docx file to an out_dir.
 #'
 #' @import mapview
@@ -228,7 +229,7 @@ get_acoustic_stationary_report = function(token,
 #' @export
 #'
 
-build_ac_doc = function(out_dir,
+build_sa_doc = function(out_dir,
   file_name,
   manual_species_grts_df_w,
   auto_species_grts_df_w,
@@ -1204,5 +1205,287 @@ build_col_doc = function(out_dir,
 
   return(doc)
 }
+
+
+
+
+#' @title Build Mobile Acoustic Report document in .docx file
+#'
+#' @description Using the outputs from get_projects(), get_ma_project_summary(), get_ma_bulk_wavs(),
+#' and get_observed_nights() this function will create a report .docx file to an out_dir.
+#'
+#' @import mapview
+#' @import officer
+#' @import magrittr
+#' @import maps
+#' @import maptools
+#' @import sp
+#' @import flextable
+#'
+#' @param out_dir String output directory to save report .html file ex: /path/to/directory
+#' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
+#' @param project_df Dataframe from running get_projects()
+#' @param manual_species_grts_df_w Dataframe manual species df wide get_species_counts_wide()
+#' @param auto_species_grts_df_w Dataframe auto species df wide get_species_counts_wide()
+#' @param project_id Integer project id from NABat
+#' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
+#'
+#' \dontrun{
+#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
+#'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
+#'                     project_df = project_df_,
+#'                     project_id = project_id_,
+#'                     ma_bulk_df = ma_bulk_df_,
+#'                     auto_species_grts_df_w,
+#'                     auto_nights_df = auto_nights_df_,
+#'                     manual_nights_df = manual_nights_df_,
+#'                     cover_photo = '/path/to/a/cover/photo.png',
+#'                     map = grts_map,
+#'                     manual_species_grts_df_w = manual_species_grts_df_w_,
+#'                     auto_species_grts_df_w = auto_species_grts_df_w_,
+#'                     auto_species_totals_l = auto_species_totals_l_,
+#'                     manual_species_totals_l = manual_species_totals_l_,
+#'                     date = format(Sys.time(), "%B %d, %Y"),
+#'                     acoustic_bulk_df = acoustic_bulk_df_)
+#' }
+#'
+#' @export
+#'
+
+build_ma_doc = function(out_dir,
+                        file_name,
+                        project_df,
+                        project_id,
+                        ma_bulk_df,
+                        species_df,
+                        year,
+                        nightly_observed_list,
+                        date = format(Sys.time(), "%B %d, %Y")){
+
+  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
+  circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
+  proj_id = project_id
+  project_row_df = subset(project_df, project_df$project_id == proj_id)
+  ma_title        = project_row_df$project_name
+  ma_organization = project_row_df$organization
+  ma_description = project_row_df$project_description
+  date = format(Sys.time(), "%B %d, %Y")
+
+  # Build results text
+  ma_results = get_ma_results(ma_bulk_df, species_df, year)
+
+  # get example text for mobile acoustic report
+  ma_examples = get_ma_examples()
+
+  # Build table 1
+  ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
+
+  # Build table 2
+  ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
+
+  # Build table 3
+  ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
+
+  # Build figure 1
+  ma_figure_1 = build_ma_figure_1(ma_bulk_df, year)
+  # Save out map to import into officer word doc builder later
+  map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+  mapshot(ma_figure_1$map, file = map_out_)
+
+  # Build figure 2a/2b
+  ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
+
+  # Export to a file to be used to upload into the .docx
+  fig2a_f = paste0(out_dir, "/temps/fig2a.png")
+  plotly::export(ma_figure_2$figure_a, file = fig2a_f)
+  # Export to a file to be used to upload into the .docx
+  fig2b_f = paste0(out_dir, "/temps/fig2b.png")
+  plotly::export(ma_figure_2$figure_b, file = fig2b_f)
+
+  # Build Figure 3
+  ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
+
+  # Export to a file to be used to upload into the .docx
+  fig3_f = paste0(out_dir, "/temps/fig4.png")
+  plotly::export(ma_figure_3$figure, file = fig3_f)
+
+
+  bold_face = shortcuts$fp_bold(font.size = 16)
+  date_font = fp_text(color = 'black', font.family = 'Cambria', font.size = 12)
+  par_style = fp_par(text.align = "center")
+  example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
+    italic = FALSE, underlined = FALSE, font.family = "Cambria",
+    vertical.align = "baseline", shading.color = "transparent")
+
+  ma_doc = read_docx() %>%
+    body_add_fpar(fpar(ftext('Mobile Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext(paste0(year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_fpar(fpar(ftext(ma_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    # body_add_par(value = title, style = "graphic title") %>%
+    body_add_par(value = "", style = "centered") %>%
+    # body_add_par(value = paste0('By ', by), style = "centered") %>%
+    body_add_par(value = ma_organization, style = "centered") %>%
+    body_add_par(value = date, style = "centered") %>%
+
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+    body_add_par(value = "", style = "centered") %>%
+
+    body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+
+
+    # Add summary data for project and GRTS cells
+    body_add_par(value = "", style = "centered") %>%
+
+    body_add_break() %>%
+
+    # Project Description
+    body_add_par(value = "Project Description", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = ma_description, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_fpar(fpar(ftext(ma_examples$ma_ex_description, prop = example_font)), style = 'Normal') %>%
+
+    body_add_break() %>%
+
+    # Methods
+    body_add_par(value = "Methods", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "Site Selection", style = "heading 2") %>%
+    body_add_par(value = ma_examples$ma_methods_1, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "Data Collection", style = "heading 2") %>%
+    body_add_par(value = ma_examples$ma_methods_2, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = "Call Processing/Species Identification", style = "heading 2") %>%
+    body_add_par(value = ma_examples$ma_methods_3, style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Results
+    body_add_par(value = "Results", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = ma_results, style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Summary
+    body_add_par(value = "Summary", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_fpar(fpar(ftext(ma_examples$ma_summary_1, prop = example_font)), style = 'Normal') %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_fpar(fpar(ftext(ma_examples$ma_summary_2, prop = example_font)), style = 'Normal') %>%
+
+    body_add_break() %>%
+
+    # Literature Cited
+    body_add_par(value = "Literature Cited", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = ma_examples$ma_lit_cited, style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Table 1
+    body_add_par(value = ma_table_1$description, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_flextable(ma_table_1$table, align='left') %>%
+    body_add_par(value = "", style = "Normal") %>%
+
+    body_add_break() %>%
+
+    # Table 2
+    body_add_par(value = ma_table_2$description, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_flextable(ma_table_2$table, align='left') %>%
+    body_add_par(value = "", style = "Normal") %>%
+
+    body_add_break() %>%
+    body_end_section_continuous()
+
+  # Add table 3a/b
+  auto_ids = unique(ma_bulk_df$auto_id[!is.na(ma_bulk_df$auto_id)])
+  if (length(auto_ids) > 0){
+    ma_doc = ma_doc %>%
+      # Table 3a
+      body_add_par(value = ma_table_3$description_a, style = "Normal") %>%
+      body_add_par(value = "", style = "Normal") %>%
+      body_add_flextable(ma_table_3$table_a, align='left') %>%
+      body_add_break()
+  }
+  man_ids = unique(ma_bulk_df$manual_id[!is.na(ma_bulk_df$manual_id)])
+  if (length(man_ids) > 0){
+    ma_doc = ma_doc %>%
+      # Table 3b
+      body_add_par(value = ma_table_3$description_b, style = "Normal") %>%
+      body_add_par(value = "", style = "Normal") %>%
+      body_add_flextable(ma_table_3$table_b, align='left') %>%
+      body_add_break()
+  }
+
+  ma_doc = ma_doc %>%
+
+    # Figure 1
+    body_add_par(value = ma_figure_1$description, style = "Normal") %>%
+    # body_add_img(src = map_out_, width = 5.7, height = 4, style= 'centered') %>%
+    body_add_img(src = map_out_, width = 8, height = 6, style= 'centered')  %>%
+
+    # Figure 2a
+    body_add_par(value = ma_figure_2$description_a, style = "Normal") %>%
+    slip_in_img(src = fig2a_f, width = 7, height = 5) %>%
+
+    body_add_break() %>%
+
+    # Figure 2b
+    body_add_par(value = ma_figure_2$description_b, style = "Normal") %>%
+    slip_in_img(src = fig2b_f, width = 7, height = 5) %>%
+
+    body_add_break() %>%
+
+    # Figure 3
+    body_add_par(value = ma_figure_3$description, style = "Normal") %>%
+    slip_in_img(src = fig3_f, width = 7, height = 5) %>%
+    body_end_section_landscape()
+
+  return (ma_doc)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,14 +1,11 @@
 ---
-title: "Get acoustic stationary NABat Data and Reports"
+title: "Build an Stationary Acoustic Report for a project"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get acoustic stationary NABat Data}
+  %\VignetteIndexEntry{Build an Acoustic Stationary Report for a project}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
-
-
 
 ### Get a token for NABat Database
 ```
@@ -17,10 +14,6 @@ library(nabatr)
 username_ = 'NABat_Username'
 token_ = get_nabat_gql_token(username = username_)
 token_
-
-# If you are not using R-Studio or are not prompted for a password use this code below
-#  to manually add in your password with the password variable:
-# token_ = get_nabat_gql_token(username = username_, password = 'your-password')
 
 # Note: if you leave run token_ = get_nabat_gql_token(),
 #   it will prompt you for a username and then a password
@@ -162,6 +155,3 @@ doc_ = build_ac_doc(out_dir = out_dir_doc,
 # Save it out to a local directory
 print(doc_, target = paste0(out_dir_doc, '/', paste0(year_, '_doc_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
 ```
-
-
-
