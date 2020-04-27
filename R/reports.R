@@ -1271,27 +1271,34 @@ build_ma_doc = function(out_dir,
   ma_description = project_row_df$project_description
   date = format(Sys.time(), "%B %d, %Y")
 
+  print ('build results')
   # Build results text
   ma_results = get_ma_results(ma_bulk_df, species_df, year)
 
+  print ('build examples')
   # get example text for mobile acoustic report
   ma_examples = get_ma_examples()
 
+  print ('build table 1')
   # Build table 1
   ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
 
+  print ('build table 2')
   # Build table 2
   ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
 
+  print ('build table 3')
   # Build table 3
   ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
 
+  print ('build figure 1')
   # Build figure 1
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, year)
   # Save out map to import into officer word doc builder later
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
   mapshot(ma_figure_1$map, file = map_out_)
 
+  print ('build figure 2')
   # Build figure 2a/2b
   ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
 
@@ -1302,6 +1309,7 @@ build_ma_doc = function(out_dir,
   fig2b_f = paste0(out_dir, "/temps/fig2b.png")
   plotly::export(ma_figure_2$figure_b, file = fig2b_f)
 
+  print ('build figure 3')
   # Build Figure 3
   ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
 
@@ -1317,6 +1325,7 @@ build_ma_doc = function(out_dir,
     italic = FALSE, underlined = FALSE, font.family = "Cambria",
     vertical.align = "baseline", shading.color = "transparent")
 
+  print ('build doc')
   ma_doc = read_docx() %>%
     body_add_fpar(fpar(ftext('Mobile Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_fpar(fpar(ftext(paste0(year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
