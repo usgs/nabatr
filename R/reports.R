@@ -1281,7 +1281,7 @@ build_ma_doc = function(out_dir,
 
   print ('build table 1')
   # Build table 1
-  ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
+  ma_table_1 = build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year)
 
   print ('build table 2')
   # Build table 2
@@ -1293,7 +1293,7 @@ build_ma_doc = function(out_dir,
 
   print ('build figure 1')
   # Build figure 1
-  ma_figure_1 = build_ma_figure_1(ma_bulk_df, year)
+  ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
   # Save out map to import into officer word doc builder later
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
   mapshot(ma_figure_1$map, file = map_out_)
