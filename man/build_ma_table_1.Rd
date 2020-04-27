@@ -4,10 +4,14 @@
 \alias{build_ma_table_1}
 \title{Build Mobile Acoustic Report Table 1}
 \usage{
-build_ma_table_1(ma_bulk_df, species_df, year = NULL)
+build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year = NULL)
 }
 \arguments{
 \item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
+
+\item{project_id}{Integer project id}
+
+\item{project_df}{Dataframe project_df}
 
 \item{species_df}{Dataframe species_df}
 
