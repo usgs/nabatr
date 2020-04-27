@@ -98,6 +98,10 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
                   speciesCode
                   species
                   commonName
+                  family
+                  genus
+                  commonName
+                  speciesCode6
                 }
               }}'
   pbody = list(query = query)
@@ -105,7 +109,15 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   species_json = fromJSON(content, flatten = TRUE)
-  species_df   = rename_species_df(as.data.frame(species_json, stringsAsFactors = FALSE))
+  species_df   = as.data.frame(species_json$data$allSpecies$nodes, stringsAsFactors = FALSE)
+  names(species_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(species_df), perl = TRUE))
+
+  if (dim(species_df)[1] > 0){
+    names(species_df)[names(species_df) == 'species_code6']    = 'species_code_6'
+    # Add a field that determines whether this record is a bat or not a bat
+    species_df = species_df %>% dplyr::mutate(bat_call = ifelse(species_code == 'NOISE' , FALSE, TRUE)) %>%
+      dplyr::mutate(species = ifelse(is.na(species), 'NoID', species))
+  }
 
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
@@ -557,13 +569,13 @@ get_grts_frame_name = function(project_df, project_id){
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_acoustic_bulk_wavs(token,
+#' acoustic_bulk_df = get_sa_bulk_wavs(token,
 #'                                           get_acoustic_project_summary(),
 #'                                           project_id)
 #' }
 #'
 #' @export
-get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_sa_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -740,7 +752,6 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
       # If rename = TRUE (The acoustic data exists for this site_name)
       if (rename){
         # Rename and select from the 3 tables
-        proj_id_rn    = rename_acoustic_df(proj_id_df)[,c('stationary_acoustic_values_id', 'project_id', 'grts_cell_id')]
         wav_files_rn  = rename_acoustic_df(wav_files)[,c('audio_recording_name', 'recording_time', 'software_id', 'auto_id',
           'manual_id', 'stationary_acoustic_values_id', 'latitude', 'longitude')]
         acc_events_rn = rename_acoustic_df(acc_events)[,c('stationary_acoustic_values_id', 'location_name', 'survey_start_time',
@@ -760,6 +771,245 @@ get_acoustic_bulk_wavs = function(token, survey_df, project_id, year = NULL, bra
         all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
       }
     }
+  }
+  # Return the combined data in the format of the acoustic stationary bulk upload template form
+  if (is.null(year_)){
+    return (all_wav_n_acc)
+  }else {
+    all_wav_n_acc = subset(all_wav_n_acc, format(as.Date(all_wav_n_acc$recording_time), '%Y') == as.integer(year_))
+    return(all_wav_n_acc)
+  }
+}
+
+
+
+
+#' @title Get Acoustic mobile bulk upload template dataframe for a project
+#'
+#' @description
+#' Returns all surveys within a single project (project_id)
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param survey_df Dataframe a survey dataframe from the output of get_acoustic_m_project_summary()
+#' @param project_id Numeric or String a project id
+#' @param year (optional) Numeric year of data to be returned.
+#'               NULL = first year, 'all' = all years, 2018 = only 2018 data
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @keywords bats, NABat, GQL, Surveys
+#' @examples
+#'
+#' \dontrun{
+#' acoustic_bulk_df = get_sa_bulk_wavs(token,
+#'                                           get_acoustic_m_project_summary(),
+#'                                           project_id)
+#' }
+#'
+#' @export
+get_ma_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+# Pull in geoms dataframe
+query ='{allEventGeometries {
+  nodes{
+  id
+  name
+  geom{
+    geojson
+      }
+    }
+  }
+}'
+pbody = list(query = query)
+
+res = httr::POST(url_, headers_, body = pbody, encode='json')
+content = httr::content(res, as = 'text')
+geom_json = fromJSON(content, flatten = TRUE)
+geom_df   = rename_geoms_df(as.data.frame(geom_json, stringsAsFactors = FALSE))
+
+# Extract all survey ids from survey_df
+if (is.null(year)){
+  year_ = unique(survey_df$year)[1]
+  survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+} else if (year == 'all'){
+  survey_ids = unique(survey_df$survey_id)
+  year_ = NULL
+} else{
+  year_ = year
+  survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+}
+print (year_)
+
+# Set empty dataframe to build acoustic stationary bulk template data in
+all_wav_n_acc = data.frame()
+
+# Query each survey through GQL to extract and build a dataframe with all
+#   acoustic mobile records for these acoustic survey ids
+for (survey in survey_ids){
+  # Refresh token every loop
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  # Set Query
+  query = paste0('query{ allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+    nodes{
+    id
+    projectId
+    grtsId
+    mobileAcousticEventsBySurveyId {
+    nodes{
+    id
+    surveyId
+    activationStartTime
+    activationEndTime
+    deviceId
+    microphoneId
+    habitatTypeId
+    eventGeometryId
+    mobileAcousticValuesByMaSurveyId{
+    nodes{
+    wavFileName
+    recordingTime
+    softwareId
+    speciesId
+    manualId
+    recordingLocation{
+    geojson
+    }}}}}}}}')
+  pbody = list(query = query)
+
+  res       = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  grts_json = fromJSON(content, flatten = TRUE)
+
+  proj_id_df  = as.data.frame(grts_json$data$allSurveys$nodes, stringsAsFactors = FALSE)
+  acc_events = as.data.frame(proj_id_df$mobileAcousticEventsBySurveyId.nodes, stringsAsFactors = FALSE)
+
+  # Change headers if the data exists
+  if (dim(acc_events)[1] > 0){
+    names(acc_events) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(acc_events), perl = TRUE))
+    names(acc_events)[names(acc_events) == 'mobile_acoustic_values_by_ma_survey_id.nodes']    = 'values'
+    names(acc_events)[names(acc_events) == 'event_geometry_id']    = 'grts_geometry_id'
+  }
+
+  # Get grts cell for this survey
+  grts_cell = unique(subset(survey_df, survey_df$survey_id == survey)$grts_cell_id)
+  # Build wave files dataframe or raise error message if survey has no data
+  if (dim(acc_events)[1] == 0){
+    message (paste0('This survey has no Mobile acoustic data present: ', survey, ' GRTS id: ', grts_cell))
+  }else{
+    message (paste0('Compiling mobile acoustic data for survey: ', survey, ' GRTS id: ', grts_cell))
+    wav_files = data.frame()
+    acc_events = acc_events %>% dplyr::left_join(geom_df, by= c('grts_geometry_id' = 'event_geometry_id')) %>%
+      mutate(site_name = paste0(proj_id_df$grtsId, '_', location_name)) %>%
+      dplyr::select(-c(geom_type, geom_coordinates))
+
+    for (x in 1:dim(acc_events)[1]){
+      this_site_name = acc_events[x,]$site_name
+      event_data_df = as.data.frame(acc_events$values[x], stringsAsFactors = FALSE)
+      names(event_data_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(event_data_df), perl = TRUE))
+
+      # Check for no data in this survey acoustic
+      if (dim(event_data_df)[1] == 0){
+        message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
+        wav_int_files = data.frame()
+      }else{
+        print (paste0('Number of wav files at this site ',this_site_name ,': ', dim(event_data_df)[1]))
+        if ('recording_location' %in% names(event_data_df)){
+          wav_int_files = event_data_df
+          wav_int_files['latitude'] = NA
+          wav_int_files['longitude'] = NA
+          wav_int_files['recording_location'] = FALSE
+        }else{
+          # Add Lat/Lon for wav files
+          wav_int_files = event_data_df %>% dplyr::select(-c(recording_location.geojson.type, recording_location.geojson.coordinates))
+          if (dim(wav_int_files)[1]==0){
+            wav_int_files = data.frame()
+          } else{
+            # Extract lat/lon for each recording (wav file)
+            lon = matrix(unlist(event_data_df$recording_location.geojson.coordinates), 2)[1,]
+            lat = matrix(unlist(event_data_df$recording_location.geojson.coordinates), 2)[2,]
+            wav_int_files['latitude'] = lat
+            wav_int_files['longitude'] = lon
+            wav_int_files['recording_location'] = TRUE
+          }
+        }
+        id  = acc_events[x,]$id
+        wav_int_files['mobile_acoustic_values_id'] = id
+      }
+
+
+      # Add accoustic event wav files 1 by 1 to a full dataframe called wav_files
+      if (dim(wav_files)[1] < 1){
+        wav_files = wav_int_files
+      }else {
+        wav_files = rbind(wav_files, wav_int_files)
+      }
+    }
+
+    # If rename = TRUE (The acoustic data exists for this site_name)
+    if (dim(wav_files)[1] > 0){
+      # Rename and select from the 3 tables
+      names(acc_events)[names(acc_events) == 'id'] = 'mobile_acoustic_values_id'
+      acc_events = acc_events %>% dplyr::select(-c(values))
+
+      wav_files[,'project_id']   = project_id
+      wav_files[,'grts_cell_id'] = proj_id_df$grtsId
+
+      names(wav_files)[names(wav_files) == 'wav_file_name'] = 'audio_recording_name'
+      names(wav_files)[names(wav_files) == 'species_id'] = 'auto_id'
+
+      # Merge wav files dataframe and acoustic events dataframe for all data
+      wav_n_acc = merge(wav_files, acc_events, by = 'mobile_acoustic_values_id') %>%
+        dplyr::rename("survey_start_time" = activation_start_time, "survey_end_time" = activation_end_time)
+
+      # Iteratively combine the wav_n_acc dataframes together for each new survey
+      all_wav_n_acc = rbind(all_wav_n_acc, wav_n_acc)
+    }
+  }
   }
   # Return the combined data in the format of the acoustic stationary bulk upload template form
   if (is.null(year_)){
@@ -1017,4 +1267,10 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   return(all_colony_count_final)
 
 }
+
+
+
+
+
+
 
