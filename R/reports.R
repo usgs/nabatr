@@ -1239,6 +1239,14 @@ build_ma_doc = function(out_dir,
                         nightly_observed_list,
                         date = format(Sys.time(), "%B %d, %Y")){
 
+  # Setup temps directory to store intermediate files
+  if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/'))
+  }
+  if (dir.exists(paste0(out_dir, '/temps/range_maps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/range_maps/'))
+  }
+
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
   proj_id = project_id
@@ -1271,19 +1279,10 @@ build_ma_doc = function(out_dir,
   print ('build figure 1')
   # Build figure 1
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
-  map = ma_figure_1$map
-  print (class(map))
-  print (out_dir)
   # Save out map to import into officer word doc builder later
-  # if (is.null(map)){
-  m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
-  mapshot(m, file = map_out_)
-  # } else{
-  #   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
-  #   print ('Saving map out')
-  #   mapshot(map, file = map_out_)
-  # }
+  print ('Saving map out')
+  mapshot(ma_figure_1$map, file = map_out_)
 
   print ('build figure 2')
   # Build figure 2a/2b
