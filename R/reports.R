@@ -457,7 +457,11 @@ build_sa_doc = function(out_dir,
   # Total number of bat calls (all recording wav files counted)
   number_of_bat_calls = length(acoustic_bulk_df$audio_recording_name)
   # Total number of detector nights across all sites
-  number_of_net_nights = dim(auto_nights_df)[1]
+  total_nights_df = acoustic_bulk_df %>% dplyr::select(stationary_acoustic_values_id,
+    survey_night_start, survey_night_end) %>%
+    dplyr::distinct() %>% dplyr::rowwise() %>%
+    dplyr::mutate(total_nights = as.integer(as.Date(survey_night_end) - as.Date(survey_night_start)) + 1)
+  number_of_net_nights = sum(total_nights_df$total_nights)
 
   # If the manual_species_grts_df_w is not null
   if (!is.null(manual_species_grts_df_w)){
