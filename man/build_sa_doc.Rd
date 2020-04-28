@@ -50,7 +50,7 @@ build_sa_doc(
 \item{date}{Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
 
 \dontrun{
-doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
+doc_ = build_sa_doc(out_dir = '/path/to/output/dir',
                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
                     project_df = project_df_,
                     manual_species_grts_df_w,

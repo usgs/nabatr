@@ -208,7 +208,7 @@ get_sa_html_report = function(token,
 #' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
 #'
 #' \dontrun{
-#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
+#' doc_ = build_sa_doc(out_dir = '/path/to/output/dir',
 #'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
 #'                     project_df = project_df_,
 #'                     manual_species_grts_df_w,
@@ -1221,33 +1221,10 @@ build_col_doc = function(out_dir,
 #' @import maptools
 #' @import sp
 #' @import flextable
-#'
-#' @param out_dir String output directory to save report .html file ex: /path/to/directory
-#' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
-#' @param project_df Dataframe from running get_projects()
-#' @param manual_species_grts_df_w Dataframe manual species df wide get_species_counts_wide()
-#' @param auto_species_grts_df_w Dataframe auto species df wide get_species_counts_wide()
-#' @param project_id Integer project id from NABat
-#' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
-#'
-#' \dontrun{
-#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
-#'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
-#'                     project_df = project_df_,
-#'                     project_id = project_id_,
-#'                     ma_bulk_df = ma_bulk_df_,
-#'                     auto_species_grts_df_w,
-#'                     auto_nights_df = auto_nights_df_,
-#'                     manual_nights_df = manual_nights_df_,
-#'                     cover_photo = '/path/to/a/cover/photo.png',
-#'                     map = grts_map,
-#'                     manual_species_grts_df_w = manual_species_grts_df_w_,
-#'                     auto_species_grts_df_w = auto_species_grts_df_w_,
-#'                     auto_species_totals_l = auto_species_totals_l_,
-#'                     manual_species_totals_l = manual_species_totals_l_,
-#'                     date = format(Sys.time(), "%B %d, %Y"),
-#'                     acoustic_bulk_df = acoustic_bulk_df_)
-#' }
+#' @import leaflet
+#' @import rmarkdown
+#' @import htmlwidgets
+#' @import htmltools
 #'
 #' @export
 #'
@@ -1262,6 +1239,14 @@ build_ma_doc = function(out_dir,
                         nightly_observed_list,
                         date = format(Sys.time(), "%B %d, %Y")){
 
+  # Setup temps directory to store intermediate files
+  if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/'))
+  }
+  if (dir.exists(paste0(out_dir, '/temps/range_maps/'))==FALSE){
+    dir.create(paste0(out_dir, '/temps/range_maps/'))
+  }
+
   logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
   circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
   proj_id = project_id
@@ -1271,27 +1256,35 @@ build_ma_doc = function(out_dir,
   ma_description = project_row_df$project_description
   date = format(Sys.time(), "%B %d, %Y")
 
+  print ('build results')
   # Build results text
   ma_results = get_ma_results(ma_bulk_df, species_df, year)
 
+  print ('build examples')
   # get example text for mobile acoustic report
   ma_examples = get_ma_examples()
 
+  print ('build table 1')
   # Build table 1
-  ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
+  ma_table_1 = build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year)
 
+  print ('build table 2')
   # Build table 2
   ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
 
+  print ('build table 3')
   # Build table 3
   ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
 
+  print ('build figure 1')
   # Build figure 1
-  ma_figure_1 = build_ma_figure_1(ma_bulk_df, year)
+  ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
   # Save out map to import into officer word doc builder later
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+  print ('Saving map out')
   mapshot(ma_figure_1$map, file = map_out_)
 
+  print ('build figure 2')
   # Build figure 2a/2b
   ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
 
@@ -1302,6 +1295,7 @@ build_ma_doc = function(out_dir,
   fig2b_f = paste0(out_dir, "/temps/fig2b.png")
   plotly::export(ma_figure_2$figure_b, file = fig2b_f)
 
+  print ('build figure 3')
   # Build Figure 3
   ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
 
@@ -1317,6 +1311,7 @@ build_ma_doc = function(out_dir,
     italic = FALSE, underlined = FALSE, font.family = "Cambria",
     vertical.align = "baseline", shading.color = "transparent")
 
+  print ('build doc')
   ma_doc = read_docx() %>%
     body_add_fpar(fpar(ftext('Mobile Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_fpar(fpar(ftext(paste0(year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
