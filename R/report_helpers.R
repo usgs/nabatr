@@ -470,7 +470,7 @@ build_ma_figure_1 = function(ma_bulk_df, project_id, project_df, year = NULL){
 
 
       m = m %>% addCircleMarkers(data = p, color = 'blue', weight = 1, radius = .1, fillOpacity = 1, label = mobile_id)
-      m = m %>% addPolylines(data = line, color = 'red', opacity = 2, weight = .8)
+      # m = m %>% addPolylines(data = line, color = 'red', opacity = 2, weight = .8)
     }
   }
   return (list(map = m, description = ma_descr_fig1))
