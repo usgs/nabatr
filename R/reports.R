@@ -1296,6 +1296,7 @@ build_ma_doc = function(out_dir,
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
   # Save out map to import into officer word doc builder later
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+  print ('Saving map out')
   mapshot(ma_figure_1$map, file = map_out_)
 
   print ('build figure 2')
