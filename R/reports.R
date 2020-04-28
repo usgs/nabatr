@@ -208,7 +208,7 @@ get_sa_html_report = function(token,
 #' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
 #'
 #' \dontrun{
-#' doc_ = build_ac_doc(out_dir = '/path/to/output/dir',
+#' doc_ = build_sa_doc(out_dir = '/path/to/output/dir',
 #'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
 #'                     project_df = project_df_,
 #'                     manual_species_grts_df_w,
@@ -1294,10 +1294,17 @@ build_ma_doc = function(out_dir,
   print ('build figure 1')
   # Build figure 1
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
+  map = ma_figure_1$map
   # Save out map to import into officer word doc builder later
-  map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
-  print ('Saving map out')
-  mapshot(ma_figure_1$map, file = map_out_)
+  if (is.null(map)){
+    m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
+    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+    mapshot(m, file = map_out_)
+  } else{
+    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+    print ('Saving map out')
+    mapshot(map, file = map_out_)
+  }
 
   print ('build figure 2')
   # Build figure 2a/2b
