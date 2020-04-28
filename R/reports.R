@@ -1295,16 +1295,18 @@ build_ma_doc = function(out_dir,
   # Build figure 1
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
   map = ma_figure_1$map
+  print (class(map))
+  print (out_dir)
   # Save out map to import into officer word doc builder later
-  if (is.null(map)){
-    m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
-    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
-    mapshot(m, file = map_out_)
-  } else{
-    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
-    print ('Saving map out')
-    mapshot(map, file = map_out_)
-  }
+  # if (is.null(map)){
+  m = leaflet() %>% addTiles() %>% addMarkers(lat=40, lng=-105) %>% setView(lat=40,lng=-105,zoom=6)
+  map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+  mapshot(m, file = map_out_)
+  # } else{
+  #   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
+  #   print ('Saving map out')
+  #   mapshot(map, file = map_out_)
+  # }
 
   print ('build figure 2')
   # Build figure 2a/2b
