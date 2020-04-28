@@ -162,6 +162,7 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
     headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
+  print (paste0('Project ID: ', project_id))
   # Set Query
   query = paste0('{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
@@ -337,7 +338,7 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
 #'
 #' @export
 #'
-get_sa_project_summary = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_cc_project_summary = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
