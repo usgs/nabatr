@@ -65,7 +65,8 @@ add_observed_nights = function(df){
     clean_df = df %>%
       dplyr::mutate(observed_night = ifelse(format(recording_time, '%H') >=12,
         format(recording_time, '%Y-%m-%d') ,
-        format(recording_time - days(1), '%Y-%m-%d')))
+        format(recording_time - days(1), '%Y-%m-%d'))) %>%
+      dplyr::mutate(observed_night = as.Date(observed_night))
     return(clean_df)
   } else if('recording_time' %in% names(df) & !'POSIXct' %in% class(df$recording_time)){
     message('Field name recording_time is not in POSIXct format.  Run clean_time_fields() against your dataframe first')
@@ -99,11 +100,13 @@ add_start_end_nights = function(df){
   if('survey_start_time' %in% names(df) & 'survey_end_time' %in% names(df)){
     clean_df = df %>%
       dplyr::mutate(survey_night_start = ifelse(format(survey_start_time, '%H') >=12,
-        format(recording_time, '%Y-%m-%d') ,
-        format(recording_time - days(1), '%Y-%m-%d'))) %>%
+        format(survey_start_time, '%Y-%m-%d') ,
+        format(survey_start_time - days(1), '%Y-%m-%d'))) %>%
       dplyr::mutate(survey_night_end = ifelse(format(survey_end_time, '%H') >=12,
-        format(recording_time, '%Y-%m-%d') ,
-        format(recording_time - days(1), '%Y-%m-%d')))
+        format(survey_end_time, '%Y-%m-%d') ,
+        format(survey_end_time - days(1), '%Y-%m-%d'))) %>%
+      dplyr::mutate(survey_night_start = as.Date(survey_night_start)) %>%
+      dplyr::mutate(survey_night_end = as.Date(survey_night_end))
     return(clean_df)
   }else{
     message('Missing either survey_start_time or survey_end_time in dataframe fields')

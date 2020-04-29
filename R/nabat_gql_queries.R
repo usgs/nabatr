@@ -153,7 +153,7 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
 
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){
-    username = .rs.askForPassword('Username')
+    username = rstudioapi::showPrompt(title = "Username", message = "Username", default = "")
   }
   if (is.null(password)){
     password = .rs.askForPassword('Password')
@@ -214,7 +214,7 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
   if (is.null(error)){
     if (is.null(bearer)){
       message('Error, no tokens returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
-      return (content)
+      return (NULL)
     }else {
       access_token = strsplit(bearer, 'Bearer ')[[1]][2]
       message("Returning a GQL tokens for NABat.")
@@ -225,7 +225,7 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
   } else {
     # Post message with error for user
     message(paste0("Error: ", error))
-    return (content)
+    return (NULL)
   }
 }
 
@@ -279,6 +279,9 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     headers_ = httr::add_headers(Accept = "")
   }
 
+  if (is.null(token)){
+    return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
+  }
 
   expires_in = token$refresh_at - Sys.time()
   # If the token has expired than refresh the access_token and use this new one
@@ -325,7 +328,7 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     } else {
       # Post message with error for user
       message(paste0("Error: ", error))
-      return (content)
+      return (NULL)
     }
   }else{
     # If the access token has not expired, then use the original one from token$access_token
