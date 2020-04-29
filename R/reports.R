@@ -255,6 +255,16 @@ build_sa_doc = function(out_dir,
     dir.create(paste0(out_dir, '/temps/range_maps/'))
   }
 
+  # If the data didn't get cleaned for acoust_bulk_df, call cleaning date functions
+  if(!'observed_night'%in% names(acoustic_bulk_df)){
+    acoustic_bulk_df = acoustic_bulk_df %>% clean_time_fields() %>%
+      add_observed_nights()
+  }
+  if(!'survey_night_start' %in% names(acoustic_bulk_df)){
+    acoustic_bulk_df = acoustic_bulk_df %>% clean_time_fields() %>%
+      add_start_end_nights()
+  }
+
   # Get all species long
   all_species_totals_l_l = get_all_species_counts_long(auto_nights_df, manual_nights_df, fil = TRUE)
 
