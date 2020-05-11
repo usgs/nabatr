@@ -1212,34 +1212,28 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     }
 
     # Set Query
-    query = paste0('{
-      allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+    query = paste0('
+      query{allSurveys (filter:{id:{equalTo:', as.numeric(survey),'}}){
         nodes{
           id
           grtsId
           colonyCountEventsBySurveyId{
             nodes{
-              id
-              surveyId
-              dateTimeStart
-              dateTimeEnd
-              colonyCountEventSitesByEventId{
+              id,
+              surveyId,
+              dateTimeStart,
+              dateTimeEnd,
+              siteId,
+              winterYearPdPresumed,
+              winterYearWnsPresumed,
+              siteBySiteId{siteName}
+              colonyCountValuesByEventId{
                 nodes{
-                  id
-                  eventId
-                  siteId
-                  siteBySiteId{siteName}
-                  winterYearPdPresumed
-                  winterYearWnsPresumed
-                  colonyCountSiteValuesByEventSiteId{
-                  nodes{
-                    id
-                    eventSiteId
-                    speciesId
-                    speciesBySpeciesId{species}
-                    countValue
-                    }
-                  }
+                  id,
+                  eventId,
+                  speciesId,
+                  speciesBySpeciesId{species}
+                  countValue
                 }
               }
             }
@@ -1252,23 +1246,39 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
     count_json = fromJSON(content, flatten = TRUE)
-    count_tb = as_tibble(count_json$data$allSurveys$nodes) %>% tidyr::unnest() %>% tidyr::unnest() %>% tidyr::unnest()
+    count_tb = as_tibble(count_json$data$allSurveys$nodes) %>%
+      dplyr::select(- id) %>%
+      tidyr::unnest(cols = c(colonyCountEventsBySurveyId.nodes)) %>%
+      dplyr::select(- id) %>%
+      tidyr::unnest(cols = c(colonyCountValuesByEventId.nodes)) %>%
+      dplyr::rename('ccId' = id,
+        'siteName' = siteBySiteId.siteName,
+        'species' = speciesBySpeciesId.species) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+
+    names(count_tb) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(count_tb), perl = TRUE))
+
     all_colony_count = rbind(all_colony_count, count_tb)
   }
 
-  all_colony_count_final = rename_colony_df(all_colony_count) %>%
-    mutate(date_sampled = ymd(format(ymd_hms(date_sampled), "%Y-%m-%d")),
-           month = as.numeric(format(date_sampled, "%m")),
-           year = as.numeric(format(date_sampled, "%Y")),
-           wyear = case_when(
-             month %in% c(1:8) ~ year,
-             month %in% c(9:12) ~ year + 1
-           )) %>%
-    dplyr::select("grts_id", "date_sampled", "site_name", "winterYearPdPresumed", "winterYearWnsPresumed",
-                  "species", "count", "wyear")
+  all_colony_count_final = all_colony_count %>%
+    dplyr::rename('survey_start_time' = date_time_start,
+      'survey_end_time' = date_time_end) %>%
+    clean_time_fields() %>%
+    dplyr::rename('date_sampled' = survey_start_time,
+      'date_time_end' = survey_end_time,
+      'count' = count_value) %>%
+    dplyr::mutate(
+      month = as.numeric(format(date_sampled, "%m")),
+      year = as.numeric(format(date_sampled, "%Y")),
+      wyear = case_when(
+        month %in% c(1:8) ~ year,
+        month %in% c(9:12) ~ year + 1
+      )) %>%
+    dplyr::select("grts_id", "date_sampled", "site_name", "species", "count",
+      "wyear","winter_year_pd_presumed", "winter_year_wns_presumed")
 
   return(all_colony_count_final)
-
 }
 
 
