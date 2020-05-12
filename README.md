@@ -23,7 +23,7 @@ install.packages(c('httr' ,'xml2' ,'jsonlite' ,'plyr' ,'rgdal' ,'sp' ,'htmltools
   'plotly' ,'magrittr' ,'mapview' ,'officer' ,'caret' ,'plumber' ,'aws.s3' ,'flextable', 'maps',
   'maptools'))
 
-devtools::install_github("ennsk/nabatr")
+devtools::install_github("usgs/nabatr")
 
 library(nabatr)
 ```
