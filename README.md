@@ -28,7 +28,7 @@ devtools::install_github("ennsk/nabatr")
 library(nabatr)
 ```
 
-## See Vignettes for examples (run in RStudio) or See .Rmd examples in Examples directory
+## See Vignettes for examples (run in RStudio) or See .Rmd files in Examples directory
 ```
 # RStudio pop up in Help tab
 ??nabatr
