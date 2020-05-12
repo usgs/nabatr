@@ -1,4 +1,4 @@
-NABat R Data Access and Manipulation Tools
+NABat R - Data Access and Manipulation Tools <a href='https://nabatmonitoring.org/#/home'><img src='./inst/templates/NABat_Circle_color.jpg' align="right" height="139" /></a>
 ===
 
 Tools for interfacing R with NABat data services.
