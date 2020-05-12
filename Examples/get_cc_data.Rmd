@@ -1,0 +1,61 @@
+---
+title: "Get_Colony_Count_data"
+output:
+  html_document: default
+---
+
+## Explore your Colony Count NABat data using this Rmd example
+
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+
+### Get Project dataframe which contains all of your NABat projects in the NABat Database
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+# Get your projects lookup table
+project_df = get_projects(token)
+# Display your projects lookup table
+project_df
+```
+
+
+### Get all Colony Count Surveys within a single Project set with project_id
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+# Fill in project id using the project_df lookup table
+project_id = 000 # Set equal to one of your project ids
+
+# Get survey dataframe 
+cc_survey_df = get_cc_project_summary(token,
+                                      project_df,
+                                      project_id)
+# Display survey dataframe
+cc_survey_df
+```
+
+
+### Get all Colony Count data within a single Project set with project_id
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+# Get mobile acoustic bulk upload format dataframe
+cc_bulk_df = get_colony_bulk_counts(token,
+                                    cc_survey_df,
+                                    project_id)
+
+# Display Colony Count dataframe
+cc_bulk_df
+```
