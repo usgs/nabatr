@@ -1158,9 +1158,9 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_colony_bulk_counts(token,
-#'                                           get_acoustic_project_summary(),
-#'                                           project_id)
+#' cc_bulk_df = get_colony_bulk_counts(token,
+#'                                     get_cc_project_summary(),
+#'                                     project_id)
 #' }
 #'
 #' @export
@@ -1246,7 +1246,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
     count_json = fromJSON(content, flatten = TRUE)
-    count_tb = as_tibble(count_json$data$allSurveys$nodes) %>%
+    count_df = as_tibble(count_json$data$allSurveys$nodes) %>%
       dplyr::select(- id) %>%
       tidyr::unnest(cols = c(colonyCountEventsBySurveyId.nodes)) %>%
       dplyr::select(- id) %>%
@@ -1256,9 +1256,9 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
         'species' = speciesBySpeciesId.species) %>%
       as.data.frame(stringsAsFactors = FALSE)
 
-    names(count_tb) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(count_tb), perl = TRUE))
+    names(count_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(count_df), perl = TRUE))
 
-    all_colony_count = rbind(all_colony_count, count_tb)
+    all_colony_count = rbind(all_colony_count, count_df)
   }
 
   all_colony_count_final = all_colony_count %>%
