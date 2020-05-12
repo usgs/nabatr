@@ -38,9 +38,9 @@ Returns all surveys within a single project (project_id)
 \examples{
 
 \dontrun{
-acoustic_bulk_df = get_colony_bulk_counts(token,
-                                          get_acoustic_project_summary(),
-                                          project_id)
+cc_bulk_df = get_colony_bulk_counts(token,
+                                    get_cc_project_summary(),
+                                    project_id)
 }
 
 }
