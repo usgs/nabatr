@@ -1274,9 +1274,9 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
       wyear = case_when(
         month %in% c(1:8) ~ year,
         month %in% c(9:12) ~ year + 1
-      )) %>%
-    dplyr::select("grts_id", "date_sampled", "site_name", "species", "count",
-      "wyear","winter_year_pd_presumed", "winter_year_wns_presumed")
+      )) # %>%
+    # dplyr::select("grts_id", "date_sampled", "site_name", "species", "count",
+    #   "wyear","winter_year_pd_presumed", "winter_year_wns_presumed")
 
   return(all_colony_count_final)
 }
