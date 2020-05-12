@@ -1,4 +1,4 @@
-NABat R Data Access and Manipulation Tools
+NABat R - Data Access and Manipulation Tools <a href='https://nabatmonitoring.org/#/home'><img src='./inst/templates/NABat_Circle_color.jpg' align="right" height="139" /></a>
 ===
 
 Tools for interfacing R with NABat data services.
@@ -28,7 +28,7 @@ devtools::install_github("ennsk/nabatr")
 library(nabatr)
 ```
 
-## See Vignettes for examples (run in RStudio) or See .Rmd examples in Examples directory
+## See Vignettes for examples (run in RStudio) or See .Rmd files in Examples directory
 ```
 # RStudio pop up in Help tab
 ??nabatr
