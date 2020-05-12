@@ -22,20 +22,14 @@ clean_time_fields = function(df){
   if ('recording_time' %in% names(df)){
     df$recording_time = gsub("T", " ", df$recording_time, fixed = TRUE)
     df$recording_time = as.POSIXct(df$recording_time, tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
-  }else{
-    message('recording_time field not found')
   }
   if ('survey_start_time' %in% names(df)){
     df$survey_start_time = gsub("T", " ", df$survey_start_time, fixed = TRUE)
     df$survey_start_time = as.POSIXct(df$survey_start_time, tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
-  }else{
-    message('survey_start_time field not found')
   }
   if ('survey_end_time' %in% names(df)){
     df$survey_end_time = gsub("T", " ", df$survey_end_time, fixed = TRUE)
     df$survey_end_time = as.POSIXct(df$survey_end_time, tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
-  }else{
-    message('survey_end_time field not found')
   }
   return (df)
 }
