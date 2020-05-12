@@ -1,0 +1,44 @@
+---
+title: "Get_Project_Types"
+output:
+  html_document: default
+---
+
+## Get all of your projects and the type of data they contain (colony_count, mobile_acoustic, and stationary_acoustic)
+
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+
+### Get all project types
+```{r}
+# Refresh Token
+token = get_refresh_token(token)
+# Get all project types dataframe
+poject_types_df = get_all_project_types(token)
+poject_types_df
+```
+
+### Print out of all project types found in your projects
+```{r}
+colony_count_projs = unique(subset(poject_types_df, poject_types_df$number_cc_events > 0)$id)
+mobile_acoustic_projs = unique(subset(poject_types_df, poject_types_df$number_ma_events > 0)$id)
+stationary_acoustic_projs = unique(subset(poject_types_df, poject_types_df$number_sa_events > 0)$id)
+
+print (paste0('Number of colony count projects: ', length(colony_count_projs)))
+print (colony_count_projs)
+print (paste0('Number of mobile acoustic projects: ', length(mobile_acoustic_projs)))
+print (mobile_acoustic_projs)
+print (paste0('Number of stationary acoustic projects: ', length(stationary_acoustic_projs)))
+print (stationary_acoustic_projs)
+```
