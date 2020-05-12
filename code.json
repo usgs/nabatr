@@ -1,0 +1,38 @@
+[
+  {
+    "name": "NABatR",
+    "organization": "U.S. Geological Survey",
+    "description": "Tools for interfacing R with NABat data services.",
+    "version": "0.1.0",
+    "status": "preliminary/provisional software release",
+
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0"
+        }
+      ]
+    },
+
+    "vcs": "git",
+
+    "tags": [
+      "NABat",
+      "NABatR"
+    ],
+
+    "languages": [
+      "R"
+    ],
+
+    "contact": {
+      "name": "Kyle Enns",
+      "email": "kenns@usgs.gov"
+    },
+
+    "date": {
+      "metadataLastUpdated": "2020-05-12"
+    }
+  }
+]
