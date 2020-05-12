@@ -1,32 +1,46 @@
 License
--------
+=======
 
-This software is licensed under CC0 1.0 (http://creativecommons.org/publicdomain/zero/1.0/) and is in the public domain 
-because it contains materials that originally came from the U.S. Geological Survey (USGS), an agency of the United 
-States Department of Interior. For more information, see the official USGS copyright policy 
-(http://www2.usgs.gov/visual-id/credit_usgs.html#copyright/).
+Unless otherwise noted, This project is in the public domain in the United
+States because it contains materials that originally came from the United
+States Geological Survey, an agency of the United States Department of
+Interior. For more information, see the official USGS copyright policy at
+https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+
+Additionally, we waive copyright and related rights in the work
+worldwide through the CC0 1.0 Universal public domain dedication.
 
 
-Disclaimer
-----------
+CC0 1.0 Universal Summary
+-------------------------
 
-This software is preliminary or provisional and is subject to revision. It is being provided to meet the need for timely
-best science. The software has not received final approval by the U.S. Geological Survey (USGS). No warranty, expressed 
-or implied, is made by the USGS or the U.S. Government as to the functionality of the software and related material nor 
-shall the fact of release constitute any such warranty. The software is provided on the condition that neither the USGS 
-nor the U.S. Government shall be held liable for any damages resulting from the authorized or unauthorized use of the 
-software.
+This is a human-readable summary of the
+[Legal Code (read the full text)][1].
 
-The USGS provides no warranty, expressed or implied, as to the correctness of the furnished software or the suitability 
-for any purpose. The software has been tested, but as with any complex software, there could be undetected errors. Users
-who find errors are requested to report them to the USGS.
 
-References to non-USGS products, trade names, and (or) services are provided for information purposes only and do not
-constitute endorsement or warranty, express or implied, by the USGS, U.S. Department of Interior, or U.S. Government, as
-to their suitability, content, usefulness, functioning, completeness, or accuracy.
+### No Copyright
 
-Although this program has been used by the USGS, no warranty, expressed or implied, is made by the USGS or the United
-States Government as to the accuracy and functioning of the program and related program material nor shall the fact of
-distribution constitute any such warranty, and no responsibility is assumed by the USGS in connection therewith.
+The person who associated a work with this deed has dedicated the work to
+the public domain by waiving all of his or her rights to the work worldwide
+under copyright law, including all related and neighboring rights, to the
+extent allowed by law.
 
-This software is provided "AS IS."
+You can copy, modify, distribute and perform the work, even for commercial
+purposes, all without asking permission.
+
+
+### Other Information
+
+In no way are the patent or trademark rights of any person affected by CC0,
+nor are the rights that other persons may have in the work or in how the
+work is used, such as publicity or privacy rights.
+
+Unless expressly stated otherwise, the person who associated a work with
+this deed makes no warranties about the work, and disclaims liability for
+all uses of the work, to the fullest extent permitted by applicable law.
+When using or citing the work, you should not imply endorsement by the
+author or the affirmer.
+
+
+
+[1]: https://creativecommons.org/publicdomain/zero/1.0/legalcode
