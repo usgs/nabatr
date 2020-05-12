@@ -22,14 +22,13 @@ install.packages(c('httr' ,'xml2' ,'jsonlite' ,'plyr' ,'rgdal' ,'sp' ,'htmltools
   'leaflet' ,'rmarkdown' ,'rprojroot' ,'dplyr' ,'devtools' ,'testthat' ,'roxygen2' ,'kableExtra' ,
   'plotly' ,'magrittr' ,'mapview' ,'officer' ,'caret' ,'plumber' ,'aws.s3' ,'flextable', 'maps',
   'maptools'))
-  
-devtools::install_github("ropensci/ghql")
+
 devtools::install_github("ennsk/nabatr")
 
 library(nabatr)
 ```
 
-## See Vignettes for examples (run in RStudio)
+## See Vignettes for examples (run in RStudio) or See .Rmd examples in Examples directory
 ```
 # RStudio pop up in Help tab
 ??nabatr
