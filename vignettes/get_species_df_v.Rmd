@@ -1,0 +1,30 @@
+---
+title: "Get_species_df"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get the NABat Species lookup dataframe}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+### Get a token for NABat Database
+```
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+### Get Species dataframe which contains a species lookup table for auto and manual ids
+```
+# Refresh token
+token = get_refresh_token(token)
+# Get your species lookup table
+species_df = get_species(token = token)
+# Display your species lookup table
+species_df
+```
