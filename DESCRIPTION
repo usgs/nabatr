@@ -1,11 +1,8 @@
 Package: nabatr
 Title: R Tools for Accessing and Manipulating North American Bat Monitoring Data
 Version: 0.0.0.1
-Authors@R: 
-    person(given = "Colin",
-           family = "Talbert",
-           role = c("aut", "cre"),
-           email = "talbertc@usgsg.gov")
+Authors@R: person("Kyle", "Enns", email = "kenns@usgs.gov",
+  role = c("aut", "cre"))
 Description: R Tools for Accessing and Manipulating North American Bat Monitoring Data.
 Imports:
     httr (>= 1.0.0),
