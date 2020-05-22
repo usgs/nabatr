@@ -159,75 +159,77 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
     password = .rs.askForPassword('Password')
   }
 
-  # Returns a message with username
-  message(paste0("Logging into the NABat database as ", username))
 
-  # When url is not passed in use these two gql urls, otherwise use the url passed through
-  #  as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  out = tryCatch({
 
-  if (docker){
-    # If Docker 3_5_3 use this headers_
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      headers_ = httr::add_headers(host = aws_gql)
+
+    # Returns a message with username
+    message(paste0("Logging into the NABat database as ", username))
+
+    # When url is not passed in use these two gql urls, otherwise use the url passed through
+    #  as a variable.
+    if (is.null(url)){
+      # Prod URL for NABat GQL
+      if (branch == 'prod'){
+        url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+        url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      }
     }else {
+      url_ = url
+    }
+
+    if (docker){
+      # If Docker 3_5_3 use this headers_
+      if(!is.null(aws_gql)){
+        url_ = paste0(aws_alb, '/graphql')
+        headers_ = httr::add_headers(host = aws_gql)
+      }else {
+        headers_ = httr::add_headers(Accept = "")
+      }
+    } else{
+      # If Local, use this headers_
       headers_ = httr::add_headers(Accept = "")
     }
-  } else{
-    # If Local, use this headers_
-    headers_ = httr::add_headers(Accept = "")
-  }
 
-  # Username and password
-  variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
-  # Mutation to get token
-  query = 'mutation loging($l:LoginInput!){
+    # Username and password
+    variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
+    # Mutation to get token
+    query = 'mutation loging($l:LoginInput!){
     login(input:$l){
-      access_token,
-      refresh_token,
-      expires_in
+    access_token,
+    refresh_token,
+    expires_in
     }
   }'
-  # Finalize json request
-  pbody = list(query = query, variables = variables)
-  # POST to url
-  res = POST(url_, headers_, body = pbody, encode="json")
-  # Remove variables with Password
-  rm(password, variables, pbody)
-  # Extract token
-  content = content(res)
-  error  = content$data$login$error
-  bearer = content$data$login$access_token
-  refresh_token = content$data$login$refresh_token
+    # Finalize json request
+    pbody = list(query = query, variables = variables)
+    # POST to url
+    res = POST(url_, headers_, body = pbody, encode="json")
+    # Remove variables with Password
+    rm(password, variables, pbody)
+    # Extract token
+    content = content(res)
+    error  = content$data$login$error
+    bearer = content$data$login$access_token
+    refresh_token = content$data$login$refresh_token
 
+    if (res$status_code != 200){stop(paste0('Status code: ', res$status_code))}
+    if (is.null(refresh_token)){stop('Error on login. Check Password/Username ')}
 
-  if (is.null(error)){
-    if (is.null(bearer)){
-      message('Error, no tokens returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
-      return (NULL)
-    }else {
-      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
-      message("Returning a GQL tokens for NABat.")
-      expires = content$data$login$expires_in - (60 * 10)
-      refresh_at_this = Sys.time() + expires
-      return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
-    }
-  } else {
-    # Post message with error for user
-    message(paste0("Error: ", error))
-    return (NULL)
+    access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+    message("Returning a GQL token for NABat.")
+    expires = content$data$login$expires_in - (60 * 10)
+    refresh_at_this = Sys.time() + expires
+    return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
+    },
+    # If it errors or refresh_token = NULL then function will fail
+    error = function(cond) {
+      message(cond)
+      return(NULL)
+    })
+  return (out)
   }
-}
 
 
 #' @title NABat login to NABAt Database GQL and get access_token
@@ -251,7 +253,7 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
 #'
 #' @export
 #'
-get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE, force = FALSE){
+get_refresh_token = function(token = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE, force = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -279,66 +281,62 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
     headers_ = httr::add_headers(Accept = "")
   }
 
-  if (is.null(token)){
+  if (is.null(token) | force){
     return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
   }
 
   expires_in = token$refresh_at - Sys.time()
   # If the token has expired than refresh the access_token and use this new one
-  if (expires_in < 0 | force){
-    # print ('Token is expired, Returning a new one.')
-    # Username and password
-    variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
-    # Mutation to get token
-    query = 'mutation loging($l:LoginInput!){
+
+  out = tryCatch({
+    if (expires_in < 0){
+      # print ('Token is expired, Returning a new one.')
+      # Username and password
+      variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
+      # Mutation to get token
+      query = 'mutation loging($l:LoginInput!){
       login(input:$l){
-        access_token,
-        refresh_token,
-        expires_in
+      access_token,
+      refresh_token,
+      expires_in
       }
     }'
-    # Finalize json request0
-    pbody = list(query = query, variables = variables)
-    # POST to url
-    res = httr::POST(url_, headers_, body = pbody, encode="json")
-    print (res$status_code)
-    print (res$status_code)
-    if (res$status_code != 200){
-      return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
-    }
-    # Extract token
-    content = content(res)
-    error  = content$data$login$error
-    bearer = content$data$login$access_token
-    refresh_token  = content$data$login$refresh_token
-    print ('refresh token:')
-    print (refresh_token)
+      # Finalize json request0
+      pbody = list(query = query, variables = variables)
+      # POST to url
+      res = httr::POST(url_, headers_, body = pbody, encode="json")
 
+      # Extract token
+      content = content(res)
+      error  = content$data$login$error
+      bearer = content$data$login$access_token
+      refresh_token  = content$data$login$refresh_token
 
-    if (is.null(error)){
-      if (is.null(bearer)){
-        # prompt login with username/password
-        return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
-      }else {
-        access_token = strsplit(bearer, 'Bearer ')[[1]][2]
-        expires = content$data$login$expires_in - (60 * 10) # if it's older than 5 minutes
-        refresh_at_this = Sys.time() + expires
-        return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
-      }
-    } else {
-      # Post message with error for user
-      message(paste0("Error: ", error))
-      return (NULL)
-    }
-  }else{
-    # If the access token has not expired, then use the original one from token$access_token
-    # print ('Token is still good. Returning original')
-    refresh_at_this = token$refresh_at
-    refresh_token = token$refresh_token
-    access_token = token$access_token
-    return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
-  }
+      if (res$status_code != 200){stop(paste0('Status code: ', res$status_code))}
+      if (is.null(refresh_token)){stop('Error on login. Check Password/Username ')}
+
+      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+      message("Returning a GQL token for NABat.")
+      expires = content$data$login$expires_in - (60 * 10)
+      refresh_at_this = Sys.time() + expires
+      return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
+
+}else{
+  # If the access token has not expired, then use the original one from token$access_token
+  # print ('Token is still good. Returning original')
+  refresh_at_this = token$refresh_at
+  refresh_token = token$refresh_token
+  access_token = token$access_token
+  return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
 }
+    },
+    # If it errors or refresh_token = NULL then function will fail
+    error = function(cond) {
+      message(cond)
+      return(NULL)
+    })
+  return (out)
+  }
 
 
 #' @title Search NABat Projects
