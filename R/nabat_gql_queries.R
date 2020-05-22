@@ -281,7 +281,7 @@ get_refresh_token = function(token = NULL, branch = 'prod', url = NULL, aws_gql 
     headers_ = httr::add_headers(Accept = "")
   }
 
-  if (is.null(token) | force){
+  if (is.null(token)){
     return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
   }
 
@@ -289,7 +289,7 @@ get_refresh_token = function(token = NULL, branch = 'prod', url = NULL, aws_gql 
   # If the token has expired than refresh the access_token and use this new one
 
   out = tryCatch({
-    if (expires_in < 0){
+    if (expires_in < 0 | force){
       # print ('Token is expired, Returning a new one.')
       # Username and password
       variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
