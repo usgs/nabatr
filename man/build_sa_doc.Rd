@@ -18,54 +18,6 @@ build_sa_doc(
   range_maps = TRUE
 )
 }
-\arguments{
-\item{out_dir}{String output directory to save report .html file ex: /path/to/directory}
-
-\item{file_name}{String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')}
-
-\item{project_df}{Dataframe from running get_projects()}
-
-\item{project_id}{Integer project id from NABat ex: 105}
-
-\item{date}{Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
-
-\dontrun{
-doc_ = build_sa_doc(out_dir = '/path/to/output/dir',
-                    file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
-                    project_df = project_df_,
-                    manual_species_grts_df_w,
-                    auto_species_grts_df_w,
-                    project_id = project_id_,
-                    auto_nights_df = auto_nights_df_,
-                    manual_nights_df = manual_nights_df_,
-                    cover_photo = '/path/to/a/cover/photo.png',
-                    map = grts_map,
-                    manual_species_grts_df_w = manual_species_grts_df_w_,
-                    auto_species_grts_df_w = auto_species_grts_df_w_,
-                    auto_species_totals_l = auto_species_totals_l_,
-                    manual_species_totals_l = manual_species_totals_l_,
-                    date = format(Sys.time(), "%B %d, %Y"),
-                    acoustic_bulk_df = acoustic_bulk_df_)
-}}
-
-\item{auto_nights_df}{Dataframe from running get_observed_nights()}
-
-\item{manual_nights_df}{Dataframe from running get_observed_nights()}
-
-\item{cover_photo}{String path to a .png file}
-
-\item{map}{(optional) output from get_grts_leaflet_map()}
-
-\item{manual_species_grts_df_w}{Dataframe from running get_species_counts_wide()}
-
-\item{auto_species_grts_df_w}{Dataframe from running get_species_counts_wide()}
-
-\item{auto_species_totals_l}{Dataframe from running get_species_counts_long()}
-
-\item{manual_species_totals_l}{Dataframe from running get_species_counts_long()}
-
-\item{acoustic_bulk_df}{Dataframe from running get_observed_nights()}
-}
 \description{
 Using the outputs from get_projects(), get_sa_project_summary(), get_as_bulk_wavs(),
 and get_observed_nights() this function will create a report .docx file to an out_dir.

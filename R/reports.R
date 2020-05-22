@@ -190,56 +190,11 @@ get_sa_html_report = function(token,
 #' @import sp
 #' @import flextable
 #'
-#' @param out_dir String output directory to save report .html file ex: /path/to/directory
-#' @param file_name String output file name ex: paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx')
-#' @param project_df Dataframe from running get_projects()
-#' @param manual_species_grts_df_w Dataframe manual species df wide get_species_counts_wide()
-#' @param auto_species_grts_df_w Dataframe auto species df wide get_species_counts_wide()
-#' @param project_id Integer project id from NABat ex: 105
-#' @param auto_nights_df Dataframe from running get_observed_nights()
-#' @param manual_nights_df Dataframe from running get_observed_nights()
-#' @param cover_photo String path to a .png file
-#' @param map (optional) output from get_grts_leaflet_map()
-#' @param manual_species_grts_df_w Dataframe from running get_species_counts_wide()
-#' @param auto_species_grts_df_w Dataframe from running get_species_counts_wide()
-#' @param auto_species_totals_l Dataframe from running get_species_counts_long()
-#' @param manual_species_totals_l Dataframe from running get_species_counts_long()
-#' @param acoustic_bulk_df Dataframe from running get_observed_nights()
-#' @param date Date current time in a month/day/Year format ex: format(Sys.time(), "%B %d, %Y")
-#'
-#' \dontrun{
-#' doc_ = build_sa_doc(out_dir = '/path/to/output/dir',
-#'                     file_name  = paste0('doc_report_',project_id_,'_',Sys.Date(),'.docx'),
-#'                     project_df = project_df_,
-#'                     manual_species_grts_df_w,
-#'                     auto_species_grts_df_w,
-#'                     project_id = project_id_,
-#'                     auto_nights_df = auto_nights_df_,
-#'                     manual_nights_df = manual_nights_df_,
-#'                     cover_photo = '/path/to/a/cover/photo.png',
-#'                     map = grts_map,
-#'                     manual_species_grts_df_w = manual_species_grts_df_w_,
-#'                     auto_species_grts_df_w = auto_species_grts_df_w_,
-#'                     auto_species_totals_l = auto_species_totals_l_,
-#'                     manual_species_totals_l = manual_species_totals_l_,
-#'                     date = format(Sys.time(), "%B %d, %Y"),
-#'                     acoustic_bulk_df = acoustic_bulk_df_)
-#' }
 #'
 #' @export
 #'
 
-build_sa_doc =  function(out_dir,
-  file_name,
-  project_df,
-  project_id,
-  sa_bulk_df,
-  sa_survey_df,
-  species_df,
-  selected_year,
-  nightly_observed_list = NULL,
-  date = format(Sys.time(), "%B %d, %Y"),
-  range_maps = TRUE){
+build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_survey_df,species_df,selected_year,nightly_observed_list = NULL,date = format(Sys.time(), "%B %d, %Y"),range_maps = TRUE){
 
 
   message ('Enter Stationary Report Function')
