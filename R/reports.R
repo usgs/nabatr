@@ -49,17 +49,17 @@
 #' @export
 #'
 get_sa_html_report = function(token,
-                                          project_id,
-                                          output_dir,
-                                          output_type = 'html',
-                                          project_name = NULL,
-                                          project_description = NULL,
-                                          file_name = 'report.html',
-                                          nightly_plots_type = 'grts',
-                                          survey_df = NULL,
-                                          acoustic_bulk_df = NULL,
-                                          nightly_observed_list = NULL,
-                                          num_plots = NULL){
+                              project_id,
+                              output_dir,
+                              output_type = 'html',
+                              project_name = NULL,
+                              project_description = NULL,
+                              file_name = 'report.html',
+                              nightly_plots_type = 'grts',
+                              survey_df = NULL,
+                              acoustic_bulk_df = NULL,
+                              nightly_observed_list = NULL,
+                              num_plots = NULL){
 
   template  = system.file("templates", "acoustic_stationary_report.Rmd", package = "nabatr")
   nabat_png = system.file("templates", "nabat_logo.png", package = "nabatr")
@@ -444,177 +444,112 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
 #'
 
 build_col_doc = function(out_dir,
-                         file_name,
-                         project_df,
-                         project_id,
-                         colony_bulk_df,
-                         survey_table,
-                         cover_photo = NULL,
-                         date = format(Sys.time(), "%B %d, %Y")){
+  file_name,
+  project_df,
+  project_id,
+  cc_bulk_df,
+  cc_survey_df,
+  date = format(Sys.time(), "%B %d, %Y")){
 
-  print ('Enter Report Function')
-
-  if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
+  if (dir.exists(paste0(out_dir, '/temps/')) == FALSE){
     dir.create(paste0(out_dir, '/temps/'))
   }
 
-  print ('Set Variables')
-  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
-  circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
-  proj_id = project_id
-  project_row_df = subset(project_df, project_df$project_id == proj_id)
-  title        = project_row_df$project_name
-  # by           = project_row_df$owner_email
-  organization = project_row_df$organization
-  this_project_description = project_row_df$project_description
+  print('Get front page info')
+  # Get front page info
+  cc_logo_img_      = system.file("templates", "nabat_logo.png", package = "nabatr")
+  cc_circle_logo_   = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
+  cc_proj_id        = project_id
+  cc_project_row_df = subset(project_df, project_df$project_id == cc_proj_id)
+  cc_title          = cc_project_row_df$project_name
+  cc_organization   = cc_project_row_df$organization
+  cc_description    = cc_project_row_df$project_description
 
-  # description  = project_row_df$project_description
-  description = "[EXAMPLE]:  "
+  message ('Get Examples')
+  # Get Colony Count Examples
+  cc_examples = get_cc_examples()
 
-  # Methods
-  methods = "[EXAMPLE]: Survey sites were chosen based on previous knowledge of winter hibernacula in the region, historical monitoring efforts, and suitability criteria outlined in Loeb et al. (2015). Because detection probability of hibernating bats is highly variable within seasons, surveys were conducted between late January and early March to maximize detection (Loeb et al. 2015). Abundance was estimated using visual counts and accompanying digital photographs. Multiple observers conducted counts in each section of the hibernacula to facilitate the estimation of detection probability and to validate species identifications."
+  message ('Get Results')
+  # Get Colony Count results
+  cc_results = get_cc_results(cc_bulk_df)
 
-  # Results
+  message ('Build table 1')
+  # Build Colony Count table 1
+  cc_table_1 = build_cc_table_1(cc_bulk_df)
 
-  # Remove NA values for winter year and species
-  colony_bulk_df = colony_bulk_df %>% tidyr::drop_na(wyear, species)
+  message ('Build figure 1')
+  # Build Colony Count figure 1
+  cc_figure_1 = build_cc_figure_1(cc_bulk_df, out_dir, TRUE)
 
-  ## Set variables to be printed in results section
-  spp <- unique(colony_bulk_df$species)
-  species_sampled <- paste(length(spp), " species ", "(", paste(spp, collapse = ", "), ")", sep = "")
-  number_of_sites <- length(unique(colony_bulk_df$site_name))
-  range_winter_years <- paste(min(colony_bulk_df$wyear, na.rm = TRUE), "to", max(colony_bulk_df$wyear, na.rm = TRUE))
-  number_of_grts <- length(unique(colony_bulk_df$grts_id))
-
-  results_overview = paste0("Winter colonies for ", species_sampled, " were counted at ", number_of_sites, " sites from ", range_winter_years, ", and across ", number_of_grts, " grid cells (Table 1).")
-
-  # Table 1. Summary survey table
-
-  survey_table <- colony_bulk_df %>%
-    dplyr::group_by(wyear, species) %>%
-    dplyr::summarise(number_of_sites = length(unique(site_name))) %>%
-    tidyr::spread(species, number_of_sites) %>%
-    dplyr::rename(`Winter Year` = wyear)
-  # Remove the spaces in the field names (breaks on website/docker)
-  names(survey_table) = gsub(" ", "_", names(survey_table))
-
-  descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
-
-  print ('Build Table 1')
-  ft1 = flextable::flextable(survey_table, col_keys = names(survey_table))
-  ft1 = flextable::height(ft1, height =.7, part = 'header')
-  ft1 = flextable::width(ft1, width = 1)
-  ft1 = flextable::fontsize(ft1, size = 10, part = "all")
-
-  # Figure 1
-
-  print ('Build Figure 1')
-
-  descr_fig1 = paste0("Figure 1. Winter colony counts of bats by site and species")
-
-  p <- colony_bulk_df %>%
-    ggplot(aes(x = as.integer(wyear), y = count, color = site_name)) +
-    geom_point(size = 2, alpha = 0.7) +
-    geom_line() +
-    scale_y_log10() +
-    facet_wrap(~species, scales = "free") +
-    xlab("") +
-    ylab("Count of bats") +
-    theme_bw() +
-    theme(panel.grid = element_blank(), strip.text = element_text(face = "italic"),
-          legend.position = "bottom")
-
-
-  fig1_dir <- paste0(out_dir, "/fig1.png")
-  ggsave(p, filename = fig1_dir)
-
-  # Lit Cited
-  lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research Station. 112 p."
-
-  # Remove files
-  if (file.exists(paste0(out_dir, '/', file_name))){
-    print (paste0('Removing ', paste0(out_dir, '/', file_name)))
-    file.remove(paste0(out_dir, '/', file_name))
-  }
-
-  # Font for title
+  message ('Add Fonts')
+  # Add fonts
   bold_face = shortcuts$fp_bold(font.size = 16)
   par_style = fp_par(text.align = "center")
   example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
     italic = FALSE, underlined = FALSE, font.family = "Cambria",
     vertical.align = "baseline", shading.color = "transparent")
 
-  print ('Begin .docx build')
-  doc = read_docx() %>%
-    # Add title/header
-    # 'Normal', 'heading 1', 'heading 2', 'heading 3', 'centered', 'graphic title', 'table title', 'toc 1', 'toc 2', 'Balloon Text'
+  message ('Begin Colony Count .docx build')
+  # Build Colony Count document
+  cc_doc = read_docx() %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_fpar(fpar(ftext(title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
-    # body_add_par(value = title, style = "graphic title") %>%
+    body_add_fpar(fpar(ftext(cc_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
-    # body_add_par(value = paste0('By ', by), style = "centered") %>%
-    body_add_par(value = organization, style = "centered") %>%
+    body_add_par(value = cc_organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
 
-    body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+    body_add_img(src = cc_circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
 
     body_add_break() %>%
 
     # Project Description
     body_add_par(value = "Project Description", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = this_project_description, style = "Normal") %>%
+    body_add_par(value = cc_description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(description, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(cc_examples$description, prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
     # Methods
     body_add_par(value = "Methods", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
+    body_add_fpar(fpar(ftext(cc_examples$methods_1, prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
     # Results
     body_add_par(value = "Results", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = results_overview, style = "Normal") %>%
-
-    body_add_break() %>%
-
-    # Literature Cited
-    body_add_par(value = "Literature Cited", style = "heading 1") %>%
-    body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = lit_cited, style = "Normal") %>%
+    body_add_par(value = cc_results, style = "Normal") %>%
 
     body_add_break() %>%
 
     # Table 1
-    body_add_par(value = descr_table1, style = "Normal") %>%
+    body_add_par(value = cc_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_flextable(ft1, align='left') %>%
+    body_add_flextable(cc_table_1$table, align='left') %>%
     body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
 
     # Figure 1
-    body_add_par(value = descr_fig1, style = "Normal") %>%
-    slip_in_img(src = fig1_dir, width = 6.5, height = 5) %>%
+    body_add_par(value = cc_figure_1$description, style = "Normal") %>%
+    slip_in_img(src = cc_figure_1$file, width = 6.5, height = 5) %>%
 
     body_add_break() %>%
 
     # Literature Cited
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = lit_cited, style = "Normal")
+    body_add_par(value = cc_examples$lit_cited, style = "Normal")
 
-  return(doc)
+  return (cc_doc)
 }
-
 
 
 
@@ -664,35 +599,35 @@ build_ma_doc = function(out_dir,
   ma_organization = project_row_df$organization
   ma_description = project_row_df$project_description
 
-  print ('build results')
+  message ('build results')
   # Build results text
   ma_results = get_ma_results(ma_bulk_df, species_df, year)
 
-  print ('build examples')
+  message ('build examples')
   # get example text for mobile acoustic report
   ma_examples = get_ma_examples()
 
-  print ('build table 1')
+  message ('build table 1')
   # Build table 1
   ma_table_1 = build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year)
 
-  print ('build table 2')
+  message ('build table 2')
   # Build table 2
   ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
 
-  print ('build table 3')
+  message ('build table 3')
   # Build table 3
   ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
 
-  print ('build figure 1')
+  message ('build figure 1')
   # Build figure 1
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
   # Save out map to import into officer word doc builder later
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
-  print ('Saving map out')
+  message ('Saving map out')
   mapshot(ma_figure_1$map, file = map_out_)
 
-  print ('build figure 2')
+  message ('build figure 2')
   # Build figure 2a/2b
   ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
 
@@ -703,7 +638,7 @@ build_ma_doc = function(out_dir,
   fig2b_f = paste0(out_dir, "/temps/fig2b.png")
   plotly::export(ma_figure_2$figure_b, file = fig2b_f)
 
-  print ('build figure 3')
+  message ('build figure 3')
   # Build Figure 3
   ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
 
@@ -719,15 +654,13 @@ build_ma_doc = function(out_dir,
     italic = FALSE, underlined = FALSE, font.family = "Cambria",
     vertical.align = "baseline", shading.color = "transparent")
 
-  print ('build doc')
+  message ('Build mobile acoustic .docx')
   ma_doc = read_docx() %>%
     body_add_fpar(fpar(ftext('Mobile Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_fpar(fpar(ftext(paste0(year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_fpar(fpar(ftext(ma_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
-    # body_add_par(value = title, style = "graphic title") %>%
     body_add_par(value = "", style = "centered") %>%
-    # body_add_par(value = paste0('By ', by), style = "centered") %>%
     body_add_par(value = ma_organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
 
@@ -737,7 +670,6 @@ build_ma_doc = function(out_dir,
     body_add_par(value = "", style = "centered") %>%
 
     body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
-
 
     # Add summary data for project and GRTS cells
     body_add_par(value = "", style = "centered") %>%
@@ -828,10 +760,8 @@ build_ma_doc = function(out_dir,
   }
 
   ma_doc = ma_doc %>%
-
     # Figure 1
     body_add_par(value = ma_figure_1$description, style = "Normal") %>%
-    # body_add_img(src = map_out_, width = 5.7, height = 4, style= 'centered') %>%
     body_add_img(src = map_out_, width = 8, height = 6, style= 'centered')  %>%
 
     # Figure 2a
