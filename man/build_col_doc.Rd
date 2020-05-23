@@ -10,7 +10,6 @@ build_col_doc(
   project_df,
   project_id,
   cc_bulk_df,
-  cc_survey_df,
   date = format(Sys.time(), "\%B \%d, \%Y")
 )
 }

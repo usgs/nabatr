@@ -448,7 +448,6 @@ build_col_doc = function(out_dir,
   project_df,
   project_id,
   cc_bulk_df,
-  cc_survey_df,
   date = format(Sys.time(), "%B %d, %Y")){
 
   if (dir.exists(paste0(out_dir, '/temps/')) == FALSE){
