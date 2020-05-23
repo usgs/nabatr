@@ -31,8 +31,6 @@ get_sa_species = function(sa_bulk_df, species_df, type = 'all', format = 'df'){
           dplyr::left_join(species_df, by = 'id'))
       auto_species_found = subset(auto_project_species, auto_project_species$bat_call) %>% dplyr::mutate(detection_type = 'automatic')
       auto_species_detected_wav = subset(sa_bulk_df, sa_bulk_df$auto_id %in% auto_species_found$id)
-    }else{
-      message('No Auto data available in submitted dataframe')
     }
   }
 
@@ -44,8 +42,6 @@ get_sa_species = function(sa_bulk_df, species_df, type = 'all', format = 'df'){
           dplyr::left_join(species_df, by = 'id'))
       man_species_found = subset(man_project_species, man_project_species$bat_call) %>% dplyr::mutate(detection_type = 'manual')
       man_species_detected_wav = subset(sa_bulk_df, sa_bulk_df$manual_id %in% man_species_found$id)
-    }else{
-      message('No Manual data available in submitted dataframe')
     }
   }
 
@@ -511,9 +507,11 @@ build_sa_figure_1 = function(sa_bulk_df, out_dir, project_df, project_id, survey
     project_id = project_id)
 
   # Save out map
-  map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
   if (save_bool){
+    map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
     mapshot(sa_figure_1, file = map_out_)
+  }else {
+    map_out_ = NULL
   }
   return(list(figure = sa_figure_1, description = sa_descr_fig1, file = map_out_))
 }
@@ -619,13 +617,15 @@ build_sa_figure_2 = function(sa_bulk_df, out_dir, species_df, selected_year, sa_
       font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
 
-  fig2a_f = paste0(out_dir, "/temps/fig2a.png")
-  fig2b_f = paste0(out_dir, "/temps/fig2b.png")
   if (save_bool){
-    # Save out figure 2a
+    fig2a_f = paste0(out_dir, "/temps/fig2a.png")
+    fig2b_f = paste0(out_dir, "/temps/fig2b.png")
     plotly::export(sa_fig2_p, file = fig2a_f)
-    # Save out figure 2b
     plotly::export(sa_fig2_p_log, file = fig2b_f)
+  }else{
+    fig2a_f = NULL
+    fig2b_f = NULL
+
   }
 
 
@@ -645,7 +645,6 @@ build_sa_figure_2 = function(sa_bulk_df, out_dir, species_df, selected_year, sa_
 #'
 #' @export
 #'
-
 
 build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, save_bool = FALSE){
   sa_descr_fig4 = paste0("Figure 4. ",selected_year," bat activity rate (average number of bat passes per night) by NABat GRTS cell")
@@ -676,10 +675,11 @@ build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, sav
     layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize=F, bargap = .6,
       title = 'Average Bat Calls at each GRTS',
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
-  sa_fig4_f = paste0(out_dir, "/temps/fig4.png")
   if(save_bool){
-    # Export to a file to be used to upload into the .docx
+    sa_fig4_f = paste0(out_dir, "/temps/fig4.png")
     plotly::export(sa_fig4_p, file = sa_fig4_f)
+  }else{
+    sa_fig4_f = NULL
   }
 
   return(list(figure = sa_fig4_p, description = sa_descr_fig4, file = sa_fig4_f))
@@ -693,7 +693,6 @@ build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, sav
 #'
 #' @export
 #'
-
 
 does_sa_type_exist = function(sa_bulk_df, species_df, type){
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
