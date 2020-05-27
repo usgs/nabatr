@@ -353,7 +353,6 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
     body_add_par(value = sa_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_flextable(sa_table_1$table, align='left') %>%
-    body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
 
@@ -368,7 +367,6 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
     body_add_par(value = sa_figure_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_img(src = sa_figure_1$file, width = 5.7, height = 4, style= 'centered') %>%
-    body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
 
@@ -697,9 +695,6 @@ build_ma_doc = function(out_dir,
 
     body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
 
-    # Add summary data for project and GRTS cells
-    body_add_par(value = "", style = "centered") %>%
-
     body_add_break() %>%
 
     # Project Description
@@ -745,7 +740,6 @@ build_ma_doc = function(out_dir,
     body_add_par(value = ma_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_flextable(ma_table_1$table, align='left') %>%
-    body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
 
@@ -753,7 +747,6 @@ build_ma_doc = function(out_dir,
     body_add_par(value = ma_table_2$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_flextable(ma_table_2$table, align='left') %>%
-    body_add_par(value = "", style = "Normal") %>%
 
     body_add_break() %>%
     body_end_section_continuous()
