@@ -8,6 +8,7 @@ get_colony_bulk_counts(
   token,
   survey_df,
   project_id,
+  species_df,
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
