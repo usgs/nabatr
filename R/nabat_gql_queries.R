@@ -61,7 +61,13 @@ grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'),
 #'
 #' @export
 #'
-get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_species = function(
+  token,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -149,7 +155,14 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_nabat_gql_token = function(
+  username = NULL,
+  password = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){
@@ -253,7 +266,14 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
 #'
 #' @export
 #'
-get_refresh_token = function(token = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE, force = FALSE){
+get_refresh_token = function(
+  token = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE,
+  force = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -282,7 +302,13 @@ get_refresh_token = function(token = NULL, branch = 'prod', url = NULL, aws_gql 
   }
 
   if (is.null(token)){
-    return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
+    return (get_nabat_gql_token(username=NULL,
+      password =NULL,
+      branch = branch,
+      url = url,
+      aws_gql = aws_gql,
+      aws_alb = aws_alb,
+      docker = docker))
   }
 
   expires_in = token$refresh_at - Sys.time()
@@ -360,7 +386,13 @@ get_refresh_token = function(token = NULL, branch = 'prod', url = NULL, aws_gql 
 #'
 #' @export
 #'
-get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_projects = function(
+  token,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker=FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -459,7 +491,15 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
 #' }
 #'
 #' @export
-get_project_surveys = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_project_surveys = function(
+  token,
+  project_df,
+  project_id,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -542,7 +582,10 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 #'
 #' @export
 #'
-get_grts_frame_name = function(project_df, project_id){
+get_grts_frame_name = function(
+  project_df,
+  project_id){
+
   proj_id = project_id
   project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
   print (paste0('Using ', project_sample_frame, ' as the Frame name for GRTS Cells.'))
@@ -576,7 +619,16 @@ get_grts_frame_name = function(project_df, project_id){
 #' }
 #'
 #' @export
-get_sa_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_sa_bulk_wavs = function(
+  token,
+  survey_df,
+  project_id,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -810,7 +862,16 @@ get_sa_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 
 #' }
 #'
 #' @export
-get_ma_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_ma_bulk_wavs = function(
+  token,
+  survey_df,
+  project_id,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
@@ -955,10 +1016,10 @@ for (survey in survey_ids){
 
       # Check for no data in this survey acoustic
       if (dim(event_data_df)[1] == 0){
-        message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
+        # message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
         wav_int_files = data.frame()
       }else{
-        print (paste0('Number of wav files at this site ',this_site_name ,': ', dim(event_data_df)[1]))
+        # print (paste0('Number of wav files at this site ',this_site_name ,': ', dim(event_data_df)[1]))
         if ('recording_location' %in% names(event_data_df)){
           wav_int_files = event_data_df
           wav_int_files['latitude'] = NA
@@ -1052,7 +1113,14 @@ for (survey in survey_ids){
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_nabat_banding_by_states = function(
+  token,
+  states,
+  branch='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -1163,7 +1231,16 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
 #'
 #' @export
 #'
-get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_colony_bulk_counts = function(
+  token,
+  survey_df,
+  project_id,
+  species_df,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -1178,6 +1255,40 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     url_ = url
   }
 
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  sites_query = paste0('
+      query{allSites{
+        nodes{
+          id,
+          siteTypeBySiteTypeId{
+            type
+          }
+        }
+      }
+    }')
+    pbody = list(query = sites_query)
+    res       = httr::POST(url_, headers_, body = pbody, encode='json')
+    content   = httr::content(res, as = 'text')
+    site_json = fromJSON(content, flatten = TRUE)
+    site_type_df = as_tibble(site_json$data$allSites$nodes) %>%
+      dplyr::rename('site_id' = id,
+        'site_type' = siteTypeBySiteTypeId.type) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
@@ -1185,7 +1296,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   }
 
   # Extract all survey ids from survey_df
-  survey_ids = survey_df$survey_id
+  survey_ids = unique(survey_df$survey_id)
 
   # Set empty dataframe to build acoustic stationary bulk template data in
   all_colony_count = data.frame()
@@ -1193,21 +1304,10 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   # Query each survey through GQL to extract and build a dataframe with all
   #   acoustic stationary records for these acoustic survey ids
   for (survey in survey_ids){
+    token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    message(paste0('Getting colony count data for survey: ', survey))
 
-    if (docker){
-      if(!is.null(aws_gql)){
-        url_ = paste0(aws_alb, '/graphql')
-        token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-        headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
-      }else {
-        token = get_refresh_token(token, url = url_)
-        headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
-      }
-    } else{
-      # If Local, use this headers_
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
-    }
+
 
     # Set Query
     query = paste0('
@@ -1232,6 +1332,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
                   speciesId,
                   speciesBySpeciesId{species}
                   countValue
+                  countDead
                 }
               }
             }
@@ -1252,7 +1353,8 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
       dplyr::rename('ccId' = id,
         'siteName' = siteBySiteId.siteName,
         'species' = speciesBySpeciesId.species) %>%
-      as.data.frame(stringsAsFactors = FALSE)
+      as.data.frame(stringsAsFactors = FALSE) %>%
+      dplyr::left_join(site_type_df, by= c('siteId' = 'site_id'))
 
     names(count_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(count_df), perl = TRUE))
 
@@ -1265,16 +1367,17 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     clean_time_fields() %>%
     dplyr::rename('date_sampled' = survey_start_time,
       'date_time_end' = survey_end_time,
-      'count' = count_value) %>%
+      'count_alive' = count_value) %>%
+    dplyr::left_join(species_df %>% dplyr::select(species_code, id), by = c('species_id' = 'id')) %>%
     dplyr::mutate(
-      month = as.numeric(format(date_sampled, "%m")),
-      year = as.numeric(format(date_sampled, "%Y")),
+      month = as.integer(format(date_sampled, "%m")),
+      year = as.integer(format(date_sampled, "%Y")),
       wyear = case_when(
-        month %in% c(1:8) ~ year,
-        month %in% c(9:12) ~ year + 1
-      )) # %>%
-    # dplyr::select("grts_id", "date_sampled", "site_name", "species", "count",
-    #   "wyear","winter_year_pd_presumed", "winter_year_wns_presumed")
+        month %in% c(1:8) ~ as.integer(year),
+        month %in% c(9:12) ~ as.integer(year + 1)
+      )) %>%
+    dplyr::select(-c(winter_year_pd_presumed, winter_year_wns_presumed))
+
 
   return(all_colony_count_final)
 }
