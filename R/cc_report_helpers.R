@@ -139,14 +139,19 @@ build_cc_table_2 = function(cc_bulk_df){
   cc_descr_table_2 = 'Table 2. Number of species dead/alive found at each GRTS Cell.'
 
   cc_df_2 = cc_bulk_df %>%
-    dplyr::select(grts_id, wyear, species_code, count_dead, count_alive) %>%
+    dplyr::select(site_id, site_name, site_type, wyear, species_code, count_dead, count_alive) %>%
     dplyr::mutate(count_dead = ifelse(is.na(count_dead), 0, count_dead)) %>%
-    dplyr::group_by(grts_id, wyear, species_code) %>%
+    dplyr::group_by(site_id, wyear, species_code) %>%
     dplyr::mutate(count_dead = sum(count_dead)) %>%
     dplyr::mutate(count_alive = sum(count_alive)) %>%
     dplyr::distinct() %>%
-    dplyr::arrange(grts_id, wyear, species_code)  %>%
-    dplyr::rename(`GRTS Cell` = grts_id,
+    dplyr::mutate(site = ifelse(is.na(site_name), as.character(site_id), site_name)) %>%
+    dplyr::mutate(site_type = ifelse(is.na(site_type), 'Not Found', site_type)) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(site, site_type, wyear, species_code, count_dead, count_alive) %>%
+    dplyr::arrange(site, wyear, species_code) %>%
+    dplyr::rename(`Site` = site,
+      `Site Type` = site_type,
       `Winter Year` = wyear,
       `Dead Count` = count_dead,
       `Alive Count` = count_alive,
@@ -155,36 +160,37 @@ build_cc_table_2 = function(cc_bulk_df){
   big_border = fp_border(color="grey", width = 2)
 
   cc_ft2 = flextable::flextable(cc_df_2)
+  cc_ft2 = flextable::border_remove(x = cc_ft2)
   cc_ft2 = flextable::fontsize(cc_ft2, part = "header", size = 12)
   cc_ft2 = flextable::bold(cc_ft2, part = "header")
   cc_ft2 = flextable::set_header_labels(cc_ft2, values = names(cc_df_2))
   cc_ft2 = flextable::height(cc_ft2, height =.5, part = 'header')
-  cc_ft2 = flextable::width(cc_ft2, width = 1.1)
-  cc_ft2 = flextable::width(cc_ft2, width = 1.5, j = 5)
+  cc_ft2 = flextable::width(cc_ft2, width = .9)
+  cc_ft2 = flextable::width(cc_ft2, width = 1.3, j = 1)
   # cc_ft2 = flextable::color(cc_ft2, color = "#6daadc")
   cc_ft2 = flextable::fontsize(cc_ft2, size = 10, part = "all")
   cc_ft2 = flextable::merge_v(cc_ft2, j = 1)
   cc_ft2 = flextable::merge_v(cc_ft2, j = 2)
-  cc_ft2 = flextable::border_remove(x = cc_ft2)
+  cc_ft2 = flextable::merge_v(cc_ft2, j = 3)
 
-  cc_ft2 = flextable::border(cc_ft2, j = 1,
+  cc_ft2 = flextable::border(cc_ft2, j = c(1,2),
     border.top = fp_border(color = 'grey', width = 1),
     border.right = fp_border(color = 'grey', width = 1),
     border.left = fp_border(color = 'grey', width = 1))
-  cc_ft2 = flextable::border(cc_ft2, j = 2,
+
+  cc_ft2 = flextable::border(cc_ft2, j = 3,
     border.top = fp_border(color = 'grey', width = 1),
     border.right = fp_border(color = 'grey', width = 1))
-  cc_ft2 = flextable::border(cc_ft2, j = 3:5,
-    border.top = fp_border(color = 'grey', width = 1))
-  cc_ft2 = flextable::border(cc_ft2, j = 5,
+  cc_ft2 = flextable::border(cc_ft2, j = 4:6,
+    border.top = fp_border(color = 'grey', width = 1),
+    border.bottom = fp_border(color = 'grey', width = 1))
+  cc_ft2 = flextable::border(cc_ft2, j = 6,
     border.right = fp_border(color = 'grey', width = 1))
 
   # cc_ft2 =  flextable::bg(cc_ft2, bg = "#6daadc", part = "header")
   # cc_ft2 =  flextable::bg(cc_ft2, bg = "#1b386a", part = "body")
-
   cc_ft2 = flextable::align(cc_ft2, align = 'center', part = 'all')
   cc_ft2 = border_outer(cc_ft2, part="all", border = big_border )
-  cc_ft2 = padding(cc_ft2, padding = 6, part = "all" )
 
   return(list(table = cc_ft2, description = cc_descr_table_2, df = cc_df_2))
 }
@@ -197,14 +203,15 @@ build_cc_table_2 = function(cc_bulk_df){
 #'
 #' @export
 #'
-build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = FALSE){
-  cc_grts = unique(cc_bulk_df$grts_id)
-  num_sites =length(cc_grts)
+build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
+  cc_sites = unique((cc_bulk_df %>% dplyr::arrange(site_name, wyear, species_code))$site_id)
+  num_sites =length(cc_sites)
   figure_number = '1'
   fig_files = c()
   descriptions = c()
   figures = list()
   limit = 8
+  save_bool = TRUE
 
   if (num_sites > limit){
     num_figures = ceiling(num_sites/limit)
@@ -217,22 +224,21 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = FALSE){
       }else{
         stop_  = num*limit
       }
-      grts_ids = cc_grts[start_:stop_]
-      figure_data = subset(cc_bulk_df, cc_bulk_df$grts_id %in% grts_ids)
+      site_ids = cc_sites[start_:stop_]
+      figure_data = subset(cc_bulk_df, cc_bulk_df$site_id %in% site_ids)
 
-      cc_descr_fig1 = paste0("Figure ",
-        fig_name,
-        ". Winter colony counts of bats by site and species. GRTS included: ",
-        paste0(grts_ids, collapse = ', '))
+      figure_data = figure_data %>%
+        dplyr::mutate(site_id = ifelse(is.na(site_name), as.character(site_id), site_name))
 
       cc_figure1 = figure_data %>%
-        dplyr::select(species_code, grts_id, count_alive, wyear) %>%
+        dplyr::select(species_code, site_id, count_alive, wyear) %>%
         dplyr::mutate(wyear = as.Date(paste(wyear, 1, 1, sep = "-"))) %>%
-        dplyr::mutate(grts_id = as.character(grts_id)) %>%
-        dplyr::group_by(species_code, grts_id, wyear) %>%
+        dplyr::mutate(site_id = as.character(site_id)) %>%
+        dplyr::group_by(species_code, site_id, wyear) %>%
         dplyr::summarize(count_alive = sum(count_alive)) %>%
+        dplyr::arrange(site_id, wyear, species_code) %>%
         subset(!species_code == 'NoID') %>%
-        ggplot(aes(x = wyear, y = count_alive, color = grts_id)) +
+        ggplot(aes(x = wyear, y = count_alive, color = site_id)) +
         geom_point(size = 2, alpha = 0.7) +
         geom_line() +
         scale_y_log10() +
@@ -243,6 +249,12 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = FALSE){
         theme_bw() +
         theme(panel.grid = element_blank(), strip.text = element_text(face = "italic"),
           legend.position = "bottom")
+
+      cc_descr_fig1 = paste0("Figure ",
+        fig_name,
+        ".  Winter Year Colony Counts of bats by site and species. Sites included: ",
+        paste0(unique(cc_figure1$data$site_id), collapse = ', '))
+
       descriptions = c(descriptions, cc_descr_fig1)
 
       figures[paste0('figure_',fig_name)] = cc_figure1
@@ -257,15 +269,19 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = FALSE){
     }
     return(list(figure = figures, description = descriptions, file = fig_files))
   }else{
-    cc_descr_fig1 = paste0("Figure 1. Winter colony counts of bats by site and species. GRTS included: ", cc_grts)
-    cc_figure1 = cc_bulk_df %>%
-      dplyr::select(species_code, grts_id, count_alive, wyear) %>%
+
+    figure_data = cc_bulk_df %>%
+      dplyr::mutate(site_id = ifelse(is.na(site_name), as.character(site_id), site_name))
+
+    cc_figure1 = figure_data %>%
+      dplyr::select(species_code, site_id, count_alive, wyear) %>%
       dplyr::mutate(wyear = as.Date(paste(wyear, 1, 1, sep = "-"))) %>%
-      dplyr::mutate(grts_id = as.character(grts_id)) %>%
-      dplyr::group_by(species_code, grts_id, wyear) %>%
+      dplyr::mutate(site_id = as.character(site_id)) %>%
+      dplyr::group_by(species_code, site_id, wyear) %>%
       dplyr::summarize(count_alive = sum(count_alive)) %>%
+      dplyr::arrange(site_id, wyear, species_code) %>%
       subset(!species_code == 'NoID') %>%
-      ggplot(aes(x = wyear, y = count_alive, color = grts_id)) +
+      ggplot(aes(x = wyear, y = count_alive, color = site_id)) +
       geom_point(size = 2, alpha = 0.7) +
       geom_line() +
       scale_y_log10() +
@@ -276,6 +292,10 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = FALSE){
       theme_bw() +
       theme(panel.grid = element_blank(), strip.text = element_text(face = "italic"),
         legend.position = "bottom")
+
+    cc_descr_fig1 = paste0("Figure 1. Winter Year Colony Counts of bats by site and species.  Sites included: ",
+      paste0(unique(cc_figure1$data$site_id), collapse = ', '))
+
     if(save_bool){
       cc_fig1_f = paste0(out_dir, "/temps/fig1.png")
       ggsave(cc_figure1, filename = cc_fig1_f)
@@ -295,7 +315,7 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = FALSE){
 #'
 cc_fig_1_ggplot = function(fig) {
   fig %>%
-    ggplot(aes(x = wyear, y = count_alive, color = grts_id)) +
+    ggplot(aes(x = wyear, y = count_alive, color = site_id)) +
     geom_point(size = 2, alpha = 0.7) +
     geom_line() +
     scale_y_log10() +
