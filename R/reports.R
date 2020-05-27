@@ -539,7 +539,6 @@ build_col_doc = function(out_dir,
     body_add_par(value = cc_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_flextable(cc_table_1$table, align='left') %>%
-    body_add_par(value = "", style = "Normal") %>%
 
     body_end_section_landscape() %>%
 
@@ -547,15 +546,14 @@ build_col_doc = function(out_dir,
     body_add_par(value = cc_table_2$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_flextable(cc_table_2$table, align='left') %>%
-    body_add_par(value = "", style = "Normal") %>%
 
     body_end_section_continuous()
 
   # Figure 1
   count = 0
   if (length(cc_figure_1$file) > 1){
-    count = count + 1
     for(file in cc_figure_1$file){
+      count = count + 1
       cc_doc = cc_doc %>%
         body_add_par(value = cc_figure_1$description[count], style = "Normal") %>%
         slip_in_img(src = file, width = 7.5, height = 5.5)
