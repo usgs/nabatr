@@ -4,7 +4,7 @@
 \alias{build_cc_figure_1}
 \title{Build Colony Count Figure 1}
 \usage{
-build_cc_figure_1(cc_bulk_df, out_dir, save_bool = FALSE)
+build_cc_figure_1(cc_bulk_df, out_dir, save_bool = TRUE)
 }
 \description{
 Winter Colony counts of bats by site and species
