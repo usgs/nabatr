@@ -137,3 +137,43 @@ myLetters = function(length.out) {
     character(1L))
 }
 
+
+#' @title Get Stationary Acoustic Results for Report
+#'
+#' @description
+#' Get the county and state for a lat/lon wgs84 point
+#'
+#' @export
+#'
+
+ll_to_county_state = function(points_df) {
+  # type = 'state' | 'county'
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per state (plus DC, minus HI & AK)
+  this_map =  map('county' , fill=TRUE, col="transparent", plot=FALSE)
+  # Upper case to first letter in states or counties
+  IDs = sapply(sapply(strsplit(this_map$names, ":"), function(x) x[1]), .simpleCap)
+  names(IDs) = NULL
+  states_sp = map2SpatialPolygons(this_map, IDs=IDs,proj4string=CRS("+proj=longlat +datum=WGS84"))
+  # Convert points_df to a SpatialPoints object
+  points_sp = SpatialPoints(points_df, proj4string=CRS("+proj=longlat +datum=WGS84"))
+  # Use 'over' to get _indices_ of the Polygons object containing each point
+  indices = over(points_sp, states_sp)
+  # Return the state or county names of the Polygons object containing each point
+  stateNames = sapply(states_sp@polygons, function(x) x@ID)
+  return (stateNames[indices])
+}
+
+#' @title Get Stationary Acoustic Results for Report
+#'
+#' @description
+#' Combine the spatial information (states and counties) with the detector info and species detected
+#'
+#' @export
+#'
+.simpleCap = function(x) {
+  s = strsplit(x, " ")[[1]]
+  paste(toupper(substring(s, 1, 1)), substring(s, 2),
+    sep = "", collapse = " ")
+}
+

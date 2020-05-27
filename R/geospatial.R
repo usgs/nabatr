@@ -154,7 +154,6 @@ get_grts_shp_df = function(grts_ids, project_id, project_df){
   grts_fname_df = grts_lookup_df[grts_fname][[1]]
   grts_df = plyr::join(grts_template_df, grts_fname_df, by = c('GRTS_ID'), type = "left")
 
-  print (grts_ids)
   polys_df = data.frame()
   for (grts_id in grts_ids){
     this_row = subset(grts_df,grts_df$GRTS_ID == grts_id)
@@ -165,7 +164,7 @@ get_grts_shp_df = function(grts_ids, project_id, project_df){
     lngs = c(ll1[1],ll2[1],ll3[1],ll4[1],ll1[1])
     lats = c(ll1[2],ll2[2],ll3[2],ll4[2],ll1[2])
 
-    if (!is.na(ll1)){
+    if (!is.na(ll1)[1]){
       poly_df = data.frame(lng = lngs, lat = lats, GRTS = grts_id)
       if (dim(polys_df)[1]==0){
         polys_df = poly_df

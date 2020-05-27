@@ -7,11 +7,9 @@
 build_col_doc(
   out_dir,
   file_name,
-  project_df,
+  project_df = NULL,
   project_id,
-  colony_bulk_df,
-  survey_table,
-  cover_photo = NULL,
+  cc_bulk_df = NULL,
   date = format(Sys.time(), "\%B \%d, \%Y")
 )
 }

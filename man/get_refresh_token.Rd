@@ -5,7 +5,7 @@
 \title{NABat login to NABAt Database GQL and get access_token}
 \usage{
 get_refresh_token(
-  token,
+  token = NULL,
   branch = "prod",
   url = NULL,
   aws_gql = NULL,

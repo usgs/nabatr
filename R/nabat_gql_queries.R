@@ -61,7 +61,13 @@ grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'),
 #'
 #' @export
 #'
-get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_species = function(
+  token,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -149,7 +155,14 @@ get_species = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_a
 #'
 #' @export
 #'
-get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_nabat_gql_token = function(
+  username = NULL,
+  password = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){
@@ -159,75 +172,77 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
     password = .rs.askForPassword('Password')
   }
 
-  # Returns a message with username
-  message(paste0("Logging into the NABat database as ", username))
 
-  # When url is not passed in use these two gql urls, otherwise use the url passed through
-  #  as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  out = tryCatch({
 
-  if (docker){
-    # If Docker 3_5_3 use this headers_
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      headers_ = httr::add_headers(host = aws_gql)
+
+    # Returns a message with username
+    message(paste0("Logging into the NABat database as ", username))
+
+    # When url is not passed in use these two gql urls, otherwise use the url passed through
+    #  as a variable.
+    if (is.null(url)){
+      # Prod URL for NABat GQL
+      if (branch == 'prod'){
+        url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+        url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      }
     }else {
+      url_ = url
+    }
+
+    if (docker){
+      # If Docker 3_5_3 use this headers_
+      if(!is.null(aws_gql)){
+        url_ = paste0(aws_alb, '/graphql')
+        headers_ = httr::add_headers(host = aws_gql)
+      }else {
+        headers_ = httr::add_headers(Accept = "")
+      }
+    } else{
+      # If Local, use this headers_
       headers_ = httr::add_headers(Accept = "")
     }
-  } else{
-    # If Local, use this headers_
-    headers_ = httr::add_headers(Accept = "")
-  }
 
-  # Username and password
-  variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
-  # Mutation to get token
-  query = 'mutation loging($l:LoginInput!){
+    # Username and password
+    variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
+    # Mutation to get token
+    query = 'mutation loging($l:LoginInput!){
     login(input:$l){
-      access_token,
-      refresh_token,
-      expires_in
+    access_token,
+    refresh_token,
+    expires_in
     }
   }'
-  # Finalize json request
-  pbody = list(query = query, variables = variables)
-  # POST to url
-  res = POST(url_, headers_, body = pbody, encode="json")
-  # Remove variables with Password
-  rm(password, variables, pbody)
-  # Extract token
-  content = content(res)
-  error  = content$data$login$error
-  bearer = content$data$login$access_token
-  refresh_token = content$data$login$refresh_token
+    # Finalize json request
+    pbody = list(query = query, variables = variables)
+    # POST to url
+    res = POST(url_, headers_, body = pbody, encode="json")
+    # Remove variables with Password
+    rm(password, variables, pbody)
+    # Extract token
+    content = content(res)
+    error  = content$data$login$error
+    bearer = content$data$login$access_token
+    refresh_token = content$data$login$refresh_token
 
+    if (res$status_code != 200){stop(paste0('Status code: ', res$status_code))}
+    if (is.null(refresh_token)){stop('Error on login. Check Password/Username ')}
 
-  if (is.null(error)){
-    if (is.null(bearer)){
-      message('Error, no tokens returned. Issue regarding Username/Password combo.  Be sure to use the same NABat Username/Password for logging into https://sciencebase.usgs.gov/nabat')
-      return (NULL)
-    }else {
-      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
-      message("Returning a GQL tokens for NABat.")
-      expires = content$data$login$expires_in - (60 * 10)
-      refresh_at_this = Sys.time() + expires
-      return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
-    }
-  } else {
-    # Post message with error for user
-    message(paste0("Error: ", error))
-    return (NULL)
+    access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+    message("Returning a GQL token for NABat.")
+    expires = content$data$login$expires_in - (60 * 10)
+    refresh_at_this = Sys.time() + expires
+    return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
+    },
+    # If it errors or refresh_token = NULL then function will fail
+    error = function(cond) {
+      message(cond)
+      return(NULL)
+    })
+  return (out)
   }
-}
 
 
 #' @title NABat login to NABAt Database GQL and get access_token
@@ -251,7 +266,14 @@ get_nabat_gql_token = function(username = NULL, password = NULL, branch = 'prod'
 #'
 #' @export
 #'
-get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE, force = FALSE){
+get_refresh_token = function(
+  token = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE,
+  force = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -280,65 +302,67 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
   }
 
   if (is.null(token)){
-    return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
+    return (get_nabat_gql_token(username=NULL,
+      password =NULL,
+      branch = branch,
+      url = url,
+      aws_gql = aws_gql,
+      aws_alb = aws_alb,
+      docker = docker))
   }
 
   expires_in = token$refresh_at - Sys.time()
   # If the token has expired than refresh the access_token and use this new one
-  if (expires_in < 0 | force){
-    # print ('Token is expired, Returning a new one.')
-    # Username and password
-    variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
-    # Mutation to get token
-    query = 'mutation loging($l:LoginInput!){
+
+  out = tryCatch({
+    if (expires_in < 0 | force){
+      # print ('Token is expired, Returning a new one.')
+      # Username and password
+      variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
+      # Mutation to get token
+      query = 'mutation loging($l:LoginInput!){
       login(input:$l){
-        access_token,
-        refresh_token,
-        expires_in
+      access_token,
+      refresh_token,
+      expires_in
       }
     }'
-    # Finalize json request0
-    pbody = list(query = query, variables = variables)
-    # POST to url
-    res = httr::POST(url_, headers_, body = pbody, encode="json")
-    print (res$status_code)
-    print (res$status_code)
-    if (res$status_code != 200){
-      return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
-    }
-    # Extract token
-    content = content(res)
-    error  = content$data$login$error
-    bearer = content$data$login$access_token
-    refresh_token  = content$data$login$refresh_token
-    print ('refresh token:')
-    print (refresh_token)
+      # Finalize json request0
+      pbody = list(query = query, variables = variables)
+      # POST to url
+      res = httr::POST(url_, headers_, body = pbody, encode="json")
 
+      # Extract token
+      content = content(res)
+      error  = content$data$login$error
+      bearer = content$data$login$access_token
+      refresh_token  = content$data$login$refresh_token
 
-    if (is.null(error)){
-      if (is.null(bearer)){
-        # prompt login with username/password
-        return (get_nabat_gql_token(username=NULL, password =NULL, branch = branch, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker))
-      }else {
-        access_token = strsplit(bearer, 'Bearer ')[[1]][2]
-        expires = content$data$login$expires_in - (60 * 10) # if it's older than 5 minutes
-        refresh_at_this = Sys.time() + expires
-        return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
-      }
-    } else {
-      # Post message with error for user
-      message(paste0("Error: ", error))
-      return (NULL)
-    }
-  }else{
-    # If the access token has not expired, then use the original one from token$access_token
-    # print ('Token is still good. Returning original')
-    refresh_at_this = token$refresh_at
-    refresh_token = token$refresh_token
-    access_token = token$access_token
-    return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
-  }
+      if (res$status_code != 200){stop(paste0('Status code: ', res$status_code))}
+      if (is.null(refresh_token)){stop('Error on login. Check Password/Username ')}
+
+      access_token = strsplit(bearer, 'Bearer ')[[1]][2]
+      message("Returning a GQL token for NABat.")
+      expires = content$data$login$expires_in - (60 * 10)
+      refresh_at_this = Sys.time() + expires
+      return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
+
+}else{
+  # If the access token has not expired, then use the original one from token$access_token
+  # print ('Token is still good. Returning original')
+  refresh_at_this = token$refresh_at
+  refresh_token = token$refresh_token
+  access_token = token$access_token
+  return (list(refresh_token = refresh_token, access_token = access_token, refresh_at = refresh_at_this))
 }
+    },
+    # If it errors or refresh_token = NULL then function will fail
+    error = function(cond) {
+      message(cond)
+      return(NULL)
+    })
+  return (out)
+  }
 
 
 #' @title Search NABat Projects
@@ -362,7 +386,13 @@ get_refresh_token = function(token, branch = 'prod', url = NULL, aws_gql = NULL,
 #'
 #' @export
 #'
-get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_projects = function(
+  token,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker=FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -461,7 +491,15 @@ get_projects = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_a
 #' }
 #'
 #' @export
-get_project_surveys = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_project_surveys = function(
+  token,
+  project_df,
+  project_id,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -544,7 +582,10 @@ get_project_surveys = function(token, project_df, project_id, branch ='prod', ur
 #'
 #' @export
 #'
-get_grts_frame_name = function(project_df, project_id){
+get_grts_frame_name = function(
+  project_df,
+  project_id){
+
   proj_id = project_id
   project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
   print (paste0('Using ', project_sample_frame, ' as the Frame name for GRTS Cells.'))
@@ -578,7 +619,16 @@ get_grts_frame_name = function(project_df, project_id){
 #' }
 #'
 #' @export
-get_sa_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_sa_bulk_wavs = function(
+  token,
+  survey_df,
+  project_id,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -812,7 +862,16 @@ get_sa_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 
 #' }
 #'
 #' @export
-get_ma_bulk_wavs = function(token, survey_df, project_id, year = NULL, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_ma_bulk_wavs = function(
+  token,
+  survey_df,
+  project_id,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
@@ -957,10 +1016,10 @@ for (survey in survey_ids){
 
       # Check for no data in this survey acoustic
       if (dim(event_data_df)[1] == 0){
-        message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
+        # message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
         wav_int_files = data.frame()
       }else{
-        print (paste0('Number of wav files at this site ',this_site_name ,': ', dim(event_data_df)[1]))
+        # print (paste0('Number of wav files at this site ',this_site_name ,': ', dim(event_data_df)[1]))
         if ('recording_location' %in% names(event_data_df)){
           wav_int_files = event_data_df
           wav_int_files['latitude'] = NA
@@ -1054,7 +1113,14 @@ for (survey in survey_ids){
 #' }
 #'
 #' @export
-get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_nabat_banding_by_states = function(
+  token,
+  states,
+  branch='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -1165,7 +1231,16 @@ get_nabat_banding_by_states = function(token, states, branch='prod', url = NULL,
 #'
 #' @export
 #'
-get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker = FALSE){
+get_colony_bulk_counts = function(
+  token,
+  survey_df,
+  project_id,
+  species_df,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
 
   # When url is not passed in use these two gql urls, otherwise use the url passed through
   #  as a variable.
@@ -1180,6 +1255,40 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     url_ = url
   }
 
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  sites_query = paste0('
+      query{allSites{
+        nodes{
+          id,
+          siteTypeBySiteTypeId{
+            type
+          }
+        }
+      }
+    }')
+    pbody = list(query = sites_query)
+    res       = httr::POST(url_, headers_, body = pbody, encode='json')
+    content   = httr::content(res, as = 'text')
+    site_json = fromJSON(content, flatten = TRUE)
+    site_type_df = as_tibble(site_json$data$allSites$nodes) %>%
+      dplyr::rename('site_id' = id,
+        'site_type' = siteTypeBySiteTypeId.type) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+
   # Define package environmental varioables
   if (is.null(pkg.env$bats_df)){
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
@@ -1187,7 +1296,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   }
 
   # Extract all survey ids from survey_df
-  survey_ids = survey_df$survey_id
+  survey_ids = unique(survey_df$survey_id)
 
   # Set empty dataframe to build acoustic stationary bulk template data in
   all_colony_count = data.frame()
@@ -1195,21 +1304,10 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
   # Query each survey through GQL to extract and build a dataframe with all
   #   acoustic stationary records for these acoustic survey ids
   for (survey in survey_ids){
+    token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    message(paste0('Getting colony count data for survey: ', survey))
 
-    if (docker){
-      if(!is.null(aws_gql)){
-        url_ = paste0(aws_alb, '/graphql')
-        token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-        headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
-      }else {
-        token = get_refresh_token(token, url = url_)
-        headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
-      }
-    } else{
-      # If Local, use this headers_
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
-    }
+
 
     # Set Query
     query = paste0('
@@ -1234,6 +1332,7 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
                   speciesId,
                   speciesBySpeciesId{species}
                   countValue
+                  countDead
                 }
               }
             }
@@ -1254,7 +1353,8 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
       dplyr::rename('ccId' = id,
         'siteName' = siteBySiteId.siteName,
         'species' = speciesBySpeciesId.species) %>%
-      as.data.frame(stringsAsFactors = FALSE)
+      as.data.frame(stringsAsFactors = FALSE) %>%
+      dplyr::left_join(site_type_df, by= c('siteId' = 'site_id'))
 
     names(count_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(count_df), perl = TRUE))
 
@@ -1267,16 +1367,17 @@ get_colony_bulk_counts = function(token, survey_df, project_id, branch = 'prod',
     clean_time_fields() %>%
     dplyr::rename('date_sampled' = survey_start_time,
       'date_time_end' = survey_end_time,
-      'count' = count_value) %>%
+      'count_alive' = count_value) %>%
+    dplyr::left_join(species_df %>% dplyr::select(species_code, id), by = c('species_id' = 'id')) %>%
     dplyr::mutate(
-      month = as.numeric(format(date_sampled, "%m")),
-      year = as.numeric(format(date_sampled, "%Y")),
+      month = as.integer(format(date_sampled, "%m")),
+      year = as.integer(format(date_sampled, "%Y")),
       wyear = case_when(
-        month %in% c(1:8) ~ year,
-        month %in% c(9:12) ~ year + 1
-      )) # %>%
-    # dplyr::select("grts_id", "date_sampled", "site_name", "species", "count",
-    #   "wyear","winter_year_pd_presumed", "winter_year_wns_presumed")
+        month %in% c(1:8) ~ as.integer(year),
+        month %in% c(9:12) ~ as.integer(year + 1)
+      )) %>%
+    dplyr::select(-c(winter_year_pd_presumed, winter_year_wns_presumed))
+
 
   return(all_colony_count_final)
 }

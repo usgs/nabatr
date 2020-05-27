@@ -2,7 +2,7 @@
 % Please edit documentation in R/ma_report_helpers.R
 \name{get_ma_results}
 \alias{get_ma_results}
-\title{Clean Acoustic NABat time fields}
+\title{Get Mobile Acoustic Results for Report}
 \usage{
 get_ma_results(ma_bulk_df, species_df, year)
 }
@@ -14,9 +14,7 @@ get_ma_results(ma_bulk_df, species_df, year)
 \item{year}{Integer Project year with mobile acoustic data}
 }
 \description{
-Takes a dataframe with these three fieldnames
-(recording_time, survey_start_time, and survey_end_time)
-from NABat database and converts the date format into a POSIX object
+Builds out text with results
 }
 \examples{
 

@@ -1,9 +1,7 @@
-#' @title Clean Acoustic NABat time fields
+#' @title Get Mobile Acoustic Results for Report
 #'
 #' @description
-#' Takes a dataframe with these three fieldnames
-#' (recording_time, survey_start_time, and survey_end_time)
-#' from NABat database and converts the date format into a POSIX object
+#' Builds out text with results
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe species_df
@@ -170,7 +168,6 @@ build_ma_table_1 = function(ma_bulk_df, project_id, project_df, species_df, year
   project_id_ = project_id
   grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
   # Combine the spatial information (states and counties) with the detector info and species detected
-  print ('Build dataframe with center points')
   # Get grts_fname_df
   grts_fname_df = grts_lookup_df[grts_fname][[1]]
 
@@ -181,34 +178,9 @@ build_ma_table_1 = function(ma_bulk_df, project_id, project_df, species_df, year
     dplyr::mutate(y = as.numeric(strsplit(center, split=',')[[1]][1])) %>%
     dplyr::mutate(x = as.numeric(strsplit(center, split=',')[[1]][2]))
 
-  .simpleCap = function(x) {
-    s = strsplit(x, " ")[[1]]
-    paste(toupper(substring(s, 1, 1)), substring(s, 2),
-      sep = "", collapse = " ")
-  }
-
-  ll_to_county_state = function(points_df) {
-    # type = 'state' | 'county'
-    # Prepare SpatialPolygons object with one SpatialPolygon
-    # per state (plus DC, minus HI & AK)
-    this_map =  map('county' , fill=TRUE, col="transparent", plot=FALSE)
-    # Upper case to first letter in states or counties
-    IDs = sapply(sapply(strsplit(this_map$names, ":"), function(x) x[1]), .simpleCap)
-    names(IDs) = NULL
-    states_sp = map2SpatialPolygons(this_map, IDs=IDs,proj4string=CRS("+proj=longlat +datum=WGS84"))
-    # Convert points_df to a SpatialPoints object
-    points_sp = SpatialPoints(points_df, proj4string=CRS("+proj=longlat +datum=WGS84"))
-    # Use 'over' to get _indices_ of the Polygons object containing each point
-    indices = over(points_sp, states_sp)
-    # Return the state or county names of the Polygons object containing each point
-    stateNames = sapply(states_sp@polygons, function(x) x@ID)
-    stateNames[indices]
-  }
-
 
   # If in CONUS add State and County.  Otherwise exclude
   if (grts_fname == 'Continental US'){
-    print ('Build grts_df_final')
     state_county = ll_to_county_state(dplyr::select(grts_df, x, y))
     grts_df['state_county'] = state_county
     state_df = data.frame(State = state.name, state_abr = state.abb, stringsAsFactors = FALSE)
@@ -344,7 +316,7 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
   auto_species_totals_l   = get_species_counts_long(auto_nights_df, filter=TRUE)  %>% dplyr::select(-c(type,project_id,year))
 
   table_3_list = list(table_a = NULL, table_b = NULL,
-    description_a = ma_descr_tbl_3b, description_b = ma_descr_tbl_3a)
+    description_a = ma_descr_tbl_3a, description_b = ma_descr_tbl_3b)
 
   # 3a
   if (length(names(auto_species_totals_l)) == 1){
@@ -353,10 +325,11 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
     auto_species_bool = TRUE
     ma_ft3a = flextable::flextable(auto_species_totals_l)
     ma_ft3a = flextable::set_header_labels(ma_ft3a, values = names(auto_species_totals_l))
-    ma_ft3a = flextable::height(ma_ft3a, height =.7, part = 'header')
+    ma_ft3a = flextable::height(ma_ft3a, height =.6, part = 'header')
     ma_ft3a = flextable::bold(ma_ft3a, part = 'header')
-    ma_ft3a = flextable::width(ma_ft3a, width = .7)
+    ma_ft3a = flextable::width(ma_ft3a, width = .6)
     ma_ft3a = flextable::fontsize(ma_ft3a, size = 8, part = "all")
+    ma_ft3a = flextable::border(ma_ft3a, border.top = fp_border(color = 'grey', width = 1))
     table_3_list$table_a = ma_ft3a
   }
   # 3b
@@ -366,10 +339,11 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
     manual_species_bool = TRUE
     ma_ft3b = flextable::flextable(manual_species_totals_l)
     ma_ft3b = flextable::set_header_labels(ma_ft3b, values = names(manual_species_totals_l))
-    ma_ft3b = flextable::height(ma_ft3b, height =.7, part = 'header')
+    ma_ft3b = flextable::height(ma_ft3b, height =.6, part = 'header')
     ma_ft3b = flextable::bold(ma_ft3b, part = 'header')
-    ma_ft3b = flextable::width(ma_ft3b, width = .7)
+    ma_ft3b = flextable::width(ma_ft3b, width = .6)
     ma_ft3b = flextable::fontsize(ma_ft3b, size = 8, part = "all")
+    ma_ft3b = flextable::border(ma_ft3b, border.top = fp_border(color = 'grey', width = 1))
     table_3_list$table_b = ma_ft3b
   }
   return (table_3_list)
@@ -405,7 +379,6 @@ build_ma_figure_1 = function(ma_bulk_df, project_id, project_df, year = NULL){
   grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
   # Get grts_fname_df
   grts_fname_df = grts_lookup_df[grts_fname][[1]]
-  print (grts_fname)
   # Create grts_fname_df
   grts_df = data.frame(GRTS_ID = all_grts) %>% dplyr::left_join(grts_fname_df, by = c('GRTS_ID'), type = "left")
 
