@@ -349,13 +349,6 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
 
     body_add_break() %>%
 
-    # Literature Cited
-    body_add_par(value = "Literature Cited", style = "heading 1") %>%
-    body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = sa_examples$sa_lit_cited, style = "Normal") %>%
-
-    body_add_break() %>%
-
     # Table 1
     body_add_par(value = sa_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
@@ -420,6 +413,13 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
         body_add_break()
     }
   }
+
+  # Literature Cited
+  sa_doc = sa_doc %>%
+    body_add_par(value = "Literature Cited", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = sa_examples$sa_lit_cited, style = "Normal")
+
   return (sa_doc)
 }
 
@@ -445,16 +445,16 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
 
 build_col_doc = function(out_dir,
   file_name,
-  project_df,
+  project_df = NULL,
   project_id,
-  cc_bulk_df,
+  cc_bulk_df = NULL,
   date = format(Sys.time(), "%B %d, %Y")){
 
   if (dir.exists(paste0(out_dir, '/temps/')) == FALSE){
     dir.create(paste0(out_dir, '/temps/'))
   }
 
-  print('Get front page info')
+  message('Get front page info')
   # Get front page info
   cc_logo_img_      = system.file("templates", "nabat_logo.png", package = "nabatr")
   cc_circle_logo_   = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
@@ -476,6 +476,10 @@ build_col_doc = function(out_dir,
   # Build Colony Count table 1
   cc_table_1 = build_cc_table_1(cc_bulk_df)
 
+  message('Build table 2')
+  # Build Colony Count table 2
+  cc_table_2 = build_cc_table_2(cc_bulk_df)
+
   message ('Build figure 1')
   # Build Colony Count figure 1
   cc_figure_1 = build_cc_figure_1(cc_bulk_df, out_dir, TRUE)
@@ -491,6 +495,7 @@ build_col_doc = function(out_dir,
   message ('Begin Colony Count .docx build')
   # Build Colony Count document
   cc_doc = read_docx() %>%
+    body_add_fpar(fpar(ftext('Colony Count Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_fpar(fpar(ftext(cc_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
@@ -528,19 +533,41 @@ build_col_doc = function(out_dir,
 
     body_add_break() %>%
 
+    body_end_section_continuous() %>%
+
     # Table 1
     body_add_par(value = cc_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
     body_add_flextable(cc_table_1$table, align='left') %>%
     body_add_par(value = "", style = "Normal") %>%
 
-    body_add_break() %>%
+    body_end_section_landscape() %>%
 
-    # Figure 1
-    body_add_par(value = cc_figure_1$description, style = "Normal") %>%
-    slip_in_img(src = cc_figure_1$file, width = 6.5, height = 5) %>%
+    # Table 2
+    body_add_par(value = cc_table_2$description, style = "Normal") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_flextable(cc_table_2$table, align='left') %>%
+    body_add_par(value = "", style = "Normal") %>%
 
-    body_add_break() %>%
+    body_end_section_continuous()
+
+  # Figure 1
+  count = 0
+  if (length(cc_figure_1$file) > 1){
+    count = count + 1
+    for(file in cc_figure_1$file){
+      cc_doc = cc_doc %>%
+        body_add_par(value = cc_figure_1$description[count], style = "Normal") %>%
+        slip_in_img(src = file, width = 7.5, height = 5.5)
+    }
+  }else{
+    cc_doc = cc_doc %>%
+      body_add_par(value = cc_figure_1$description, style = "Normal") %>%
+      slip_in_img(src = cc_figure_1$file, width = 7.5, height = 5.5)
+  }
+
+  cc_doc = cc_doc %>%
+    body_end_section_landscape() %>%
 
     # Literature Cited
     body_add_par(value = "Literature Cited", style = "heading 1") %>%
@@ -581,6 +608,8 @@ build_ma_doc = function(out_dir,
                         year,
                         nightly_observed_list,
                         date = format(Sys.time(), "%B %d, %Y")){
+
+  ma_bulk_df = ma_bulk_df %>% clean_time_fields() %>% add_observed_nights()
 
   # Setup temps directory to store intermediate files
   if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
@@ -642,7 +671,7 @@ build_ma_doc = function(out_dir,
   ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
 
   # Export to a file to be used to upload into the .docx
-  fig3_f = paste0(out_dir, "/temps/fig4.png")
+  fig3_f = paste0(out_dir, "/temps/fig3.png")
   plotly::export(ma_figure_3$figure, file = fig3_f)
 
 
@@ -714,13 +743,6 @@ build_ma_doc = function(out_dir,
 
     body_add_break() %>%
 
-    # Literature Cited
-    body_add_par(value = "Literature Cited", style = "heading 1") %>%
-    body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = ma_examples$ma_lit_cited, style = "Normal") %>%
-
-    body_add_break() %>%
-
     # Table 1
     body_add_par(value = ma_table_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
@@ -737,6 +759,8 @@ build_ma_doc = function(out_dir,
 
     body_add_break() %>%
     body_end_section_continuous()
+
+
 
   # Add table 3a/b
   auto_ids = unique(ma_bulk_df$auto_id[!is.na(ma_bulk_df$auto_id)])
@@ -778,7 +802,12 @@ build_ma_doc = function(out_dir,
     # Figure 3
     body_add_par(value = ma_figure_3$description, style = "Normal") %>%
     slip_in_img(src = fig3_f, width = 7, height = 5) %>%
-    body_end_section_landscape()
+    body_end_section_landscape() %>%
+
+    # Literature Cited
+    body_add_par(value = "Literature Cited", style = "heading 1") %>%
+    body_add_par(value = "", style = "Normal") %>%
+    body_add_par(value = ma_examples$ma_lit_cited, style = "Normal")
 
   return (ma_doc)
 }
