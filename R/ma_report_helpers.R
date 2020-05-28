@@ -252,15 +252,16 @@ build_ma_table_2 = function(ma_bulk_df, species_df, year = NULL){
   species_found = subset(project_species, project_species$bat_call)
   species_detected_wav = subset(ma_bulk_df, ma_bulk_df$auto_id %in% species_found$id)
 
-
   int_ma_tbl2 = species_detected_wav %>% dplyr::left_join(species_found, by = c('auto_id' = 'id')) %>%
     dplyr::select(location_name, auto_id, species, common_name) %>% distinct() %>%
-    dplyr::select(species) %>% dplyr::arrange(species)
+    dplyr::select(species) %>% dplyr::arrange(species) %>%
+    subset(!species =='NoID')
   num_transect_routes = as.data.frame(table(int_ma_tbl2), stringsAsFactors = FALSE)$Freq
 
   ma_tbl2 = species_detected_wav %>% dplyr::left_join(species_found, by = c('auto_id' = 'id')) %>%
     dplyr::select(species, common_name) %>%
     dplyr::distinct() %>%
+    subset(!species =='NoID' ) %>%
     dplyr::rename('Species' = species, 'Common Name' = common_name) %>%
     dplyr::arrange(Species) %>%
     dplyr::mutate(year = num_transect_routes)
