@@ -95,7 +95,7 @@ get_all_project_types = function(token, branch ='prod', url = NULL, aws_gql = NU
 
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
-    print ('Setting species_df environmental variable')
+    # print ('Setting species_df environmental variable')
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
@@ -162,7 +162,7 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
     headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
   }
 
-  print (paste0('Project ID: ', project_id))
+  # print (paste0('Project ID: ', project_id))
   # Set Query
   query = paste0('{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
@@ -199,7 +199,7 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
 
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
-    print ('Setting species_df environmental variable')
+    # print ('Setting species_df environmental variable')
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
@@ -301,7 +301,7 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
 
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
-    print ('Setting species_df environmental variable')
+    # print ('Setting species_df environmental variable')
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
@@ -406,7 +406,7 @@ get_cc_project_summary = function(token, project_df, project_id, branch ='prod',
 
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
-    print ('Setting species_df environmental variable')
+    # print ('Setting species_df environmental variable')
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
