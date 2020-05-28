@@ -1027,7 +1027,9 @@ for (survey in survey_ids){
           wav_int_files['recording_location'] = FALSE
         }else{
           # Add Lat/Lon for wav files
-          wav_int_files = event_data_df %>% dplyr::select(-c(recording_location.geojson.type, recording_location.geojson.coordinates))
+          wav_int_files = event_data_df %>%
+            subset(!is.na(recording_location.geojson.type)) %>%
+            dplyr::select(-c(recording_location.geojson.type, recording_location.geojson.coordinates))
           if (dim(wav_int_files)[1]==0){
             wav_int_files = data.frame()
           } else{
