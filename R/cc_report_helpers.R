@@ -13,7 +13,7 @@ get_cc_species = function(cc_bulk_df, species_df, format = 'df'){
   cc_project_species = (data.frame(id = unique(species_ids), stringsAsFactors = FALSE) %>%
       dplyr::left_join(species_df, by = 'id'))
   cc_species_found = subset(cc_project_species, cc_project_species$bat_call) %>% dplyr::mutate(detection_type = 'colony_count')
-  cc_species_detected_wav = subset(cc_bulk_df, cc_bulk_df$species_id %in% cc_specvfies_found$id)
+  cc_species_detected_wav = subset(cc_bulk_df, cc_bulk_df$species_id %in% cc_species_found$id)
 
   final_species = unique(cc_species_found$species_code)
 
@@ -64,17 +64,18 @@ get_cc_examples = function(){
 
 get_cc_results = function(cc_bulk_df){
   # Remove NA values for winter year and species
-  cc_bulk_df = cc_bulk_df %>% tidyr::drop_na(wyear, species)
+  cc_bulk_df = cc_bulk_df %>% tidyr::drop_na(wyear, species_code)
 
   ## Set variables to be printed in results section
-  spp = unique(cc_bulk_df$species)
+  spp = unique(cc_bulk_df$species_code)
   species_sampled = paste(length(spp), " species ", "(", paste(spp, collapse = ", "), ")", sep = "")
   number_of_sites = length(unique(cc_bulk_df$site_name))
   range_winter_years = paste(min(cc_bulk_df$wyear, na.rm = TRUE), "to", max(cc_bulk_df$wyear, na.rm = TRUE))
   number_of_grts = length(unique(cc_bulk_df$grts_id))
 
-  results_overview = paste0("Winter colonies for ", species_sampled, " were counted at ", number_of_sites, " sites from ", range_winter_years, ", and across ", number_of_grts, " grid cells (Table 1).")
-  return(results_overview)
+  results_overview = paste0("Winter colonies for ", species_sampled, " were counted at ",
+    number_of_sites, " sites from ", range_winter_years, ", and across ",
+    number_of_grts, " grid cells (Table 1).")
 }
 
 
@@ -86,7 +87,7 @@ get_cc_results = function(cc_bulk_df){
 #'
 #' @export
 #'
-build_cc_table_1 = function(cc_bulk_df, noid = FALSE){
+build_cc_table_1 = function(cc_bulk_df, noid = TRUE){
   if (!noid){
     cc_bulk_df = subset(cc_bulk_df, !cc_bulk_df$species_code == 'NoID')
   }
@@ -211,7 +212,6 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
   descriptions = c()
   figures = list()
   limit = 8
-  save_bool = TRUE
 
   if (num_sites > limit){
     num_figures = ceiling(num_sites/limit)
@@ -237,7 +237,7 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
         dplyr::group_by(species_code, site_id, wyear) %>%
         dplyr::summarize(count_alive = sum(count_alive)) %>%
         dplyr::arrange(site_id, wyear, species_code) %>%
-        subset(!species_code == 'NoID') %>%
+        # subset(!species_code == 'NoID') %>%
         ggplot(aes(x = wyear, y = count_alive, color = site_id)) +
         geom_point(size = 2, alpha = 0.7) +
         geom_line() +
@@ -257,7 +257,7 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
 
       descriptions = c(descriptions, cc_descr_fig1)
 
-      figures[paste0('figure_',fig_name)] = cc_figure1
+      figures[paste0('figure_',fig_name)] = cc_figure1$data
 
       if(save_bool){
         cc_fig1_f = paste0(out_dir, "/temps/fig", fig_name,".png")
@@ -280,7 +280,7 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
       dplyr::group_by(species_code, site_id, wyear) %>%
       dplyr::summarize(count_alive = sum(count_alive)) %>%
       dplyr::arrange(site_id, wyear, species_code) %>%
-      subset(!species_code == 'NoID') %>%
+      # subset(!species_code == 'NoID') %>%
       ggplot(aes(x = wyear, y = count_alive, color = site_id)) +
       geom_point(size = 2, alpha = 0.7) +
       geom_line() +
