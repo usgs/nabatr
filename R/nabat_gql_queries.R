@@ -302,13 +302,14 @@ get_refresh_token = function(
   }
 
   if (is.null(token)){
-    return (get_nabat_gql_token(username=NULL,
-      password =NULL,
-      branch = branch,
-      url = url,
-      aws_gql = aws_gql,
-      aws_alb = aws_alb,
-      docker = docker))
+    message('Run get_nabat_gql_token() to log back in.')
+    # return (get_nabat_gql_token(username=NULL,
+    #   password =NULL,
+    #   branch = branch,
+    #   url = url,
+    #   aws_gql = aws_gql,
+    #   aws_alb = aws_alb,
+    #   docker = docker))
   }
 
   expires_in = token$refresh_at - Sys.time()
@@ -454,7 +455,6 @@ get_projects = function(
   proj_df   = rename_project_df(as.data.frame(proj_json, stringsAsFactors = FALSE)) %>% left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
 
   # Define package environmental varioables
-  print ('Setting species_df environmental variable')
   if (is.null(pkg.env$bats_df)){
     species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
@@ -588,7 +588,7 @@ get_grts_frame_name = function(
 
   proj_id = project_id
   project_sample_frame = as.character(subset(project_df, project_df$project_id == proj_id)$sample_frame_short)
-  print (paste0('Using ', project_sample_frame, ' as the Frame name for GRTS Cells.'))
+  # print (paste0('Using ', project_sample_frame, ' as the Frame name for GRTS Cells.'))
   return(project_sample_frame)
 }
 
@@ -687,7 +687,7 @@ get_sa_bulk_wavs = function(
     year_ = year
     survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
   }
-  print (year_)
+  # print (year_)
 
   # Set empty dataframe to build acoustic stationary bulk template data in
   all_wav_n_acc = data.frame()
@@ -714,40 +714,40 @@ get_sa_bulk_wavs = function(
 
     # Set Query
     query = paste0('{allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
-            nodes{
+      nodes{
       id
       projectId
       grtsId
       stationaryAcousticEventsBySurveyId {
-        nodes{
-          id
-          surveyId
-          activationStartTime
-          activationEndTime
-          deviceId
-          microphoneId
-          microphoneOrientationId
-          microphoneHeight
-          distanceToClutterMeters
-          clutterTypeId
-          distanceToWater
-          waterType
-          percentClutterMethod
-          habitatTypeId
-          eventGeometryId
-          stationaryAcousticValuesBySaSurveyId{
-            nodes{
-              wavFileName
-              recordingTime
-              softwareId
-              speciesId
-              manualId
-            }
-        }
+      nodes{
+      id
+      surveyId
+      activationStartTime
+      activationEndTime
+      deviceId
+      microphoneId
+      microphoneOrientationId
+      microphoneHeight
+      distanceToClutterMeters
+      clutterTypeId
+      distanceToWater
+      waterType
+      percentClutterMethod
+      habitatTypeId
+      eventGeometryId
+      stationaryAcousticValuesBySaSurveyId{
+      nodes{
+      wavFileName
+      recordingTime
+      softwareId
+      speciesId
+      manualId
       }
       }
       }
-    }}')
+      }
+      }
+  }}')
     pbody = list(query = query)
 
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
@@ -775,30 +775,30 @@ get_sa_bulk_wavs = function(
         if (dim(as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors = FALSE))[1] == 0){
           message (paste0('Site name ', this_site_name, ' is missing Acoustic values at this survey: ', survey))
           rename = FALSE
-        }
+        }else{
+          if (acc_events$geom_type[x] == 'Point'){
+            # defining the lat/lon for this accoustic Event
+            lon = acc_events$geom_coordinates[x][[1]][1]
+            lat = acc_events$geom_coordinates[x][[1]][2]
+          } else{
+            lon = NA
+            lat = NA
+          }
 
-        if (acc_events$geom_type[x] == 'Point'){
-          # defining the lat/lon for this accoustic Event
-          lon = acc_events$geom_coordinates[x][[1]][1]
-          lat = acc_events$geom_coordinates[x][[1]][2]
-        } else{
-          lon = NA
-          lat = NA
-        }
-
-        wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors=FALSE)
-        if (dim(wav_int_files)[1]==0){
-          wav_int_files = data.frame()
-        } else{
-          id       = acc_events[x,]$id
-          wav_int_files['stationary_acoustic_values_id'] = id
-          wav_int_files['latitude'] = lat
-          wav_int_files['longitude'] = lon
-        }
-        if (dim(wav_files)[1] <1){
-          wav_files = wav_int_files
-        }else {
-          wav_files = rbind(wav_files, wav_int_files)
+          wav_int_files  = as.data.frame(acc_events$stationaryAcousticValuesBySaSurveyId.nodes[x], stringsAsFactors=FALSE)
+          if (dim(wav_int_files)[1]==0){
+            wav_int_files = data.frame()
+          } else{
+            id       = acc_events[x,]$id
+            wav_int_files['stationary_acoustic_values_id'] = id
+            wav_int_files['latitude'] = lat
+            wav_int_files['longitude'] = lon
+          }
+          if (dim(wav_files)[1] <1){
+            wav_files = wav_int_files
+          }else {
+            wav_files = rbind(wav_files, wav_int_files)
+          }
         }
       }
 
@@ -931,7 +931,7 @@ if (is.null(year)){
   year_ = year
   survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
 }
-print (year_)
+# print (year_)
 
 # Set empty dataframe to build acoustic stationary bulk template data in
 all_wav_n_acc = data.frame()

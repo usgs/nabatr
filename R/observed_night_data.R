@@ -39,15 +39,12 @@ get_observed_nights = function(acoustic_bulk_df){
   auto_project_data = data.frame()
   manual_project_data = data.frame()
 
-  # If they data didn't get cleaned, call cleaning date functions
-  if(!'observed_night'%in% names(acoustic_bulk_df)){
-    acoustic_bulk_df = acoustic_bulk_df %>% clean_time_fields() %>%
-      add_observed_nights()
-  }
-  if(!'survey_night_start' %in% names(acoustic_bulk_df)){
-    acoustic_bulk_df = acoustic_bulk_df %>% clean_time_fields() %>%
-      add_start_end_nights()
-  }
+  # Clean data
+  acoustic_bulk_df = acoustic_bulk_df %>%
+    clean_time_fields() %>%
+    add_observed_nights() %>%
+    add_start_end_nights()
+
 
   for (survey_ in surveys_){
     ex_grts_df = subset(acoustic_bulk_df, acoustic_bulk_df$survey_id == survey_)
