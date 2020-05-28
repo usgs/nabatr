@@ -490,7 +490,7 @@ build_col_doc = function(out_dir,
 
   message ('Build table 1')
   # Build Colony Count table 1
-  cc_table_1 = build_cc_table_1(cc_bulk_df)
+  cc_table_1 = build_cc_table_1(cc_bulk_df, TRUE)
 
   message('Build table 2')
   # Build Colony Count table 2
