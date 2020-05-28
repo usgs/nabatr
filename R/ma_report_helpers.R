@@ -206,7 +206,7 @@ build_ma_table_1 = function(ma_bulk_df, project_id, project_df, species_df, year
     ma_ft1 = flextable::width(ma_ft1, width = 1.5, j = c('Transect Routes', 'Detector Nights', 'Auto Species Detected'))
   }
   ma_ft1 = flextable::set_header_labels(ma_ft1, values = names(grts_df_final))
-  ma_ft1 = flextable::height(ma_ft1, height =.7, part = 'header')
+  ma_ft1 = flextable::height(ma_ft1, height =.5, part = 'header')
   ma_ft1 = flextable::fontsize(ma_ft1, size = 10, part = "all")
 
   return (list(table = ma_ft1, description = ma_descr_tbl_1))
@@ -252,26 +252,24 @@ build_ma_table_2 = function(ma_bulk_df, species_df, year = NULL){
   species_found = subset(project_species, project_species$bat_call)
   species_detected_wav = subset(ma_bulk_df, ma_bulk_df$auto_id %in% species_found$id)
 
-
   int_ma_tbl2 = species_detected_wav %>% dplyr::left_join(species_found, by = c('auto_id' = 'id')) %>%
     dplyr::select(location_name, auto_id, species, common_name) %>% distinct() %>%
-    dplyr::select(species) %>% dplyr::arrange(species)
+    dplyr::select(species) %>% dplyr::arrange(species) %>%
+    subset(!species =='NoID')
   num_transect_routes = as.data.frame(table(int_ma_tbl2), stringsAsFactors = FALSE)$Freq
 
   ma_tbl2 = species_detected_wav %>% dplyr::left_join(species_found, by = c('auto_id' = 'id')) %>%
     dplyr::select(species, common_name) %>%
     dplyr::distinct() %>%
+    subset(!species =='NoID' ) %>%
     dplyr::rename('Species' = species, 'Common Name' = common_name) %>%
     dplyr::arrange(Species) %>%
     dplyr::mutate(year = num_transect_routes)
   names(ma_tbl2)[names(ma_tbl2) == "year"] = paste0("# of Transect Routes with Detections ", year)
 
-  # can use this line of code to check if numbers are correct based on species id
-  subset(ma_bulk_df, ma_bulk_df$auto_id == 13 ) %>% dplyr::select(location_name) %>% distinct()
-
   ma_ft2 = flextable::flextable(ma_tbl2)
   ma_ft2 = flextable::set_header_labels(ma_ft2, values = names(ma_tbl2))
-  ma_ft2 = flextable::height(ma_ft2, height =.7, part = 'header')
+  ma_ft2 = flextable::height(ma_ft2, height =.5, part = 'header')
   ma_ft2 = flextable::width(ma_ft2, width = 2, j = names(ma_tbl2))
   ma_ft2 = flextable::fontsize(ma_ft2, size = 10, part = "all")
   ma_ft2 = italic(ma_ft2, italic = TRUE, part = "body", j = 'Species')
@@ -325,7 +323,7 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
     auto_species_bool = TRUE
     ma_ft3a = flextable::flextable(auto_species_totals_l)
     ma_ft3a = flextable::set_header_labels(ma_ft3a, values = names(auto_species_totals_l))
-    ma_ft3a = flextable::height(ma_ft3a, height =.6, part = 'header')
+    ma_ft3a = flextable::height(ma_ft3a, height =.5, part = 'header')
     ma_ft3a = flextable::bold(ma_ft3a, part = 'header')
     ma_ft3a = flextable::width(ma_ft3a, width = .6)
     ma_ft3a = flextable::fontsize(ma_ft3a, size = 8, part = "all")
@@ -339,7 +337,7 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
     manual_species_bool = TRUE
     ma_ft3b = flextable::flextable(manual_species_totals_l)
     ma_ft3b = flextable::set_header_labels(ma_ft3b, values = names(manual_species_totals_l))
-    ma_ft3b = flextable::height(ma_ft3b, height =.6, part = 'header')
+    ma_ft3b = flextable::height(ma_ft3b, height =.5, part = 'header')
     ma_ft3b = flextable::bold(ma_ft3b, part = 'header')
     ma_ft3b = flextable::width(ma_ft3b, width = .6)
     ma_ft3b = flextable::fontsize(ma_ft3b, size = 8, part = "all")

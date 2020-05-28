@@ -194,12 +194,28 @@ get_sa_html_report = function(token,
 #' @export
 #'
 
-build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_survey_df,species_df,selected_year,nightly_observed_list = NULL,date = format(Sys.time(), "%B %d, %Y"),range_maps = TRUE){
+build_sa_doc =  function(
+  out_dir,
+  file_name,
+  project_df,
+  project_id,
+  sa_bulk_df,
+  sa_survey_df,
+  species_df,
+  selected_year,
+  nightly_observed_list = NULL,
+  date = format(Sys.time(), "%B %d, %Y"),
+  range_maps = TRUE){
 
 
   message ('Enter Stationary Report Function')
   # Clean the data
-  sa_bulk_df = sa_bulk_df %>% clean_time_fields() %>%add_observed_nights()
+  sa_bulk_df = sa_bulk_df %>%
+    clean_time_fields() %>%
+    add_observed_nights() %>%
+    add_start_end_nights()
+
+
   # Add selected year as 1st year
   message ('Setup for temp directories')
   if (is.null(selected_year)){
@@ -212,6 +228,9 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
   if (dir.exists(paste0(out_dir, '/temps/range_maps/'))==FALSE){
     dir.create(paste0(out_dir, '/temps/range_maps/'))
   }
+
+  # Set Save figures boolean
+  save_figures = TRUE
 
   message ('Getting nightly data')
   # If nightly_observed_list isn't put in through variable
@@ -262,13 +281,12 @@ build_sa_doc =  function(out_dir,file_name,project_df,project_id,sa_bulk_df,sa_s
 
   message ('Build figure 1')
   # Figure 1 (map)
-  save_figures = TRUE
   sa_figure_1 = build_sa_figure_1(sa_bulk_df, out_dir, project_df, project_id, sa_survey_df, selected_year, save_figures)
 
   message('Build figure 2')
   # Figure 2a/2b
   sa_figure_2 = build_sa_figure_2(sa_bulk_df, out_dir, species_df, selected_year,
-    sa_table_3, auto_species_grts_df_w, manual_species_grts_df_w, save_figures)
+    auto_species_grts_df_w, manual_species_grts_df_w, save_figures)
 
   message('Build figure 4')
   # Figure 4
@@ -605,7 +623,11 @@ build_ma_doc = function(out_dir,
                         nightly_observed_list,
                         date = format(Sys.time(), "%B %d, %Y")){
 
-  ma_bulk_df = ma_bulk_df %>% clean_time_fields() %>% add_observed_nights()
+  message ('Enter Stationary Report Function')
+  # Clean the data
+  ma_bulk_df = ma_bulk_df %>%
+    clean_time_fields() %>%
+    add_observed_nights()
 
   # Setup temps directory to store intermediate files
   if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){

@@ -307,7 +307,7 @@ get_sa_results = function(sa_bulk_df, selected_year, species_df){
     dplyr::mutate(total_nights = as.integer(as.Date(survey_night_end) - as.Date(survey_night_start)) + 1)
   number_of_net_nights = sum(total_nights_df$total_nights)
 
-  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vectorNoId')
+  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vector')
   number_of_species_detected = length(proj_species)
 
   # Subset the stationary acoustic dataframe with only
@@ -378,7 +378,7 @@ build_sa_table_1 = function(sa_bulk_df, project_id, project_df, species_df, sele
   all_grts = unique(sa_bulk_df$grts_cell_id)
   for (grts in all_grts){
     grts_bulk_df = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
-    species_count = length(get_sa_species(grts_bulk_df, species_df, 'all','vectorNoId'))
+    species_count = length(get_sa_species(grts_bulk_df, species_df, 'all','vector'))
     species_counts = c(species_counts, species_count)
   }
   all_grts_rows_add = data.frame(GRTS = all_grts, Species_Detected = species_counts)
@@ -442,9 +442,9 @@ build_sa_table_3 = function(sa_bulk_df, selected_year, species_df){
     grts_sa_bulk_row = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
     # Get species information for this grts
     proj_species_df = get_sa_species(grts_sa_bulk_row, species_df, 'all','df')
-    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vectorNoId')
-    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vectorNoId')
-    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vectorNoId')
+    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vector')
+    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vector')
+    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vector')
     # Find species at this grts for all, man, and auto types
     all_species_names = unique(subset(proj_species_df, proj_species_df$species_code %in% proj_species)$species)
     man_species_names = unique(subset(proj_species_df, proj_species_df$species_code %in% man_proj_species)$species)
@@ -525,7 +525,15 @@ build_sa_figure_1 = function(sa_bulk_df, out_dir, project_df, project_id, survey
 #' @export
 #'
 
-build_sa_figure_2 = function(sa_bulk_df, out_dir, species_df, selected_year, sa_table_3, auto_species_grts_df_w, manual_species_grts_df_w, save_bool = FALSE){
+build_sa_figure_2 = function(
+  sa_bulk_df,
+  out_dir,
+  species_df,
+  selected_year,
+  auto_species_grts_df_w,
+  manual_species_grts_df_w,
+  save_bool = FALSE){
+
   # Create figure descriptions
   sa_descr_fig2a = paste0("Figure 2a. ",
     selected_year,
@@ -536,15 +544,53 @@ build_sa_figure_2 = function(sa_bulk_df, out_dir, species_df, selected_year, sa_
 
   # Get all bat species
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
-  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vectorNoId')
-  man_proj_species  = get_sa_species(sa_bulk_df, species_df, 'man','vectorNoId')
-  auto_proj_species = get_sa_species(sa_bulk_df, species_df, 'auto','vectorNoId')
+  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vector')
+  man_proj_species  = get_sa_species(sa_bulk_df, species_df, 'man','vector')
+  auto_proj_species = get_sa_species(sa_bulk_df, species_df, 'auto','vector')
 
+
+  all_grts = unique(sa_bulk_df$grts_cell_id)
+  table_3_df = data.frame()
+  for (grts in all_grts){
+    grts_3_df= data.frame()
+    # Get stationary acoustic bulk row data for this GRTS cell
+    grts_sa_bulk_row = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
+    # Get species information for this grts
+    proj_species_df = get_sa_species(grts_sa_bulk_row, species_df, 'all','df')
+    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vector')
+    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vector')
+    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vector')
+    # Find species at this grts for all, man, and auto types
+    all_species_names = unique(subset(proj_species_df, proj_species_df$species_code %in% proj_species)$species_code)
+    all_species_names = unique(subset(proj_species_df, proj_species_df$species_code %in% proj_species)$species_code)
+    man_species_names = unique(subset(proj_species_df, proj_species_df$species_code %in% man_proj_species)$species_code)
+    auto_species_names = unique(subset(proj_species_df, proj_species_df$species_code %in% auto_proj_species)$species_code)
+
+    methods = c()
+    for (species in all_species_names){
+      if (species %in% man_species_names & species %in% auto_species_names){
+        method = 'Auto, Manual'
+      }else if(species %in% man_species_names){
+        method = 'Manual'
+      }else if(species %in% auto_species_names){
+        method = 'Auto'
+      }
+      methods = c(methods, method)
+    }
+    grts_3_df = data.frame('GRTS' = rep(grts, length(all_species_names)), stringsAsFactors = FALSE) %>%
+      dplyr::mutate(Species_Detected = all_species_names) %>%
+      dplyr::mutate(Method_of_Species_ID = methods) %>%
+      dplyr::mutate()
+
+    table_3_df = rbind(grts_3_df, table_3_df)
+  }
 
   all_bat_id_types = data.frame()
   for (bat_spc in proj_species){
-    table_3_df = sa_table_3$df
-    types = unique(subset(table_3_df, table_3_df$Species_Detected == subset(species_df, species_df$species_code == bat_spc)$species)$Method_of_Species_ID)
+    types = unique(subset(table_3_df,
+      table_3_df$Species_Detected == subset(species_df,
+        species_df$species_code == bat_spc)$species_code)$Method_of_Species_ID)
+
     if ('Auto, Manual' %in% types){
       this_type = 'At least one manual ID/site'
     }else if('Auto' %in% types & 'Manual' %in% types){

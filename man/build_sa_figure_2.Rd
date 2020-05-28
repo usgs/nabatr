@@ -9,7 +9,6 @@ build_sa_figure_2(
   out_dir,
   species_df,
   selected_year,
-  sa_table_3,
   auto_species_grts_df_w,
   manual_species_grts_df_w,
   save_bool = FALSE
