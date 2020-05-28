@@ -1363,9 +1363,12 @@ get_colony_bulk_counts = function(
     all_colony_count = rbind(all_colony_count, count_df)
   }
 
-  all_colony_count_final = all_colony_count %>%
+  all_colony_count_final =   all_colony_count %>%
     dplyr::rename('survey_start_time' = date_time_start,
       'survey_end_time' = date_time_end) %>%
+    mutate(survey_start_time = ifelse(nchar(survey_start_time) > 19, NA, survey_start_time)) %>%
+    mutate(survey_end_time = ifelse(nchar(survey_end_time) > 19, NA, survey_end_time)) %>%
+    subset(!is.na(survey_start_time)) %>%
     clean_time_fields() %>%
     dplyr::rename('date_sampled' = survey_start_time,
       'date_time_end' = survey_end_time,
