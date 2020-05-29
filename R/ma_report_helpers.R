@@ -557,7 +557,7 @@ build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
 
   # fig 2a
   fig2a_p = plot_ly(x = all_species_names, y = fig2_methods_df$total_freq, type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = fig2_methods_df$method_exp, colors = bat_id_colors) %>%
     layout(xaxis = x_, yaxis = y,
@@ -568,7 +568,7 @@ build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
   fig2b_p = plot_ly(x = all_species_names, y = fig2_methods_df$total_freq, type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = fig2_methods_df$method_exp, colors = bat_id_colors) %>%
     layout(xaxis = x_log, yaxis = y_log,
@@ -631,7 +631,7 @@ build_ma_figure_3 = function(ma_bulk_df, species_df, year = NULL){
 
 
   fig3_p = plot_ly(x = grts_calls_df$grts_cell_id[1:30], y = grts_calls_df$bat_call[1:30], type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
     layout(margin = m_fig_3, font = leg, xaxis = x, yaxis = y, showlegend = F, autosize=F, bargap = .6,

@@ -643,8 +643,8 @@ build_sa_figure_2 = function(
   m_fig_2_log = list(t = 50, b = 40, l = 45, r = 15, pad = 0)
 
   # fig 2a
-  sa_fig2_p = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
-    width = 850, height = 650,
+  sa_fig2_p = plot_ly(x = bat_species, y = as.integer(bat_auto_counts), type = 'bar',
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = bat_id_colors) %>%
     layout(xaxis = x_, yaxis = y_,
@@ -653,8 +653,8 @@ build_sa_figure_2 = function(
       font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
-  sa_fig2_p_log = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
-    width = 850, height = 650,
+  sa_fig2_p_log = plot_ly(x = bat_species, y = as.integer(bat_auto_counts), type = 'bar',
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = bat_id_colors) %>%
     layout(xaxis = x_log, yaxis = y_log,
@@ -671,9 +671,7 @@ build_sa_figure_2 = function(
   }else{
     fig2a_f = NULL
     fig2b_f = NULL
-
   }
-
 
   return (list(figure_a = sa_fig2_p, figure_b = sa_fig2_p_log,
                description_a = sa_descr_fig2a,
@@ -715,7 +713,7 @@ build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, sav
 
   # Build Fig
   sa_fig4_p = plot_ly(x = fig4_data$GRTS, y = fig4_data$values, type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
     layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize=F, bargap = .6,

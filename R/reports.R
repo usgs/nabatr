@@ -260,13 +260,6 @@ build_sa_doc =  function(
   # Get the example text to put into the report
   sa_examples = get_sa_examples()
 
-
-  if (range_maps){
-    message ('Build range maps')
-    # build range maps
-    maps_data = get_sa_range_maps(sa_bulk_df, project_df, project_id, all_species_totals_l_l, species_df, out_dir, range_maps)
-  }
-
   message ('Build results text')
   # Build the results text for Stationary acoustic report
   sa_results = get_sa_results(sa_bulk_df, selected_year, species_df)
@@ -291,6 +284,12 @@ build_sa_doc =  function(
   message('Build figure 4')
   # Figure 4
   sa_figure_4 = build_sa_figure_4(sa_bulk_df, out_dir, species_df, selected_year, save_figures)
+
+  if (range_maps){
+    message ('Build range maps')
+    # build range maps
+    maps_data = get_sa_range_maps(sa_bulk_df, project_df, project_id, all_species_totals_l_l, species_df, out_dir, range_maps)
+  }
 
 
   message('Build final.docx document')
