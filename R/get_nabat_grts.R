@@ -62,7 +62,11 @@ names(PRIORITY_CUTOFFS)  = c('Alaska', 'Canada', 'Conus', 'Hawaii', 'Mexico', 'P
 #' }
 #'
 #' @export
-get_grts_data <- function(grid_frame, query=NULL, only_priority=FALSE){
+get_grts_data <- function(
+  grid_frame,
+  query = NULL,
+  only_priority = FALSE){
+
   grid_frame <- normalize_grid_frame(grid_frame)
   hash = HASH_DICT[[grid_frame]]
   layer_names = get_wfs_layer_name(hash)
@@ -100,11 +104,14 @@ get_grts_data <- function(grid_frame, query=NULL, only_priority=FALSE){
   return(layer_sp)
 }
 
-get_wfs_layer_name = function(hash){
-  #' Return the wfs layer name from the WFS associated with a SB item
-  #'
-  #' @param hash String SB hash of the item containing the wfs
-  #'
+#'  @description Return the wfs layer name from the WFS associated with a SB item
+#'
+#' @param hash String SB hash of the item containing the wfs
+#'
+
+get_wfs_layer_name = function(
+  hash){
+
   wfs_url = sub('HASH', hash, URL_TEMPLATE, ignore.case = TRUE)
   caps = xml2::read_xml(wfs_url)
   layer_names = xml2::xml_text(xml2::xml_find_all(caps, '//d1:FeatureType/d1:Name', xml2::xml_ns(caps)))
@@ -113,10 +120,12 @@ get_wfs_layer_name = function(hash){
   return(layer_names)
 }
 
-normalize_grid_frame = function(grid_frame){
-  #' normalize the passed grid_frame name to allow for flexibility in calling
-  #'
-  #' @param grid_frame String name of the grid frame to return
+#' @description normalize the passed grid_frame name to allow for flexibility in calling
+#'
+#' @param grid_frame String name of the grid frame to return
+
+normalize_grid_frame = function(
+  grid_frame){
 
   grid_frame = switch(gsub(" ", "", tolower(grid_frame)),
                       ak="Alaska",

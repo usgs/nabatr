@@ -6,7 +6,10 @@
 #' @export
 #'
 
-get_cc_species = function(cc_bulk_df, species_df, format = 'df'){
+get_cc_species = function(
+  cc_bulk_df,
+  species_df,
+  format = 'df'){
 
   species_ids = subset(cc_bulk_df, !is.na(cc_bulk_df$species_id))$species_id
   # Colony Count species
@@ -62,7 +65,9 @@ get_cc_examples = function(){
 #'
 #'
 
-get_cc_results = function(cc_bulk_df){
+get_cc_results = function(
+  cc_bulk_df){
+
   # Remove NA values for winter year and species
   cc_bulk_df = cc_bulk_df %>% tidyr::drop_na(wyear, species_code)
 
@@ -87,7 +92,10 @@ get_cc_results = function(cc_bulk_df){
 #'
 #' @export
 #'
-build_cc_table_1 = function(cc_bulk_df, noid = TRUE){
+build_cc_table_1 = function(
+  cc_bulk_df,
+  noid = TRUE){
+
   if (!noid){
     cc_bulk_df = subset(cc_bulk_df, !cc_bulk_df$species_code == 'NoID')
   }
@@ -136,7 +144,10 @@ build_cc_table_1 = function(cc_bulk_df, noid = TRUE){
 #'
 #' @export
 #'
-build_cc_table_2 = function(cc_bulk_df){
+build_cc_table_2 = function(
+  cc_bulk_df){
+
+  # Build description
   cc_descr_table_2 = 'Table 2. Number of species dead/alive found at each GRTS Cell.'
 
   cc_df_2 = cc_bulk_df %>%
@@ -204,7 +215,11 @@ build_cc_table_2 = function(cc_bulk_df){
 #'
 #' @export
 #'
-build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
+build_cc_figure_1 = function(
+  cc_bulk_df,
+  out_dir,
+  save_bool = TRUE){
+
   cc_sites = unique((cc_bulk_df %>% dplyr::arrange(site_name, wyear, species_code))$site_id)
   num_sites =length(cc_sites)
   figure_number = '1'
@@ -313,7 +328,9 @@ build_cc_figure_1 = function(cc_bulk_df, out_dir, save_bool = TRUE){
 #'
 #' @export
 #'
-cc_fig_1_ggplot = function(fig) {
+cc_fig_1_ggplot = function(
+  fig){
+
   fig %>%
     ggplot(aes(x = wyear, y = count_alive, color = site_id)) +
     geom_point(size = 2, alpha = 0.7) +
