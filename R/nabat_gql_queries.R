@@ -98,7 +98,7 @@ get_species = function(
   }
 
   # Set Query
-  query =   '{ allSpecies{
+  query =   'query RRspecies{ allSpecies{
                 nodes{
                   id
                   speciesCode
@@ -110,7 +110,7 @@ get_species = function(
                   speciesCode6
                 }
               }}'
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRspecies')
   # Post to nabat GQL
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
@@ -208,15 +208,15 @@ get_nabat_gql_token = function(
     # Username and password
     variables = paste0('{"l":{"userName" : "',username,'", "password" : "',password,'"}}')
     # Mutation to get token
-    query = 'mutation loging($l:LoginInput!){
-    login(input:$l){
-    access_token,
-    refresh_token,
-    expires_in
-    }
-  }'
+    query = 'mutation RRlogin($l:LoginInput!){
+      login(input:$l){
+      access_token,
+      refresh_token,
+      expires_in
+      }
+    }'
     # Finalize json request
-    pbody = list(query = query, variables = variables)
+    pbody = list(query = query, variables = variables, operationName = 'RRlogin')
     # POST to url
     res = POST(url_, headers_, body = pbody, encode="json")
     # Remove variables with Password
@@ -321,7 +321,7 @@ get_refresh_token = function(
       # Username and password
       variables = paste0('{"l":{"userName" : "", "password" : "", "refreshToken": "',token$refresh_token,'"}}')
       # Mutation to get token
-      query = 'mutation loging($l:LoginInput!){
+      query = 'mutation RRlogin($l:LoginInput!){
       login(input:$l){
       access_token,
       refresh_token,
@@ -329,7 +329,7 @@ get_refresh_token = function(
       }
     }'
       # Finalize json request0
-      pbody = list(query = query, variables = variables)
+      pbody = list(query = query, variables = variables, operationName = 'RRlogin')
       # POST to url
       res = httr::POST(url_, headers_, body = pbody, encode="json")
 
@@ -430,7 +430,7 @@ get_projects = function(
       'Alaska 10x10km Grid', 'Puerto Rico 5x5km Grid'))
 
   # Set Query
-  query = '{allProjects{
+  query = 'query RRallProjects{allProjects{
                        nodes{
                           id
                           projectName
@@ -447,7 +447,7 @@ get_projects = function(
                         }
                         }
           }'
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallProjects')
   # Post to nabat GQL
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
@@ -530,7 +530,7 @@ get_project_surveys = function(
   }
 
   # Set Query
-  query = paste0('{allSurveys (filter :{projectId:{equalTo:', as.numeric(project_id) ,'}}){
+  query = paste0('query RRallSurveys{allSurveys (filter :{projectId:{equalTo:', as.numeric(project_id) ,'}}){
                        nodes{
                             id
                             projectId
@@ -538,7 +538,7 @@ get_project_surveys = function(
                           }
                           }
           }')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallSurveys')
   # Post to nabat GQL
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
@@ -659,7 +659,7 @@ get_sa_bulk_wavs = function(
   }
 
   # Pull in geoms dataframe
-  query ='{allEventGeometries {
+  query ='query RReventGeometries{allEventGeometries {
         nodes{
       id
       name
@@ -669,7 +669,7 @@ get_sa_bulk_wavs = function(
     }
     }
   }'
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RReventGeometries')
 
   res = httr::POST(url_, headers_, body = pbody, encode='json')
   content = httr::content(res, as = 'text')
@@ -713,7 +713,7 @@ get_sa_bulk_wavs = function(
     }
 
     # Set Query
-    query = paste0('{allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+    query = paste0('query RRsaSurveys{allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
       nodes{
       id
       projectId
@@ -748,7 +748,7 @@ get_sa_bulk_wavs = function(
       }
       }
   }}')
-    pbody = list(query = query)
+    pbody = list(query = query, operationName = 'RRsaSurveys')
 
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
@@ -903,7 +903,7 @@ get_ma_bulk_wavs = function(
   }
 
 # Pull in geoms dataframe
-query ='{allEventGeometries {
+query ='query RReventGeometries {allEventGeometries {
   nodes{
   id
   name
@@ -913,7 +913,7 @@ query ='{allEventGeometries {
     }
   }
 }'
-pbody = list(query = query)
+pbody = list(query = query, operationName = 'RReventGeometries')
 
 res = httr::POST(url_, headers_, body = pbody, encode='json')
 content = httr::content(res, as = 'text')
@@ -956,7 +956,7 @@ for (survey in survey_ids){
   }
 
   # Set Query
-  query = paste0('query{ allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
+  query = paste0('query RRmaSurveys{ allSurveys (filter :{id:{equalTo:', as.numeric(survey),'}}){
     nodes{
     id
     projectId
@@ -981,7 +981,7 @@ for (survey in survey_ids){
     recordingLocation{
     geojson
     }}}}}}}}')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRmaSurveys')
 
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
@@ -1162,7 +1162,7 @@ get_nabat_banding_by_states = function(
   for (state in states){
     if (state %in% states_check){
       # Set Query
-      query = paste0('{ allBatbandings (filter :{state:{equalTo:"',state,'"}}) {
+      query = paste0('query RRbatBanding{ allBatbandings (filter :{state:{equalTo:"',state,'"}}) {
             nodes{
                 observers
                 captureId
@@ -1186,7 +1186,7 @@ get_nabat_banding_by_states = function(
             }
           }
           }')
-      pbody = list(query = query)
+      pbody = list(query = query , operationName = 'RRbatBanding')
 
       res       = httr::POST(url_, headers_, body = pbody, encode='json')
       content   = httr::content(res, as = 'text')
@@ -1273,9 +1273,10 @@ get_colony_bulk_counts = function(
   }
 
   sites_query = paste0('
-      query{allSites{
+      query RRsites {allSites{
         nodes{
           id,
+          siteIdentifier,
           siteTypeBySiteTypeId{
             type
           }
@@ -1313,7 +1314,7 @@ get_colony_bulk_counts = function(
 
     # Set Query
     query = paste0('
-      query{allSurveys (filter:{id:{equalTo:', as.numeric(survey),'}}){
+      query RRccSurveys {allSurveys (filter:{id:{equalTo:', as.numeric(survey),'}}){
         nodes{
           id
           grtsId
@@ -1342,7 +1343,7 @@ get_colony_bulk_counts = function(
         }
       }
     }')
-    pbody = list(query = query)
+    pbody = list(query = query, operationName = 'RRccSurveys')
 
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
