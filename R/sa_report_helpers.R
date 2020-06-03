@@ -15,7 +15,11 @@
 #'
 #' @export
 #'
-get_sa_species = function(sa_bulk_df, species_df, type = 'all', format = 'df'){
+get_sa_species = function(
+  sa_bulk_df,
+  species_df,
+  type = 'all',
+  format = 'df'){
 
   auto_ids = subset(sa_bulk_df, !is.na(sa_bulk_df$auto_id))$auto_id
   manual_ids = subset(sa_bulk_df, !is.na(sa_bulk_df$manual_id))$manual_id
@@ -68,7 +72,14 @@ get_sa_species = function(sa_bulk_df, species_df, type = 'all', format = 'df'){
 #' @export
 #'
 
-get_sa_range_maps = function(sa_bulk_df, project_df, project_id, all_species_totals_l_l, species_df, out_dir, save_bool = TRUE){
+get_sa_range_maps = function(
+  sa_bulk_df,
+  project_df,
+  project_id,
+  all_species_totals_l_l,
+  species_df,
+  out_dir,
+  save_bool = TRUE){
 
     # Read in species ranges
   range_file = '/data/bat_species_ranges/'
@@ -294,7 +305,11 @@ get_sa_examples = function(){
 #' @export
 #'
 
-get_sa_results = function(sa_bulk_df, selected_year, species_df){
+get_sa_results = function(
+  sa_bulk_df,
+  selected_year,
+  species_df){
+
   # Number of sites and grts cells
   number_of_sites = length(unique(sa_bulk_df$site_name))
   number_of_cells = length(unique(sa_bulk_df$grts_cell_id))
@@ -341,7 +356,13 @@ get_sa_results = function(sa_bulk_df, selected_year, species_df){
 #' @export
 #'
 
-build_sa_table_1 = function(sa_bulk_df, project_id, project_df, species_df, selected_year){
+build_sa_table_1 = function(
+  sa_bulk_df,
+  project_id,
+  project_df,
+  species_df,
+  selected_year){
+
   # Create Table Description
   sa_descr_table_1 = paste0("Table 1. NABat GRTS cells surveyed in ",
     selected_year,
@@ -419,8 +440,6 @@ build_sa_table_1 = function(sa_bulk_df, project_id, project_df, species_df, sele
 
 
 
-
-
 #' @title Build stationary acoustic table 3 for report
 #'
 #' @description Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
@@ -428,7 +447,11 @@ build_sa_table_1 = function(sa_bulk_df, project_id, project_df, species_df, sele
 #' @export
 #'
 
-build_sa_table_3 = function(sa_bulk_df, selected_year, species_df){
+build_sa_table_3 = function(
+  sa_bulk_df,
+  selected_year,
+  species_df){
+
   # Create Table Description
   sa_descr_table_3 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed, ",
     selected_year,
@@ -496,7 +519,15 @@ build_sa_table_3 = function(sa_bulk_df, selected_year, species_df){
 #' @export
 #'
 
-build_sa_figure_1 = function(sa_bulk_df, out_dir, project_df, project_id, survey_df, selected_year, save_bool = FALSE){
+build_sa_figure_1 = function(
+  sa_bulk_df,
+  out_dir,
+  project_df,
+  project_id,
+  survey_df,
+  selected_year,
+  save_bool = FALSE){
+
   # Create figure description
   sa_descr_fig1  = paste0("Figure 1. Map of all NABat GRTS cells surveyed in ",
     selected_year
@@ -643,8 +674,8 @@ build_sa_figure_2 = function(
   m_fig_2_log = list(t = 50, b = 40, l = 45, r = 15, pad = 0)
 
   # fig 2a
-  sa_fig2_p = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
-    width = 850, height = 650,
+  sa_fig2_p = plot_ly(x = bat_species, y = as.integer(bat_auto_counts), type = 'bar',
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = bat_id_colors) %>%
     layout(xaxis = x_, yaxis = y_,
@@ -653,8 +684,8 @@ build_sa_figure_2 = function(
       font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
-  sa_fig2_p_log = plot_ly(x = bat_species, y = bat_auto_counts, type = 'bar',
-    width = 850, height = 650,
+  sa_fig2_p_log = plot_ly(x = bat_species, y = as.integer(bat_auto_counts), type = 'bar',
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = bat_id_type, colors = bat_id_colors) %>%
     layout(xaxis = x_log, yaxis = y_log,
@@ -666,14 +697,12 @@ build_sa_figure_2 = function(
   if (save_bool){
     fig2a_f = paste0(out_dir, "/temps/fig2a.png")
     fig2b_f = paste0(out_dir, "/temps/fig2b.png")
-    plotly::export(sa_fig2_p, file = fig2a_f)
-    plotly::export(sa_fig2_p_log, file = fig2b_f)
+    suppressWarnings(plotly::export(sa_fig2_p, file = fig2a_f))
+    suppressWarnings(plotly::export(sa_fig2_p_log, file = fig2b_f))
   }else{
     fig2a_f = NULL
     fig2b_f = NULL
-
   }
-
 
   return (list(figure_a = sa_fig2_p, figure_b = sa_fig2_p_log,
                description_a = sa_descr_fig2a,
@@ -692,9 +721,15 @@ build_sa_figure_2 = function(
 #' @export
 #'
 
-build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, save_bool = FALSE){
-  sa_descr_fig4 = paste0("Figure 4. ",selected_year," bat activity rate (average number of bat passes per night) by NABat GRTS cell")
+build_sa_figure_4 = function(
+  sa_bulk_df,
+  out_dir,
+  species_df,
+  selected_year,
+  save_bool = FALSE){
 
+  # Build description
+  sa_descr_fig4 = paste0("Figure 4. ",selected_year," bat activity rate (average number of bat passes per night) by NABat GRTS cell")
   # Get fig data
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
   proj_species_w_noid = get_sa_species(sa_bulk_df, species_df, 'all','vector')
@@ -715,7 +750,7 @@ build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, sav
 
   # Build Fig
   sa_fig4_p = plot_ly(x = fig4_data$GRTS, y = fig4_data$values, type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
     layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize=F, bargap = .6,
@@ -723,7 +758,7 @@ build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, sav
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   if(save_bool){
     sa_fig4_f = paste0(out_dir, "/temps/fig4.png")
-    plotly::export(sa_fig4_p, file = sa_fig4_f)
+    suppressWarnings(plotly::export(sa_fig4_p, file = sa_fig4_f))
   }else{
     sa_fig4_f = NULL
   }
@@ -740,7 +775,11 @@ build_sa_figure_4 = function(sa_bulk_df, out_dir, species_df, selected_year, sav
 #' @export
 #'
 
-does_sa_type_exist = function(sa_bulk_df, species_df, type){
+does_sa_type_exist = function(
+  sa_bulk_df,
+  species_df,
+  type){
+
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
   detection_types = unique(proj_species_df$detection_type)
   # Set whether the stationary acoustic data has automatic or manual data in it

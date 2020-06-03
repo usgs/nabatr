@@ -65,7 +65,7 @@ get_all_project_types = function(token, branch ='prod', url = NULL, aws_gql = NU
   }
 
   # Set Query
-  query = paste0('{ allVwSurveySummaries {
+  query = paste0('query RRsurveySummaries{ allVwSurveySummaries {
       nodes{
       id,
       projectName,
@@ -78,7 +78,7 @@ get_all_project_types = function(token, branch ='prod', url = NULL, aws_gql = NU
       }
     }
   }')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRsurveySummaries')
 
   # Post to nabat GQL
   res = httr::POST(url_, headers_, body = pbody, encode='json')
@@ -164,7 +164,7 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
 
   # print (paste0('Project ID: ', project_id))
   # Set Query
-  query = paste0('{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
+  query = paste0('query RRsaSummaries{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
       projectId
       grtsId
@@ -177,7 +177,7 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
       }
     }
     }')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRsaSummaries')
 
   # Post to nabat GQL
   res = httr::POST(url_, headers_, body = pbody, encode='json')
@@ -266,7 +266,7 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
   }
 
   # Set Query
-  query = paste0('{ allVwMobileAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
+  query = paste0('query RRmaSummaries{ allVwMobileAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
     projectId
     grtsId
@@ -279,7 +279,7 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
     }
 }
 }')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRmaSummaries')
 
   # Post to nabat GQL
   res = httr::POST(url_, headers_, body = pbody, encode='json')
@@ -369,7 +369,7 @@ get_cc_project_summary = function(token, project_df, project_id, branch ='prod',
   }
 
   # Set Query
-  query = paste0('{ allVwColonyCountSummaries (filter :{projectId:{equalTo:',project_id,'}}){
+  query = paste0('query RRccSummaries{ allVwColonyCountSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
       projectId,
       surveyId,

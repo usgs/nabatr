@@ -37,10 +37,12 @@
 #'
 #' @export
 #'
-get_grts_leaflet_map = function(all_grts,
-                                project_df,
-                                project_id,
-                                grts_with_data = NULL){
+get_grts_leaflet_map = function(
+  all_grts,
+  project_df,
+  project_id,
+  grts_with_data = NULL){
+
   project_id_ = project_id
   grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
   # Get grts_fname_df
@@ -125,7 +127,11 @@ get_grts_leaflet_map = function(all_grts,
 #'
 #' @export
 #'
-get_grts_shp = function(grts_ids, project_id, project_df){
+get_grts_shp = function(
+  grts_ids,
+  project_id,
+  project_df){
+
   # Call Build polygons dataframe from GRTS IDs function
   grts_shp_df = get_grts_shp_df(grts_ids = grts_ids, project_id = project_id, project_df = project_df)
   # Call Build spatial polygons dataframe from GRTS shape dataframe
@@ -147,7 +153,11 @@ get_grts_shp = function(grts_ids, project_id, project_df){
 #'
 #' @export
 #'
-get_grts_shp_df = function(grts_ids, project_id, project_df){
+get_grts_shp_df = function(
+  grts_ids,
+  project_id,
+  project_df){
+
   grts_template_df = data.frame(GRTS_ID = as.integer(grts_ids))
   project_id_ = project_id
   grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
@@ -188,7 +198,9 @@ get_grts_shp_df = function(grts_ids, project_id, project_df){
 #'
 #' @export
 #'
-get_spdf_from_polys_df = function(grts_shp_df){
+get_spdf_from_polys_df = function(
+  grts_shp_df){
+
   # Seperate polygons by grts id
   polys_list  = split(grts_shp_df, grts_shp_df$GRTS)
   # Remove id column from split polygon dfs

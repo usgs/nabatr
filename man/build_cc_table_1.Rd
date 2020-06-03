@@ -4,7 +4,7 @@
 \alias{build_cc_table_1}
 \title{Build Colony Count Table 1}
 \usage{
-build_cc_table_1(cc_bulk_df, noid = FALSE)
+build_cc_table_1(cc_bulk_df, noid = TRUE)
 }
 \description{
 Summary of winter colony count surveys

@@ -38,32 +38,36 @@ for (project_id_ in all_ma_projects){
         branch     = branch_)
       proj_dates = unique(ma_survey_df_$year)
 
-      year_ = proj_dates[1]
-      # Get stationary acoustic bulk upload format dataframe
-      token_ = get_refresh_token(token_, branch = branch_)
-      ma_bulk_df_ = get_ma_bulk_wavs(token      = token_,
-        survey_df  = ma_survey_df_,
-        project_id = project_id_,
-        branch = branch_,
-        year = year_) %>% clean_time_fields() %>%
-        add_observed_nights() %>%
-        add_start_end_nights()
+      if (dim(ma_survey_df_)[1] == 0){
+        message(paste0('No Data Available at project id: ',project_id_))
+      } else{
+        year_ = proj_dates[1]
+        # Get stationary acoustic bulk upload format dataframe
+        token_ = get_refresh_token(token_, branch = branch_)
+        ma_bulk_df_ = get_ma_bulk_wavs(token      = token_,
+          survey_df  = ma_survey_df_,
+          project_id = project_id_,
+          branch = branch_,
+          year = year_) %>% clean_time_fields() %>%
+          add_observed_nights() %>%
+          add_start_end_nights()
 
-      # Get Acoustic stationary acoustic bulk dataframe
-      nightly_observed_list_ = get_observed_nights(ma_bulk_df_)
+        # Get Acoustic stationary acoustic bulk dataframe
+        nightly_observed_list_ = get_observed_nights(ma_bulk_df_)
 
-      token_ = get_refresh_token(token_, branch = branch_)
-      ma_doc = build_ma_doc(out_dir = dir_,
-        file_name = paste0('ma_report_',project_id_,'_',Sys.Date(),'.docx'),
-        project_df = project_df_,
-        project_id = project_id_,
-        ma_bulk_df = ma_bulk_df_,
-        species_df = species_df_,
-        year = year_,
-        nightly_observed_list = nightly_observed_list_)
+        token_ = get_refresh_token(token_, branch = branch_)
+        ma_doc = build_ma_doc(out_dir = dir_,
+          file_name = paste0('ma_report_',project_id_,'_',Sys.Date(),'.docx'),
+          project_df = project_df_,
+          project_id = project_id_,
+          ma_bulk_df = ma_bulk_df_,
+          species_df = species_df_,
+          year = year_,
+          nightly_observed_list = nightly_observed_list_)
 
-      print(ma_doc, target = paste0(dir_, '/', paste0(year_, '_ma_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
-      completed_ma_projects = c(completed_ma_projects, project_id_)
+        print(ma_doc, target = paste0(dir_, '/', paste0(year_, '_ma_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
+        completed_ma_projects = c(completed_ma_projects, project_id_)
+      }
     },
     error=function(cond) {
       message(paste("Project seems to Fail:", project_id_))

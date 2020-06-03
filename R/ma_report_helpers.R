@@ -16,7 +16,11 @@
 #' @export
 #'
 
-get_ma_results = function(ma_bulk_df, species_df, year){
+get_ma_results = function(
+  ma_bulk_df,
+  species_df,
+  year){
+
   # Is number of routes the Site ID? not the number of days they recorded across the route?
   num_routes = length(unique(ma_bulk_df$location_name))
   num_cells = length(unique(ma_bulk_df$grts_cell_id))
@@ -123,7 +127,12 @@ get_ma_examples = function(){
 #' @export
 #'
 
-build_ma_table_1 = function(ma_bulk_df, project_id, project_df, species_df, year = NULL){
+build_ma_table_1 = function(
+  ma_bulk_df,
+  project_id,
+  project_df,
+  species_df,
+  year = NULL){
 
   # Create table description
   ma_descr_tbl_1 = paste0("Table 1. NABat GRTS cells surveyed in ",
@@ -232,7 +241,12 @@ build_ma_table_1 = function(ma_bulk_df, project_id, project_df, species_df, year
 #' @export
 #'
 
-build_ma_table_2 = function(ma_bulk_df, species_df, year = NULL){
+build_ma_table_2 = function(
+  ma_bulk_df,
+  species_df,
+  year = NULL){
+
+  # Build Description
   ma_descr_tbl_2 = paste0("Table 2. Bat species detected in ",
     year,
     ". Common name, geographic range, and number of transect routes with detections are displayed for all species.")
@@ -301,7 +315,12 @@ build_ma_table_2 = function(ma_bulk_df, species_df, year = NULL){
 #' @export
 #'
 
-build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year = NULL){
+build_ma_table_3 = function(
+  ma_bulk_df,
+  nightly_observed_list,
+  species_df,
+  year = NULL){
+
   # Create descriptions for the 2 tables
   ma_descr_tbl_3b = paste0("Table 3b. Number of manual calls from each detected species in all GRTS cells surveyed by mobile transect in ",year,".")
   ma_descr_tbl_3a = paste0("Table 3a. Number of automatic calls from each detected species in all GRTS cells surveyed by mobile transect in ",year,".")
@@ -367,8 +386,13 @@ build_ma_table_3 = function(ma_bulk_df, nightly_observed_list, species_df, year 
 #' @export
 #'
 
-build_ma_figure_1 = function(ma_bulk_df, project_id, project_df, year = NULL){
+build_ma_figure_1 = function(
+  ma_bulk_df,
+  project_id,
+  project_df,
+  year = NULL){
 
+  # Build Description
   ma_descr_fig1  = paste0("Figure 1. Map of all NABat GRTS cells surveyed in ",year," and detector points in each surveyed cell. ")
 
   all_grts = unique(ma_bulk_df$grts_cell_id)
@@ -467,8 +491,12 @@ build_ma_figure_1 = function(ma_bulk_df, project_id, project_df, year = NULL){
 #' @export
 #'
 
-build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
-  # Create descriptions
+build_ma_figure_2 = function(
+  ma_bulk_df,
+  species_df,
+  year = NULL){
+
+  # Build descriptions
   ma_descr_fig2a = paste0("Figure 2a. ",year," bat activity rate (average number of bat passes per night) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   ma_descr_fig2b = paste0("Figure 2b. ",year," bat activity rate (average number of bat passes per night using a logarithmic scale) by species. Species with at least one manual identification per site are shown in blue. Species identified only by automated identification software are shown in orange and species identified only by manual identification software are shown in green.")
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
@@ -557,7 +585,7 @@ build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
 
   # fig 2a
   fig2a_p = plot_ly(x = all_species_names, y = fig2_methods_df$total_freq, type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = fig2_methods_df$method_exp, colors = bat_id_colors) %>%
     layout(xaxis = x_, yaxis = y,
@@ -568,7 +596,7 @@ build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
   fig2b_p = plot_ly(x = all_species_names, y = fig2_methods_df$total_freq, type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = fig2_methods_df$method_exp, colors = bat_id_colors) %>%
     layout(xaxis = x_log, yaxis = y_log,
@@ -602,8 +630,12 @@ build_ma_figure_2 = function(ma_bulk_df, species_df, year = NULL){
 #' @export
 #'
 
-build_ma_figure_3 = function(ma_bulk_df, species_df, year = NULL){
-  # Create description
+build_ma_figure_3 = function(
+  ma_bulk_df,
+  species_df,
+  year = NULL){
+
+  # Build description
   ma_descr_fig3 = paste0("Figure 3. ",
     year,
     " bat activity rate (average number of bat passes per survey) recorded in each NABat GRTS cell.")
@@ -631,7 +663,7 @@ build_ma_figure_3 = function(ma_bulk_df, species_df, year = NULL){
 
 
   fig3_p = plot_ly(x = grts_calls_df$grts_cell_id[1:30], y = grts_calls_df$bat_call[1:30], type = 'bar',
-    width = 850, height = 650,
+    # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
     layout(margin = m_fig_3, font = leg, xaxis = x, yaxis = y, showlegend = F, autosize=F, bargap = .6,

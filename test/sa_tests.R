@@ -36,37 +36,41 @@ for (project_id_ in all_sa_projects){
         project_id = project_id_,
         project_df = project_df_,
         branch     = branch_)
-      proj_dates = unique(sa_survey_df_$year)
 
-      year_ = proj_dates[1]
-      # Get stationary acoustic bulk upload format dataframe
-      token_ = get_refresh_token(token_, branch = branch_)
-      sa_bulk_df_ = get_sa_bulk_wavs(token      = token_,
-        survey_df  = sa_survey_df_,
-        project_id = project_id_,
-        branch = branch_,
-        year = year_) %>% clean_time_fields() %>%
-        add_observed_nights() %>%
-        add_start_end_nights()
+      if (dim(sa_survey_df_)[1] == 0){
+        message(paste0('No Data Available at project id: ',project_id_))
+      } else{
+        proj_dates = unique(sa_survey_df_$year)
 
-      # Get Acoustic stationary acoustic bulk dataframe
-      nightly_observed_list_ = get_observed_nights(sa_bulk_df_)
+        year_ = proj_dates[1]
+        # Get stationary acoustic bulk upload format dataframe
+        token_ = get_refresh_token(token_, branch = branch_)
+        sa_bulk_df_ = get_sa_bulk_wavs(token      = token_,
+          survey_df  = sa_survey_df_,
+          project_id = project_id_,
+          branch = branch_,
+          year = year_)
 
-      token_ = get_refresh_token(token_, branch = branch_)
-      sa_doc = build_sa_doc(out_dir = dir_,
-        file_name = paste0('sa_report_',project_id_,'_',Sys.Date(),'.docx'),
-        project_df = project_df_,
-        project_id = project_id_,
-        sa_bulk_df = sa_bulk_df_,
-        sa_survey_df = sa_survey_df_,
-        species_df = species_df_,
-        selected_year = year_,
-        nightly_observed_list = nightly_observed_list_,
-        date = format(Sys.time(), "%B %d, %Y"),
-        range_maps = FALSE)
+        # Get Acoustic stationary acoustic bulk dataframe
+        nightly_observed_list_ = get_observed_nights(sa_bulk_df_)
 
-      print(sa_doc, target = paste0(dir_, '/', paste0(year_, '_sa_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
-      completed_sa_projects = c(completed_sa_projects, project_id_)
+        token_ = get_refresh_token(token_, branch = branch_)
+        sa_doc = build_sa_doc(out_dir = dir_,
+          file_name = paste0('sa_report_',project_id_,'_',Sys.Date(),'.docx'),
+          project_df = project_df_,
+          project_id = project_id_,
+          sa_bulk_df = sa_bulk_df_,
+          sa_survey_df = sa_survey_df_,
+          species_df = species_df_,
+          selected_year = year_,
+          nightly_observed_list = nightly_observed_list_,
+          date = format(Sys.time(), "%B %d, %Y"),
+          range_maps = FALSE)
+
+        print(sa_doc, target = paste0(dir_, '/', paste0(year_, '_sa_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
+        completed_sa_projects = c(completed_sa_projects, project_id_)
+
+      }
     },
     error=function(cond) {
       message(paste("Project seems to Fail:", project_id_))
