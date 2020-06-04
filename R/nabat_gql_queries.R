@@ -838,7 +838,8 @@ get_sa_bulk_wavs = function(
       message (paste0('Compiling stationary acoustic data for survey: ', survey, ' GRTS id: ', grts_cell))
       wav_files = data.frame()
       acc_events = acc_events %>% dplyr::left_join(geom_df, by= c('eventGeometryId'= 'event_geometry_id')) %>%
-                    mutate(site_name = paste0(proj_id_df$grtsId, '_', location_name))
+                    mutate(site_name = paste0(proj_id_df$grtsId, '_', location_name)) %>%
+                    dplyr::mutate(geom_type = ifelse(is.na(geom_type),'NA',geom_type))
       for (x in 1:dim(acc_events)[1]){
         rename = TRUE
         this_site_name = acc_events[x,]$site_name
