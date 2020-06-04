@@ -26,8 +26,6 @@ Imports:
   rmarkdown,
   sp,
   xml2
-DevPackage:
-    ropensci/ghql
 Suggests: 
     knitr
 VignetteBuilder: knitr
