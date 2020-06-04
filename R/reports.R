@@ -31,7 +31,7 @@
 
 build_sa_doc =  function(
   out_dir,
-  file_name,
+  file_name = 'sa_doc.docx',
   project_df,
   project_id,
   sa_bulk_df,
@@ -295,7 +295,7 @@ build_sa_doc =  function(
 
 build_col_doc = function(
   out_dir,
-  file_name,
+  file_name = 'cc_doc.docx',
   project_df = NULL,
   project_id,
   cc_bulk_df = NULL,
@@ -450,7 +450,7 @@ build_col_doc = function(
 
 build_ma_doc = function(
   out_dir,
-  file_name,
+  file_name = 'ma_doc.docx',
   project_df,
   project_id,
   ma_bulk_df,
