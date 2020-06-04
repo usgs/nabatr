@@ -1,5 +1,5 @@
 ---
-title: "Get_Project_Types"
+title: "Get Project Types"
 output:
   html_document: default
 ---

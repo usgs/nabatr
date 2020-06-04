@@ -1,5 +1,5 @@
 ---
-title: "Get_Stationary_Acoustic_data"
+title: "Get Stationary Acoustic data"
 output:
   html_document: default
 ---
@@ -27,7 +27,6 @@ token = get_refresh_token(token)
 project_df = get_projects(token)
 # Display your projects lookup table
 project_df
-
 ```
 
 
