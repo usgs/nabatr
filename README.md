@@ -22,7 +22,10 @@ install.packages(c(  'devtools','dplyr','flextable','ggplot2','htmltools','htmlw
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
   'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2'))
 
-devtools::install_github("usgs/nabatr")
+# Download Master branch and if it's been updated, reinstall latest version. Built_vignettes
+##  allows you to run the browseVignettes() function in the next cell.
+##  The 'never' upgrade tag says don't upgrade your current R packages.
+devtools::install_github('usgs/nabatr', ref = 'master', build_vignettes = TRUE, force = TRUE, upgrade = 'never')
 
 library(nabatr)
 ```
