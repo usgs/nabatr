@@ -6,7 +6,7 @@
 \usage{
 build_col_doc(
   out_dir,
-  file_name,
+  file_name = "cc_doc.docx",
   project_df = NULL,
   project_id,
   cc_bulk_df = NULL,

@@ -6,7 +6,7 @@
 \usage{
 build_sa_doc(
   out_dir,
-  file_name,
+  file_name = "sa_doc.docx",
   project_df,
   project_id,
   sa_bulk_df,

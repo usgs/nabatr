@@ -6,7 +6,7 @@
 \usage{
 build_ma_doc(
   out_dir,
-  file_name,
+  file_name = "ma_doc.docx",
   project_df,
   project_id,
   ma_bulk_df,
