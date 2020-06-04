@@ -164,6 +164,7 @@ get_nabat_gql_token = function(
   aws_alb = NULL,
   docker = FALSE){
 
+  print ('upload test')
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){
     username = rstudioapi::showPrompt(title = "Username", message = "Username", default = "")
