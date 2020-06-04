@@ -25,7 +25,8 @@ Imports:
   rgdal,
   rmarkdown,
   sp,
-  xml2
+  xml2,
+  devtools
 Suggests: 
     knitr
 VignetteBuilder: knitr

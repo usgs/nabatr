@@ -18,10 +18,9 @@ Proof of concept, community input/collaboration welcome!
 To install the toolbox in R run the following commands in a R terminal
 
 ```R
-install.packages(c('httr' ,'xml2' ,'jsonlite' ,'plyr' ,'rgdal' ,'sp' ,'htmltools' ,'htmlwidgets' ,
-  'leaflet' ,'rmarkdown' ,'rprojroot' ,'dplyr' ,'devtools' ,'testthat' ,'roxygen2' ,'kableExtra' ,
-  'plotly' ,'magrittr' ,'mapview' ,'officer' ,'caret' ,'aws.s3' ,'flextable', 'maps',
-  'maptools'))
+install.packages(c(  'devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
+  'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
+  'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2'))
 
 devtools::install_github("usgs/nabatr")
 
