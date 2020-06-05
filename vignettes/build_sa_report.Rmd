@@ -2,7 +2,7 @@
 title: "Build Stationary Acoustic Report"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Login to NABat and return a token}
+  %\VignetteIndexEntry{Build Stationary Acoustic Report}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
