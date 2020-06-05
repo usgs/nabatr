@@ -14,7 +14,7 @@
 # Global Variables for NABatR
 pkg.env = new.env()
 pkg.env$bats_df = NULL
-# pkg.env$species_ranges = readOGR('data/bat_species_ranges/')[,1:4]
+pkg.env$species_ranges = readOGR('data/bat_species_ranges/')[,1:4]
 
 #' @title NABat GRTS lookup list with csvs of coordinates for all GRTS in a region
 #'
@@ -172,10 +172,7 @@ get_nabat_gql_token = function(
     password = .rs.askForPassword('Password')
   }
 
-
   out = tryCatch({
-
-
     # Returns a message with username
     message(paste0("Logging into the NABat database as ", username))
 
