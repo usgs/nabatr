@@ -24,6 +24,7 @@
 #' @import maptools
 #' @import sp
 #' @import flextable
+#' @import stringr
 #'
 #'
 #' @export
