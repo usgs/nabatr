@@ -516,10 +516,10 @@ build_ma_doc = function(
 
   # Export to a file to be used to upload into the .docx
   fig2a_f = paste0(out_dir, "/temps/fig2a.png")
-  suppressWarnings(plotly::export(ma_figure_2$figure_a, file = fig2a_f))
+  plotly::export(ma_figure_2$figure_a, file = fig2a_f)
   # Export to a file to be used to upload into the .docx
   fig2b_f = paste0(out_dir, "/temps/fig2b.png")
-  suppressWarnings(plotly::export(ma_figure_2$figure_b, file = fig2b_f))
+  plotly::export(ma_figure_2$figure_b, file = fig2b_f)
 
   message ('build figure 3')
   # Build Figure 3
@@ -527,7 +527,7 @@ build_ma_doc = function(
 
   # Export to a file to be used to upload into the .docx
   fig3_f = paste0(out_dir, "/temps/fig3.png")
-  suppressWarnings(plotly::export(ma_figure_3$figure, file = fig3_f))
+  plotly::export(ma_figure_3$figure, file = fig3_f)
 
 
   bold_face = shortcuts$fp_bold(font.size = 16)
