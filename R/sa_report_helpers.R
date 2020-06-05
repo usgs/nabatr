@@ -655,6 +655,7 @@ build_sa_figure_2 = function(
     all_bat_id_types = rbind(all_bat_id_types, bat_id_type_row)
   }
 
+
   bat_id_type = all_bat_id_types$bat_types
   bat_id_color_df = data.frame(colors = c('#ff8400','#337acc', '#23992f'),
     types = c('At least one manual ID/site', 'Auto ID only', 'Manual ID only'), stringsAsFactors = FALSE)
