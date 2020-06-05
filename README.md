@@ -5,7 +5,7 @@ Tools for interfacing R with NABat data services.
 
 ## Package Description
 
-This package provides a interface to North American Bat Monitoring (NABat) data service's 
+This package provides an interface to North American Bat Monitoring (NABat) data service's.  For full access to NABatR, be sure to go to the link below and setup an account with NABat!
 
 [NABat](https://nabatmonitoring.org/#/home)
 
@@ -18,14 +18,14 @@ Proof of concept, community input/collaboration welcome!
 To install the toolbox in R run the following commands in a R terminal
 
 ```R
-install.packages(c(  'devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
+install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
   'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2'))
 
-# Download Master branch and if it's been updated, reinstall latest version. Built_vignettes
-##  allows you to run the browseVignettes() function in the next cell.
-##  The 'never' upgrade tag says don't upgrade your current R packages.
-devtools::install_github('usgs/nabatr', ref = 'master', build_vignettes = TRUE, force = TRUE, upgrade = 'never')
+# Download Master branch and if it's been updated, reinstall latest version. build_vignettes
+##  allows you to run the browseVignettes() function in the next cell. force will rebuild
+##  the package if any new changes have been made
+devtools::install_github('usgs/nabatr', build_vignettes = TRUE, force = TRUE)
 
 library(nabatr)
 ```
@@ -35,7 +35,9 @@ library(nabatr)
 # RStudio pop up in Help tab
 ??nabatr
 
-# Web browser popup
+# Web browser popup.  Click the HTML link for a vignette and
+##  copy and paste the grey chunks of code into your R file.
+##  Change any place holders in the code and Run.
 browseVignettes('nabatr')
 ```
 
