@@ -1,0 +1,102 @@
+---
+title: "Upload Stationary Acoustic Data to Project"
+output:
+  html_document: default
+---
+
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+
+### Get Project dataframe which contains all of your NABat projects in the NABat Database
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+# Get your projects lookup table
+project_df = get_projects(token)
+# Display your projects lookup table
+project_df
+```
+
+### Select a project id from project_df above
+```{r}
+project_id = 000
+```
+
+### Get User ID
+```{r}
+user_id = get_user_id_by_email(username, token)
+```
+
+### Set data_type, file_name, and file_path
+```{r}
+# Type of data to be uploading
+data_type = 'bulk_sae'
+# Name of file to be uploaded into NABat website
+file_name = 'name_of_csv.csv'
+# Location of file to be uploaded and processed into NABat Database/Website
+## Don't end in "/" ex /users/johndoe/downloads/example.csv
+file_path = '/users/johndoe/downloads/example.csv' 
+```
+
+
+### Get a Preview File to use as a template
+```{r}
+# Generates a template/preview of the file_path csv
+template = get_upload_file_preview(file_path, token, data_type)
+```
+
+### Get presigned URL to upload data
+```{r}
+# Get the presigned information
+presigned_data = get_presigned_data(project_id, token)
+# Extract values needed to upload and process file
+presigned_url = presigned_data$presigned_url
+asUUid = presigned_data$asUUid
+```
+
+### Upload file
+```{r}
+# Pushes file into an s3 bucket in AWS
+upload_res = upload_csv(presigned_url, file_path)
+# Status code of 200 = Success
+upload_res$status_code
+```
+
+###  
+```{r}
+# Process file into the Database and uploads it into 
+## the Website User interface under Bulk Upload Status
+## and Acoustic Data
+process_uploaded_csv(user_id, 
+                     project_id, 
+                     asUUid, 
+                     template, 
+                     file_name, 
+                     token, 
+                     data_type)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

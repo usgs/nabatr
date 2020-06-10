@@ -1,14 +1,17 @@
 ---
-title: "Get Mobile Acoustic data"
-output:
-  html_document: default
+title: "Build Mobile Acoustic Report"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Build Mobile Acoustic Report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
-## Explore your Mobile Acoustic NABat data using this Rmd example
+## Extract Mobile Acoustic Data and Build a Report
 
 
 ### Get a token for NABat Database
-```{r}
+```
 library(nabatr)
 # Enter your NABat username here
 username = 'NABat_Username'
@@ -21,7 +24,7 @@ token
 
 
 ### Get Project dataframe which contains all of your NABat projects in the NABat Database
-```{r}
+```
 # Refresh token
 token = get_refresh_token(token)
 # Get your projects lookup table
@@ -32,7 +35,7 @@ project_df
 
 
 ### Get all Mobile Acoustic Surveys within a single Project set with project_id_
-```{r}
+```
 # Refresh token
 token = get_refresh_token(token)
 # Fill in project id using the project_df lookup table
@@ -50,7 +53,7 @@ ma_survey_df
 
 
 ### Get all Mobile Acoustic Survey wav file data.  Format: Mobile Acoustic Bulk Upload Template
-```{r}
+```
 # Select Year for project (defaults to 1st available year)
 year = ma_proj_dates[1]
 
@@ -63,4 +66,32 @@ ma_bulk_df = get_ma_bulk_wavs(token,
                               year)
 # Display mobile acoustic bulk upload format dataframe
 ma_bulk_df
+```
+
+
+### Get Mobile Acoustic dataframe broken up into nightly observed data and get species_df
+```
+token = get_refresh_token(token)
+species_df = get_species(token)
+# Get Acoustic stationary acoustic bulk dataframe
+nightly_observed_list = get_observed_nights(ma_bulk_df)
+```
+
+
+### Build a Mobile Acoustic Report
+```
+# Edit these two variables below to your local system (file_name, out_dir)
+file_name = 'name_of_ma_report.docx'  
+out_dir   = '/directory/to/download/report' # Make sure this ends without a '/'
+
+ma_doc = build_ma_doc(out_dir = out_dir,
+                      project_df = project_df,
+                      project_id = project_id,
+                      ma_bulk_df = ma_bulk_df,
+                      species_df = species_df,
+                      nightly_observed_list = nightly_observed_list,
+                      year = year)
+
+# Save out your report
+print(ma_doc, target = paste0(out_dir, '/', file_name))
 ```

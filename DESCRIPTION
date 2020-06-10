@@ -5,24 +5,29 @@ Authors@R: person("Kyle", "Enns", email = "kenns@usgs.gov",
   role = c("aut", "cre"))
 Description: R Tools for Accessing and Manipulating North American Bat Monitoring Data.
 Imports:
-    httr (>= 1.0.0),
-    xml2,
-    jsonlite,
-    plyr,
-    rgdal,
-    sp,
-    htmltools,
-    htmlwidgets,
-    leaflet,
-    rmarkdown,
-    rprojroot,
-    dplyr,
-    plotly,
-    officer,
-    magrittr,
-    mapview
-DevPackage:
-    ropensci/ghql
+  dplyr,
+  flextable,
+  ggplot2,
+  htmltools,
+  htmlwidgets,
+  httr,
+  jsonlite,
+  leaflet,
+  lubridate,
+  magrittr,
+  maps,
+  maptools,
+  mapview,
+  officer,
+  plotly,
+  plyr,
+  raster,
+  rgdal,
+  rmarkdown,
+  sp,
+  xml2,
+  devtools,
+  stringr
 Suggests: 
     knitr
 VignetteBuilder: knitr

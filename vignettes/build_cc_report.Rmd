@@ -1,14 +1,17 @@
 ---
-title: "Get Colony Count data"
-output:
-  html_document: default
+title: "Build Colony Count Report"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Build Colony Count Report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
-## Explore your Colony Count NABat data using this Rmd example
+## Extract Colony Count NABat Data and Build a Report
 
 
 ### Get a token for NABat Database
-```{r}
+```
 library(nabatr)
 # Enter your NABat username here
 username = 'NABat_Username'
@@ -21,7 +24,7 @@ token
 
 
 ### Get Project dataframe which contains all of your NABat projects in the NABat Database
-```{r}
+```
 # Refresh token
 token = get_refresh_token(token)
 # Get your projects lookup table
@@ -32,7 +35,7 @@ project_df
 
 
 ### Get all Colony Count Surveys within a single Project set with project_id
-```{r}
+```
 # Refresh token
 token = get_refresh_token(token)
 # Fill in project id using the project_df lookup table
@@ -48,7 +51,7 @@ cc_survey_df
 
 
 ### Get all Colony Count data within a single Project set with project_id
-```{r}
+```
 # Refresh token
 token = get_refresh_token(token)
 # Get mobile acoustic bulk upload format dataframe
@@ -58,4 +61,20 @@ cc_bulk_df = get_colony_bulk_counts(token,
 
 # Display Colony Count dataframe
 cc_bulk_df
+```
+
+
+### Build a Colony Count Report
+```
+# Edit these two variables below to your local system (file_name, out_dir)
+file_name = 'name_of_ma_report.docx'  
+out_dir   = '/directory/to/download/report' # Make sure this ends without a '/'
+
+cc_doc = build_col_doc(out_dir = out_dir,
+                         project_df = project_df,
+                         project_id = project_id,
+                         cc_bulk_df = cc_bulk_df)
+
+# Save out your report
+print(cc_doc, target = paste0(out_dir, '/', file_name))
 ```

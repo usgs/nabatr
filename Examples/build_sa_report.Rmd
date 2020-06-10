@@ -1,10 +1,10 @@
 ---
-title: "Get Stationary Acoustic data"
+title: "Build Stationary Acoustic Report"
 output:
   html_document: default
 ---
 
-## Explore your stationary acoustic NABat data using this Rmd example
+## Extract Stationary Acoustic Data and Build a Report
 
 
 ### Get a token for NABat Database
@@ -18,6 +18,7 @@ token
 # Note: if you leave run token = get_nabat_gql_token(),
 #   it will prompt you for a username and then a password
 ```
+
 
 ### Get Project dataframe which contains all of your NABat projects in the NABat Database
 ```{r}
@@ -47,6 +48,7 @@ sa_proj_dates = unique(sa_survey_df$year)
 sa_survey_df
 ```
 
+
 ### Get all Stationary Acoustic Survey wav file data.  Format: Stationary Acoustic Bulk Upload Template
 ```{r}
 # Select Year for project (defaults to 1st available year)
@@ -62,4 +64,35 @@ sa_bulk_df = get_sa_bulk_wavs(token,
 # Display stationary acoustic bulk upload format dataframe
 sa_bulk_df
 ```
+
+
+### Get Stationary Acoustic dataframe broken up into nightly observed data and get species_df
+```{r}
+token = get_refresh_token(token)
+species_df = get_species(token)
+# Get Acoustic stationary acoustic bulk dataframe
+nightly_observed_list = get_observed_nights(sa_bulk_df)
+```
+
+
+### Build a Stationary Acoustic Report
+```{r}
+# Edit these two variables below to your local system (file_name, out_dir)
+file_name = 'name_of_sa_report.docx'  
+out_dir   = '/directory/to/download/report' # Make sure this ends without a '/'
+
+sa_doc = build_sa_doc(out_dir = out_dir,
+            project_df = project_df,
+            project_id = project_id,
+            sa_bulk_df = sa_bulk_df,
+            sa_survey_df = sa_survey_df,
+            species_df = species_df,
+            selected_year = year,
+            nightly_observed_list = nightly_observed_list,
+            range_maps = TRUE)
+
+# Save out your report
+print(sa_doc, target = paste0(out_dir, '/', file_name))
+```
+
 

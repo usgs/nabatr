@@ -6,6 +6,6 @@
   nabat_logo   = system.file("templates", "nabat_logo.png", package = "nabatr")
 
   # Shows message for path to project root
-  packageStartupMessage(template_rmd)
-  packageStartupMessage(nabat_logo)
+  # packageStartupMessage(template_rmd)
+  # packageStartupMessage(nabat_logo)
 }

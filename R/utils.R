@@ -180,3 +180,39 @@ ll_to_county_state = function(points_df) {
     sep = "", collapse = " ")
 }
 
+
+
+#' @title Get GQL url
+#'
+#' @description
+#' Combine the spatial information (states and counties) with the detector info and species detected
+#'
+#' @export
+#'
+get_gql_url =  function(
+  branch = 'prod'){
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  return(url_)
+}
+
+#' @title Get Project file bucket for AWS
+#'
+#' @description
+#' Combine the spatial information (states and counties) with the detector info and species detected
+#'
+#' @export
+#'
+get_project_file_bucket = function(
+  branch = 'prod'){
+  if (branch == 'prod'){
+    bucket = 'nabat-prod-project-files'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    bucket = 'nabat-beta-project-files'
+  }
+  return(bucket)
+}
+

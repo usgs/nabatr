@@ -81,7 +81,7 @@ get_sa_range_maps = function(
   out_dir,
   save_bool = TRUE){
 
-    # Read in species ranges
+  # Read in species ranges
   range_file = '/data/bat_species_ranges/'
   if (file.exists(range_file)){
     species_shp = readOGR(range_file)[,1:4]
@@ -655,6 +655,7 @@ build_sa_figure_2 = function(
     all_bat_id_types = rbind(all_bat_id_types, bat_id_type_row)
   }
 
+
   bat_id_type = all_bat_id_types$bat_types
   bat_id_color_df = data.frame(colors = c('#ff8400','#337acc', '#23992f'),
     types = c('At least one manual ID/site', 'Auto ID only', 'Manual ID only'), stringsAsFactors = FALSE)
@@ -697,8 +698,8 @@ build_sa_figure_2 = function(
   if (save_bool){
     fig2a_f = paste0(out_dir, "/temps/fig2a.png")
     fig2b_f = paste0(out_dir, "/temps/fig2b.png")
-    suppressWarnings(plotly::export(sa_fig2_p, file = fig2a_f))
-    suppressWarnings(plotly::export(sa_fig2_p_log, file = fig2b_f))
+    plotly::export(sa_fig2_p, file = fig2a_f)
+    plotly::export(sa_fig2_p_log, file = fig2b_f)
   }else{
     fig2a_f = NULL
     fig2b_f = NULL
@@ -758,7 +759,7 @@ build_sa_figure_4 = function(
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   if(save_bool){
     sa_fig4_f = paste0(out_dir, "/temps/fig4.png")
-    suppressWarnings(plotly::export(sa_fig4_p, file = sa_fig4_f))
+    plotly::export(sa_fig4_p, file = sa_fig4_f)
   }else{
     sa_fig4_f = NULL
   }

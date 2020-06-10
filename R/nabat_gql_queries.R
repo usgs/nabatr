@@ -172,10 +172,7 @@ get_nabat_gql_token = function(
     password = .rs.askForPassword('Password')
   }
 
-
   out = tryCatch({
-
-
     # Returns a message with username
     message(paste0("Logging into the NABat database as ", username))
 
@@ -363,6 +360,77 @@ get_refresh_token = function(
       return(NULL)
     })
   return (out)
+}
+
+
+#' @title Get User Id from username
+#'
+#' @description
+#' Uses GQL to query username for user ID
+#'
+#' @param username String NABat username (email)
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @keywords species, bats, NABat
+#'
+#' @export
+#'
+get_user_id_by_email = function(
+  username,
+  token,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise use the url passed through
+  #  as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  # Set Query
+  query =   'query RRuserByEmailQuery ($email: String!) {
+  userByEmail (email: $email) {
+  id
+  }
+}'
+  variables = paste0('{"email": "',username,'"}')
+  pbody = list(query = query, variables = variables, operationName = 'RRuserByEmailQuery')
+  # Post to nabat GQL
+  res       = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res)
+  user_id =  content$data$userByEmail$id
+
+  return(user_id)
   }
 
 
@@ -767,7 +835,8 @@ get_sa_bulk_wavs = function(
       message (paste0('Compiling stationary acoustic data for survey: ', survey, ' GRTS id: ', grts_cell))
       wav_files = data.frame()
       acc_events = acc_events %>% dplyr::left_join(geom_df, by= c('eventGeometryId'= 'event_geometry_id')) %>%
-                    mutate(site_name = paste0(proj_id_df$grtsId, '_', location_name))
+                    mutate(site_name = paste0(proj_id_df$grtsId, '_', location_name)) %>%
+                    dplyr::mutate(geom_type = ifelse(is.na(geom_type),'NA',geom_type))
       for (x in 1:dim(acc_events)[1]){
         rename = TRUE
         this_site_name = acc_events[x,]$site_name
@@ -1390,7 +1459,308 @@ get_colony_bulk_counts = function(
 
 
 
+#' @title Get Upload file preview
+#'
+#' @description Returns a template to be uploaded with the processing function
+#'
+#' @param file_path String full path to CSV file for preview
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @export
+#'
 
+get_upload_file_preview = function(
+  file_path,
+  token,
+  survey_type = 'bulk_sae',
+  branch = 'beta',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      bucket = 'nabat-prod-project-files'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      bucket = 'nabat-beta-project-files'
+    }
+  }else {
+    url_ = url
+    bucket = NULL
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  data_type = 'full'
+  operation_name = paste0('RR',survey_type,'Preview')
+  preview_query = paste0('query ',operation_name,'(
+  $surveyType: String
+  $data: String
+  $transactionUuid: String
+  $dataType: String
+  $requiredFields: [String]
+  $template: JSON
+  ) {
+  bulkPreview(
+  surveyType: $surveyType
+  data: $data
+  transactionUuid: $transactionUuid
+  dataType: $dataType
+  requiredFields: $requiredFields
+  template: $template
+  ) {
+  headersDetected
+  missing
+  matched
+  preview
+  }
+  }')
+
+  # parse file and only upload headers, so that preview takes less time
+  tmp_df = read.csv(file_path, stringsAsFactors = FALSE)[1,]
+  tmp_file = tempfile()
+  write.csv(tmp_df, tmp_file, row.names = FALSE)
+
+  # Remove characters that break
+  upload_data = readChar(tmp_file, file.info(tmp_file)$size, useBytes = TRUE)
+  upload_data = gsub('\"', '', upload_data, fixed = TRUE)
+  upload_data = gsub('\n', '', upload_data, fixed = TRUE)
+  upload_data = gsub('\t', '', upload_data, fixed = TRUE)
+  upload_data = gsub('List\r',  ' ', upload_data, fixed = TRUE)
+  upload_data = gsub('\r',  ' ', upload_data, fixed = TRUE)
+
+  file.remove(tmp_file)
+
+  pr_variables = paste0('{"data" : "',upload_data,'", "dataType" : "',data_type,'", "requiredFields" : [], "surveyType" : "',survey_type,'", "transactionUuid" : "", "template" : "" }')
+
+  pr_pbody = list(query = preview_query, variables = pr_variables, operationName = operation_name)
+  pr_res = httr::POST(url_, headers_, body = pr_pbody, encode='json')
+  pr_content   = httr::content(pr_res, as = 'text')
+  pr_content_json = fromJSON(pr_content, flatten = TRUE)
+
+  return(pr_content_json$data$bulkPreview$matched)
+}
+
+
+
+#' @title Get presigned data
+#'
+#' @description Returns a uuid and presigned url to upload a csv into the AWS bucket
+#'
+#' @param file_path String full path to CSV file for preview
+#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @export
+#'
+
+get_presigned_data = function(
+  project_id,
+  token,
+  branch = 'beta',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch ==  'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      bucket = 'nabat-prod-project-files'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      bucket = 'nabat-beta-project-files'
+    }
+  }else {
+    url_ = url
+    bucket = NULL
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+
+  content_type = 'text/plain'
+  key = paste0(project_id, '/bulk-uploads')
+
+  variables = paste0('{"bucket" : "',bucket,'", "key" : "',key,'", "contentType" : "',content_type,'", "asUuid" : "True"}')
+  query = 'query RRs3FileServiceUploadFile ($bucket: String!, $key: String!, $contentType: String!, $asUuid: Boolean) {
+  s3FileServiceUploadFile(bucket: $bucket, key: $key, contentType: $contentType, asUuid: $asUuid) {
+  s3PresignedUrl
+  transactionUuid
+  success
+  message
+  }
+}'
+  pbody = list(query = query, variables = variables, operationName = 'RRs3FileServiceUploadFile')
+  res = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  pre_content_json = fromJSON(content, flatten = TRUE)
+  asUUid = pre_content_json$data$s3FileServiceUploadFile$transactionUuid
+  presigned_url = pre_content_json$data$s3FileServiceUploadFile$s3PresignedUrl
+
+  return (list(asUUid = asUUid, presigned_url = presigned_url))
+}
+
+
+#' @title Upload CSV to aws
+#'
+#' @description Upload a csv to a presigned url
+#'
+#' @export
+#'
+
+upload_csv = function(
+  presigned_url,
+  file_path
+){
+  content_type = 'text/plain'
+  headers_put = httr::add_headers('Content-Type' = content_type)
+  res_put = httr::PUT(presigned_url,
+    body = upload_file(file_path, type = content_type),
+    headers_put)
+  return(res_put)
+}
+
+
+
+#' @title Process uploaded CSV
+#'
+#' @description Upload a csv to a presigned url
+#'
+#' @export
+#'
+
+process_uploaded_csv = function(
+  user_id,
+  project_id,
+  asUUid,
+  template,
+  file_name,
+  token,
+  survey_type = 'bulk_sae',
+  branch = 'beta',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE
+){
+
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      bucket = 'nabat-prod-project-files'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      bucket = 'nabat-beta-project-files'
+    }
+  }else {
+    url_ = url
+    bucket = NULL
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+  }
+  operation_name = paste0('RR',survey_type,'CsvProcess')
+  process_query = paste0('query ',operation_name,' (
+    $userId: Int!
+    $projectId: Int!
+    $transactionUuid: String!
+    $fileName: String!
+    $type: String!
+    $subType: Int
+    $template: JSON!
+    $requiredFields: JSON
+  ) {
+    startBulkCsvProcess(
+    userId: $userId
+    projectId: $projectId
+    transactionUuid: $transactionUuid
+    fileName: $fileName
+    type: $type
+    subType: $subType
+    template: $template
+    requiredFields: $requiredFields
+    ) {
+    success
+    }
+  }')
+
+  template_df = template %>% dplyr::select(-c(options)) %>%
+    subset(key != 'skip') %>% dplyr::select(key, name)
+  template_json = jsonlite::toJSON(template_df)
+  # template = gsub('"', "'", template, fixed = TRUE)
+
+  short_name = file_name
+  proc_variables = paste0('{"userId" : ',user_id,',
+    "projectId" : ',project_id,',
+    "transactionUuid" : "',asUUid,'",
+    "fileName" : "',short_name,'",
+    "type" : "',survey_type,'",
+    "template" : ',template_json,' ,
+    "subType" : null,
+    "requiredFields" : "[]" }')
+
+  pro_pbody = list(query = process_query, variables = proc_variables, operationName = operation_name)
+
+  pro_res = httr::POST(url_, headers_, body = pro_pbody, encode='json')
+  pro_content = httr::content(pro_res, as = 'text')
+  content_json = fromJSON(pro_content, flatten = TRUE)
+  return(pro_content)
+  }
 
 
 

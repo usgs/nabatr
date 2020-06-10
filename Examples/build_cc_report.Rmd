@@ -1,10 +1,10 @@
 ---
-title: "Get Colony Count data"
+title: "Build Colony Count Report"
 output:
   html_document: default
 ---
 
-## Explore your Colony Count NABat data using this Rmd example
+## Extract Colony Count NABat Data and Build a Report
 
 
 ### Get a token for NABat Database
@@ -58,4 +58,20 @@ cc_bulk_df = get_colony_bulk_counts(token,
 
 # Display Colony Count dataframe
 cc_bulk_df
+```
+
+
+### Build a Colony Count Report
+```{r}
+# Edit these two variables below to your local system (file_name, out_dir)
+file_name = 'name_of_ma_report.docx'  
+out_dir   = '/directory/to/download/report' # Make sure this ends without a '/'
+
+cc_doc = build_col_doc(out_dir = out_dir,
+                         project_df = project_df,
+                         project_id = project_id,
+                         cc_bulk_df = cc_bulk_df)
+
+# Save out your report
+print(cc_doc, target = paste0(out_dir, '/', file_name))
 ```
