@@ -754,7 +754,7 @@ build_sa_figure_4 = function(
     # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
-    layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize=F, bargap = .6,
+    layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize= T, bargap = .6,
       title = 'Average Bat Calls at each GRTS',
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   if(save_bool){
