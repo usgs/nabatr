@@ -698,8 +698,8 @@ build_sa_figure_2 = function(
   if (save_bool){
     fig2a_f = paste0(out_dir, "/temps/fig2a.png")
     fig2b_f = paste0(out_dir, "/temps/fig2b.png")
-    suppressWarnings(plotly::export(sa_fig2_p, file = fig2a_f))
-    suppressWarnings(plotly::export(sa_fig2_p_log, file = fig2b_f))
+    plotly::export(sa_fig2_p, file = fig2a_f)
+    plotly::export(sa_fig2_p_log, file = fig2b_f)
   }else{
     fig2a_f = NULL
     fig2b_f = NULL
