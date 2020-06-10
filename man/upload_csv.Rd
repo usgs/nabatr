@@ -4,7 +4,7 @@
 \alias{upload_csv}
 \title{Upload CSV to aws}
 \usage{
-upload_csv(presigned_url)
+upload_csv(presigned_url, file_path)
 }
 \description{
 Upload a csv to a presigned url

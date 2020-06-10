@@ -1651,7 +1651,8 @@ get_presigned_data = function(
 #'
 
 upload_csv = function(
-  presigned_url
+  presigned_url,
+  file_path
 ){
   content_type = 'text/plain'
   headers_put = httr::add_headers('Content-Type' = content_type)
