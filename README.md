@@ -20,7 +20,7 @@ To install the toolbox in R run the following commands in a R terminal
 ```R
 install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
-  'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2'))
+  'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2', 'stringr'))
 
 # Download Master branch and if it's been updated, reinstall latest version. build_vignettes
 ##  allows you to run the browseVignettes() function in the next cell. force will rebuild

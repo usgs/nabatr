@@ -682,7 +682,7 @@ build_sa_figure_2 = function(
     layout(xaxis = x_, yaxis = y_,
       margin = m_fig_2,
       title = 'Average Bat Activity Rate',
-      font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
+      font = leg, showlegend = TRUE, autosize=TRUE, bargap = .6,
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   # fig 2b
   sa_fig2_p_log = plot_ly(x = bat_species, y = as.integer(bat_auto_counts), type = 'bar',
@@ -692,7 +692,7 @@ build_sa_figure_2 = function(
     layout(xaxis = x_log, yaxis = y_log,
       margin = m_fig_2_log,
       title = 'Average Bat Activity Rate using a Logarithmic Scale',
-      font = leg, showlegend = TRUE, autosize=FALSE, bargap = .6,
+      font = leg, showlegend = TRUE, autosize=TRUE, bargap = .6,
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
 
   if (save_bool){
@@ -754,7 +754,7 @@ build_sa_figure_4 = function(
     # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
-    layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize=F, bargap = .6,
+    layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_, showlegend = F, autosize= T, bargap = .6,
       title = 'Average Bat Calls at each GRTS',
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   if(save_bool){
