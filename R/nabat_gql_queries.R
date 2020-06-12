@@ -14,7 +14,7 @@
 # Global Variables for NABatR
 pkg.env = new.env()
 pkg.env$bats_df = NULL
-pkg.env$species_ranges = readOGR('./data/bat_species_ranges/')[,1:4]
+# pkg.env$species_ranges = readOGR('./data/bat_species_ranges/')[,1:4]
 
 #' @title NABat GRTS lookup list with csvs of coordinates for all GRTS in a region
 #'
