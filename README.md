@@ -21,8 +21,6 @@ To install the toolbox in R run the following commands in a R terminal
 # If you are on windows, be sure to install Rtools from 
 ##  https://cran.r-project.org/bin/windows/Rtools and follow 
 ##  install directions from there
-# After installing Rtools, run this in RStudio
-writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
 
 install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
@@ -31,7 +29,7 @@ install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwid
 # Download Master branch and if it's been updated, reinstall latest version. build_vignettes
 ##  allows you to run the browseVignettes() function in the next cell. force will rebuild
 ##  the package if any new changes have been made
-devtools::install_github('usgs/nabatr', build_vignettes = TRUE, force = TRUE)
+devtools::install_github('usgs/nabatr', build_vignettes = TRUE, upgrade = 'never', force = TRUE)
 
 library(nabatr)
 ```
