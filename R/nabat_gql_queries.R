@@ -11,18 +11,18 @@
 # Created: 2019-9-6
 #############################################################################
 
-# Global Variables for NABatR
-pkg.env = new.env()
-pkg.env$bats_df = NULL
-message(getwd())
-tryCatch({
-  message('Loading in bat species range shapefiles')
-  pkg.env$species_ranges = rgdal::readOGR('./data/bat_species_ranges/')[,1:4]
-},error = function(cond) {
-  message('Failed to load in bat species ranges')
-  message(cond)
-  return(NULL)
-})
+# # Global Variables for NABatR
+# pkg.env = new.env()
+# pkg.env$bats_df = NULL
+# message(getwd())
+# tryCatch({
+#   message('Loading in bat species range shapefiles')
+#   pkg.env$species_ranges = rgdal::readOGR('./data/bat_species_ranges/')[,1:4]
+# },error = function(cond) {
+#   message('Failed to load in bat species ranges')
+#   message(cond)
+#   return(NULL)
+# })
 
 #' @title NABat GRTS lookup list with csvs of coordinates for all GRTS in a region
 #'
