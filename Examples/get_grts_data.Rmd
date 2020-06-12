@@ -6,31 +6,31 @@ output:
 
 ### Demonstration of using the NABatR library to query and display GRTS cells.
 
-```{r, echo=FALSE, include = FALSE}
+```
 library(nabatr)
 ```
 
-```{r, results='hide'}
+```
 library(sp)
 ```
 
 #### Let's take a look at the amount of US Forest Service land in each GRTS cell in Colorado
 
-```{r}
+```
 colorado = get_grts_data('conus', query="state_n_1='Colorado'")
 ```
 
-```{r}
+```
 ylgn <- colorRampPalette(c('palegoldenrod', 'forestgreen'))
 spplot(colorado, zcol='own_USFS', col.regions = ylgn(100))
 ```
 
 
-```{r, echo=FALSE}
+```
 dim(colorado)
 ```
 
-```{r}
+```
 grts_id  = 381
 current_site = subset(colorado, colorado$GRTS_ID == grts_id)
 lat          = current_site$lat
@@ -44,7 +44,7 @@ print (paste0('Longitude: ', lon))
 
 ### Where do the high priority cells(top 5%) overlap these US Forest Service lands?
 
-```{r}
+```
 colorado_priority = get_grts_data('Conus', query="state_n_1='Colorado'", only_priority = T)
 ```
 
@@ -52,7 +52,7 @@ colorado_priority = get_grts_data('Conus', query="state_n_1='Colorado'", only_pr
 
 #### Note these priority cells can vary slightly different than the national selection, especially at smaller extents.
 
-```{r, results='hide'}
+```
 cutoff_pcnt = 3
 
 usfs_cells = colorado[colorado$own_USFS >= 50, ]
@@ -62,27 +62,27 @@ usfs_priority_cells = usfs_cells[usfs_cells$GRTS_ID <= quantile(colorado$GRTS_ID
 
 #### Map these two high priority cells
 
-```{r, results='hide', warning=FALSE, message=FALSE}
+```
 library(ggplot2)
 library(ggmap)
 library(maps)
 library(mapdata)
 ```
 
-```{r, results='hide'}
+```
 states <- map_data("state")
 counties <- map_data("county")
 co_df <- subset(states, region == "colorado")
 co_county <- subset(counties, region == "colorado")
 ```
 
-```{r, results='hide'}
+```
 co_base <- ggplot(data = co_df, mapping = aes(x = long, y = lat, group = group)) + 
   coord_fixed(1.3) + 
   geom_polygon(color = "black", fill = "gray")
 ```
 
-```{r, results='hide', message=FALSE, warning=FALSE}
+```
 library(repr)
 options(repr.plot.width=10, repr.plot.height=8)
 
