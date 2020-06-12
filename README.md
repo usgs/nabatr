@@ -33,7 +33,7 @@ devtools::install_github('usgs/nabatr', build_vignettes = TRUE, upgrade = 'never
 
 library(nabatr)
 ```
-note: Refreshing R in windows cmd = (Ctrl+Shift+F10)
+note: Refreshing R on windows: (Ctrl+Shift+F10)  Mac: (Cmd+Shift+Fn+F10)
 
 ## See Vignettes for examples (run in RStudio) or See .Rmd files in Examples directory
 ```
