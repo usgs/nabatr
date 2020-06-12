@@ -18,6 +18,12 @@ Proof of concept, community input/collaboration welcome!
 To install the toolbox in R run the following commands in a R terminal
 
 ```R
+# If you are on windows, be sure to install Rtools from 
+##  https://cran.r-project.org/bin/windows/Rtools and follow 
+##  install directions from there
+# After installing Rtools, run this in RStudio
+writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
+
 install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
   'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2', 'stringr'))
@@ -29,6 +35,7 @@ devtools::install_github('usgs/nabatr', build_vignettes = TRUE, force = TRUE)
 
 library(nabatr)
 ```
+note: Refreshing R in windows cmd = (Ctrl+Shift+F10)
 
 ## See Vignettes for examples (run in RStudio) or See .Rmd files in Examples directory
 ```
