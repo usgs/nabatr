@@ -40,7 +40,7 @@ names(PRIORITY_CUTOFFS)  = c('Alaska', 'Canada', 'Conus', 'Hawaii', 'Mexico', 'P
 #' Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
 #' @param grid_frame String name of the grid frame to return. Must be one of: Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico
 #' @param query (optional) String Query to apply to the request, for example: "state_n_1='Florida'"
-#' @param only_priority (optional) Bool defaults to False.  Only return NABat priority cells (top 5%)
+#' @param only_priority (optional) Bool defaults to False.  Only return NABat priority cells (top 5 percent)
 #' @keywords bats, NABat, GRTS
 #' @examples
 #'

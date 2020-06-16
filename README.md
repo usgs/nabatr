@@ -21,8 +21,6 @@ To install the toolbox in R run the following commands in a R terminal
 # If you are on windows, be sure to install Rtools from 
 ##  https://cran.r-project.org/bin/windows/Rtools and follow 
 ##  install directions from there
-# After installing Rtools, run this in RStudio
-writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
 
 install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwidgets',
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
@@ -31,11 +29,11 @@ install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwid
 # Download Master branch and if it's been updated, reinstall latest version. build_vignettes
 ##  allows you to run the browseVignettes() function in the next cell. force will rebuild
 ##  the package if any new changes have been made
-devtools::install_github('usgs/nabatr', build_vignettes = TRUE, force = TRUE)
+devtools::install_github('usgs/nabatr', build_vignettes = TRUE, upgrade = 'never', force = TRUE)
 
 library(nabatr)
 ```
-note: Refreshing R in windows cmd = (Ctrl+Shift+F10)
+note: Refreshing R on windows: (Ctrl+Shift+F10)  Mac: (Cmd+Shift+Fn+F10)
 
 ## See Vignettes for examples (run in RStudio) or See .Rmd files in Examples directory
 ```
@@ -46,6 +44,15 @@ note: Refreshing R in windows cmd = (Ctrl+Shift+F10)
 ##  copy and paste the grey chunks of code into your R file.
 ##  Change any place holders in the code and Run.
 browseVignettes('nabatr')
+
+# If browseVignettes doesn't automatically open up a browser window,
+##  you can use the following code to get access to the vignettes
+##  if they were set TRUE on the install_github()
+vignette(package = 'nabatr')
+
+# Use the names from the above command (ex):
+# # note: This will popup in your Help tab in Rstudio
+vignette('get_sa_data')
 ```
 
 

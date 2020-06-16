@@ -11,7 +11,7 @@ get_grts_data(grid_frame, query = NULL, only_priority = FALSE)
 
 \item{query}{(optional) String Query to apply to the request, for example: "state_n_1='Florida'"}
 
-\item{only_priority}{(optional) Bool defaults to False.  Only return NABat priority cells (top 5%)}
+\item{only_priority}{(optional) Bool defaults to False.  Only return NABat priority cells (top 5 percent)}
 }
 \description{
 This function returns a spatial featrue with the selected GRTS Cells.
