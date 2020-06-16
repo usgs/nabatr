@@ -12,8 +12,8 @@
 #############################################################################
 
 # # # Global Variables for NABatR
-# pkg.env = new.env()
-# pkg.env$bats_df = NULL
+pkg.env = new.env()
+pkg.env$bats_df = NULL
 # pkg.env$species_ranges = NULL
 # # message(getwd())
 # # tryCatch({
