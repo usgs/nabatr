@@ -179,7 +179,7 @@ get_nabat_gql_token = function(
     message(getwd())
     tryCatch({
       message('Loading in bat species range shapefiles')
-      species_dir = system.file('data/bat_species_ranges/', package = "nabatr")
+      species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
       message(species_dir)
       pkg.env$species_ranges = rgdal::readOGR(species_dir)[,1:4]
     },error = function(cond) {
