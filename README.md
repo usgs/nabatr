@@ -44,6 +44,15 @@ note: Refreshing R on windows: (Ctrl+Shift+F10)  Mac: (Cmd+Shift+Fn+F10)
 ##  copy and paste the grey chunks of code into your R file.
 ##  Change any place holders in the code and Run.
 browseVignettes('nabatr')
+
+# If browseVignettes doesn't automatically open up a browser window,
+##  you can use the following code to get access to the vignettes
+##  if they were set TRUE on the install_github()
+vignette(package = 'nabatr')
+
+# Use the names from the above command (ex):
+# # note: This will popup in your Help tab in Rstudio
+vignette('get_sa_data')
 ```
 
 
