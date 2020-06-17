@@ -1,8 +1,25 @@
+#############################################################################
+#     _   _____    ____        __  ____
+#    / | / /   |  / __ )____ _/ /_/ __ \
+#   /  |/ / /| | / __  / __ `/ __/ /_/ /
+#  / /|  / ___ |/ /_/ / /_/ / /_/ _, _/
+# /_/ |_/_/  |_/_____/\__,_/\__/_/ |_|
+#
+# R Tools for accessing and manipulating North American Bat Monitoring data
+#
+# Written by: Kyle Enns
+# Created: 2020-2-15
+#############################################################################
+
+
+#' @title Get Stationary Acoustic Species data
 #'
 #' @description Extracts all of the species found within these
 #' stationary acoustic wav files (for, manual, automatic, or both detection types)
 #' type = 'all' | 'auto' | 'man'
 #' format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
+#'
+#' @param sa_bulk_df Dataframe Output from get_sa_
 #'
 #' \dontrun{
 #'
@@ -64,6 +81,7 @@ get_sa_species = function(
 
 
 
+#' @title Get Stationary Acoustic Report Range Maps
 #'
 #' @description builds and saves out the species grts map with species range
 #' map overlayed and species range map on its own to see full species range.
@@ -245,17 +263,10 @@ get_sa_range_maps = function(
 
 #' @title Get Stationary Acoustic Report examples
 #'
-#' @description
-#' Returns al ist of some preset stationary acoustic report examples
-#'
-#' @examples
-#'
-#' \dontrun{
-#' sa_report_examples = get_sa_examples()
-#' }
+#' @description Returns al ist of some preset stationary acoustic
+#' report examples
 #'
 #' @export
-#'
 
 get_sa_examples = function(){
   # description  = project_row_df$project_description
@@ -283,23 +294,11 @@ get_sa_examples = function(){
 
 
 
-#' @title Get Stationary Acoustic Results for Report
+#' @title Get Stationary Acoustic Report Results
 #'
-#' @description
-#' Builds out text with results
-#'
-#' @param sa_bulk_df Dataframe create from either get_sa_bulk_wavs()
-#' @param selected_year Number selected project year
-#'   manual and automatic detections
-#'
-#' @examples
-#'
-#' \dontrun{
-#' get_sa_results(sa_bulk_df, selected_year, proj_species)
-#' }
+#' @description Builds out text with results
 #'
 #' @export
-#'
 
 get_sa_results = function(
   sa_bulk_df,
@@ -438,7 +437,8 @@ build_sa_table_1 = function(
 
 #' @title Build stationary acoustic table 3 for report
 #'
-#' @description Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
+#' @description Returns a table with GRTS, Species_Detected,
+#' and Method_of_Species_ID
 #'
 #' @export
 #'
@@ -713,7 +713,8 @@ build_sa_figure_2 = function(
 
 #' @title Build stationary acoustic figure 4 for report
 #'
-#' @description Returns 1 plot with grts and the number of bat passes they had
+#' @description Returns 1 plot with grts and the number of bat
+#' passes they had
 #'
 #' @export
 #'
@@ -767,7 +768,8 @@ build_sa_figure_4 = function(
 
 #' @title Find if sa_bulk_df has manual or auto data present
 #'
-#' @description Returns 1 plot with grts and the number of bat passes they had
+#' @description Returns 1 plot with grts and the number of bat
+#' passes they had
 #'
 #' @export
 #'

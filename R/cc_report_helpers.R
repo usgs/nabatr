@@ -1,10 +1,23 @@
+#############################################################################
+#     _   _____    ____        __  ____
+#    / | / /   |  / __ )____ _/ /_/ __ \
+#   /  |/ / /| | / __  / __ `/ __/ /_/ /
+#  / /|  / ___ |/ /_/ / /_/ / /_/ _, _/
+# /_/ |_/_/  |_/_____/\__,_/\__/_/ |_|
+#
+# R Tools for accessing and manipulating North American Bat Monitoring data
+#
+# Written by: Kyle Enns
+# Created: 2020-2-15
+#############################################################################
+
+
 #' @title Get Colony Count Species info
 #'
-#' @descriptionExtracts all of the species found within these
+#' @descriptionExtracts Get all of the species found within these
 #' Colony Count data
 #' format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
 #' @export
-#'
 
 get_cc_species = function(
   cc_bulk_df,
@@ -38,7 +51,6 @@ get_cc_species = function(
 #' Returns al list of some preset colony count report examples
 #'
 #' @export
-#'
 
 get_cc_examples = function(){
   # Description
@@ -55,15 +67,12 @@ get_cc_examples = function(){
 
 
 
-
 #' @title Get Colony Count Results
 #'
 #' @description
 #' Returns compiled results for this project's Colony Count data
 #'
 #' @export
-#'
-#'
 
 get_cc_results = function(
   cc_bulk_df){
@@ -85,13 +94,12 @@ get_cc_results = function(
 
 
 
-
 #' @title Build Colony Count Table 1
 #'
 #' @description Summary of winter colony count surveys
 #'
 #' @export
-#'
+
 build_cc_table_1 = function(
   cc_bulk_df,
   noid = TRUE){
@@ -143,7 +151,7 @@ build_cc_table_1 = function(
 #' and alive at each GRTS cell
 #'
 #' @export
-#'
+
 build_cc_table_2 = function(
   cc_bulk_df){
 
@@ -214,7 +222,7 @@ build_cc_table_2 = function(
 #' @description Winter Colony counts of bats by site and species
 #'
 #' @export
-#'
+
 build_cc_figure_1 = function(
   cc_bulk_df,
   out_dir,
@@ -327,7 +335,7 @@ build_cc_figure_1 = function(
 #' build_cc_figure_1
 #'
 #' @export
-#'
+
 cc_fig_1_ggplot = function(
   fig){
 

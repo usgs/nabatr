@@ -1,20 +1,22 @@
-#' @title Get Mobile Acoustic Results for Report
+#############################################################################
+#     _   _____    ____        __  ____
+#    / | / /   |  / __ )____ _/ /_/ __ \
+#   /  |/ / /| | / __  / __ `/ __/ /_/ /
+#  / /|  / ___ |/ /_/ / /_/ / /_/ _, _/
+# /_/ |_/_/  |_/_____/\__,_/\__/_/ |_|
+#
+# R Tools for accessing and manipulating North American Bat Monitoring data
+#
+# Written by: Kyle Enns
+# Created: 2020-2-15
+#############################################################################
+
+
+#' @title Get Mobile Acoustic Report Results
 #'
-#' @description
-#' Builds out text with results
-#'
-#' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
-#' @param species_df Dataframe species_df
-#' @param year Integer Project year with mobile acoustic data
-#'
-#' @examples
-#'
-#' \dontrun{
-#' get_ma_results(ma_bulk_df, species_df, year)
-#' }
+#' @description Builds out text with results
 #'
 #' @export
-#'
 
 get_ma_results = function(
   ma_bulk_df,
@@ -68,19 +70,13 @@ get_ma_results = function(
 }
 
 
+
 #' @title Get Mobile Acoustic Report examples
 #'
 #' @description
 #' Returns al ist of some preset mobile acoustic report examples
 #'
-#' @examples
-#'
-#' \dontrun{
-#' ma_report_examples = get_ma_examples()
-#' }
-#'
 #' @export
-#'
 
 get_ma_examples = function(){
   # description  = project_row_df$project_description
@@ -105,6 +101,7 @@ get_ma_examples = function(){
 }
 
 
+
 #' @title Build Mobile Acoustic Report Table 1
 #'
 #' @description
@@ -118,14 +115,7 @@ get_ma_examples = function(){
 #' @param project_df Dataframe project_df
 #' @param year Integer Project year with mobile acoustic data
 #'
-#' @examples
-#'
-#' \dontrun{
-#' ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
-#' }
-#'
 #' @export
-#'
 
 build_ma_table_1 = function(
   ma_bulk_df,
@@ -232,14 +222,7 @@ build_ma_table_1 = function(
 #' @param species_df Dataframe species dataframe
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
-#' @examples
-#'
-#' \dontrun{
-#' ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
-#' }
-#'
 #' @export
-#'
 
 build_ma_table_2 = function(
   ma_bulk_df,
@@ -293,7 +276,6 @@ build_ma_table_2 = function(
 
 
 
-
 #' @title Build Mobile Acoustic Report Table 3
 #'
 #' @description
@@ -306,14 +288,7 @@ build_ma_table_2 = function(
 #' @param nightly_observed_list (optional) List from running get_observed_nights()
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
-#' @examples
-#'
-#' \dontrun{
-#' ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
-#' }
-#'
 #' @export
-#'
 
 build_ma_table_3 = function(
   ma_bulk_df,
@@ -377,14 +352,7 @@ build_ma_table_3 = function(
 #' @param project_df Dataframe project_df
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
-#' @examples
-#'
-#' \dontrun{
-#' ma_figure_1 = build_ma_figure_1(ma_bulk_df, year)
-#' }
-#'
 #' @export
-#'
 
 build_ma_figure_1 = function(
   ma_bulk_df,
@@ -482,14 +450,8 @@ build_ma_figure_1 = function(
 #' @param species_df Dataframe Species Dataframe
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
-#' @examples
-#'
-#' \dontrun{
-#' ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
-#' }
-#'
 #' @export
-#'
+
 
 build_ma_figure_2 = function(
   ma_bulk_df,
@@ -620,12 +582,6 @@ build_ma_figure_2 = function(
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe species_df
 #' @param year Integer (optional) Project year with mobile acoustic data
-#'
-#' @examples
-#'
-#' \dontrun{
-#' ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
-#' }
 #'
 #' @export
 #'
