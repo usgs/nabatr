@@ -11,7 +11,8 @@ get_sa_range_maps(
   all_species_totals_l_l,
   species_df,
   out_dir,
-  save_bool = TRUE
+  save_bool = TRUE,
+  species_shp = species_range_shps
 )
 }
 \description{

@@ -96,11 +96,12 @@ get_sa_range_maps = function(
   all_species_totals_l_l,
   species_df,
   out_dir,
-  save_bool = TRUE){
+  save_bool = TRUE,
+  species_shp = species_range_shps){
 
-  # Load in data from data directory and read in as a shpfile
-  species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
-  species_shp = rgdal::readOGR(species_dir)[,1:4]
+  # # Load in data from data directory and read in as a shpfile
+  # species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
+  # species_shp = rgdal::readOGR(species_dir)[,1:4]
 
   # Set CRS to WGS
   proj4string(species_shp) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
