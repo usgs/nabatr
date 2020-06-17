@@ -73,8 +73,7 @@ get_ma_results = function(
 
 #' @title Get Mobile Acoustic Report examples
 #'
-#' @description
-#' Returns al ist of some preset mobile acoustic report examples
+#' @description Returns al ist of some preset mobile acoustic report examples
 #'
 #' @export
 
@@ -104,8 +103,8 @@ get_ma_examples = function(){
 
 #' @title Build Mobile Acoustic Report Table 1
 #'
-#' @description
-#' Returns a Table and its description. Table with NABat GRTS cells surveyed and
+#' @description Returns a Table and its description. Table
+#' with NABat GRTS cells surveyed and
 #' Number of unique mobile transect routes, detector nights,
 #' and species detected are also shown for each cell.
 #'
@@ -215,8 +214,7 @@ build_ma_table_1 = function(
 
 #' @title Build Mobile Acoustic Report Table 2
 #'
-#' @description
-#' Bat species table for this input ma_bulk_df
+#' @description Bat species table for this input ma_bulk_df
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe species dataframe
@@ -278,10 +276,9 @@ build_ma_table_2 = function(
 
 #' @title Build Mobile Acoustic Report Table 3
 #'
-#' @description
-#' Potentially returns 2 tables and their descriptions.  Table 3A is
-#' for the auto detected species table and table 3B is for the manual
-#' detected species table.
+#' @description Potentially returns 2 tables and their descriptions.
+#' Table 3A is for the auto detected species table and table 3B is
+#' for the manual detected species table.
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe Species dataframe
@@ -344,8 +341,7 @@ build_ma_table_3 = function(
 
 #' @title Build Mobile Acoustic Report Figure 1
 #'
-#' @description
-#'  Creates a leaflet Map for mobile acoustic data
+#' @description Creates a leaflet Map for mobile acoustic data
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param project_id Integer project id
@@ -443,15 +439,13 @@ build_ma_figure_1 = function(
 
 #' @title Build Mobile Acoustic Report Figure 2
 #'
-#' @description
-#' Creates a Number of bat passes for each species plot
+#' @description Creates a Number of bat passes for each species plot
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe Species Dataframe
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @export
-
 
 build_ma_figure_2 = function(
   ma_bulk_df,
@@ -577,14 +571,14 @@ build_ma_figure_2 = function(
 
 #' @title Build Mobile Acoustic Report Figure 3
 #'
-#' @description
+#' @description Creates the Mobile acoustic Figure 3 which is
+#' a GRTS ID by bat calls
 #'
 #' @param ma_bulk_df Dataframe create from either get_ma_bulk_wavs()
 #' @param species_df Dataframe species_df
 #' @param year Integer (optional) Project year with mobile acoustic data
 #'
 #' @export
-#'
 
 build_ma_figure_3 = function(
   ma_bulk_df,
