@@ -25,6 +25,16 @@ pkg.env$bats_df = NULL
 # #   return(NULL)
 # # })
 
+#' @title NABat species range maps
+#'
+#' @description Reading in species range maps with readOGR
+#'
+#' @export
+
+species_range_shps = rgdal::readOGR('data/bat_species_ranges.shp')[,1:4]
+
+
+
 #' @title NABat GRTS lookup list with csvs of coordinates for all GRTS in a region
 #'
 #' @description
@@ -38,7 +48,7 @@ pkg.env$bats_df = NULL
 #' }
 #'
 #' @export
-#'
+
 grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'), stringsAsFactors=FALSE),
   'Alaska' = read.csv(paste0('data/GRTS_coords_Alaska.csv'), stringsAsFactors=FALSE),
   'Mexico' = read.csv(paste0('data/GRTS_coords_Mexico.csv'), stringsAsFactors=FALSE),
