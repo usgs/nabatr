@@ -14,6 +14,8 @@
 
 #' @title Get Stationary Acoustic Species data
 #'
+#' @import plotly
+#'
 #' @description Extracts all of the species found within these
 #' stationary acoustic wav files (for, manual, automatic, or both detection types)
 #' type = 'all' | 'auto' | 'man'
