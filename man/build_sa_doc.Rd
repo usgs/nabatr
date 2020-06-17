@@ -22,3 +22,10 @@ build_sa_doc(
 Using the outputs from get_projects(), get_sa_project_summary(), get_as_bulk_wavs(),
 and get_observed_nights() this function will create a report .docx file to an out_dir.
 }
+\examples{
+
+\dontrun{
+See vignette: build_sa_report (Build Stationary Acoustic Report)
+}
+
+}

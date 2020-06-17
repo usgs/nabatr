@@ -7,7 +7,7 @@
 rename_species_df(species_df)
 }
 \arguments{
-\item{project_df}{Dataframe output from get_species()}
+\item{species_df}{Dataframe output from get_species()}
 }
 \description{
 Return the species dataframe renamed with appropriate field headers

@@ -26,9 +26,13 @@
 #' @import flextable
 #' @import stringr
 #'
+#' @examples
+#'
+#' \dontrun{
+#' See vignette: build_sa_report (Build Stationary Acoustic Report)
+#' }
 #'
 #' @export
-#'
 
 build_sa_doc =  function(
   out_dir,
@@ -290,9 +294,14 @@ build_sa_doc =  function(
 #' @import flextable
 #' @import lubridate
 #' @import ggplot2
-
-#' @export
 #'
+#' @examples
+#'
+#' \dontrun{
+#' See vignette: build_cc_report (Build Colony Count Report)
+#' }
+#'
+#' @export
 
 build_col_doc = function(
   out_dir,
@@ -446,8 +455,14 @@ build_col_doc = function(
 #' @import htmlwidgets
 #' @import htmltools
 #'
-#' @export
+#' @examples
 #'
+#' \dontrun{
+#' See vignette: build_ma_report (Build Mobile Acoustic Report)
+#' }
+#'
+#'
+#' @export
 
 build_ma_doc = function(
   out_dir,
@@ -661,42 +676,3 @@ build_ma_doc = function(
 
   return (ma_doc)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
