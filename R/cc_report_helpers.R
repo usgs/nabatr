@@ -47,8 +47,7 @@ get_cc_species = function(
 
 #' @title Get Colony Count Examples
 #'
-#' @description
-#' Returns al list of some preset colony count report examples
+#' @description Returns al list of some preset colony count report examples
 #'
 #' @export
 
@@ -69,8 +68,7 @@ get_cc_examples = function(){
 
 #' @title Get Colony Count Results
 #'
-#' @description
-#' Returns compiled results for this project's Colony Count data
+#' @description Returns compiled results for this project's Colony Count data
 #'
 #' @export
 
