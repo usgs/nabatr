@@ -21,14 +21,6 @@ Builds a leaflet map using a vector list of grts cells to add to a leaflet map. 
 where the project's grts cells live spatially.  Keep in mind that the project_id
 and all_grts must be in CONUS.
 }
-\examples{
-
-\dontrun{
-map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
-                           grts_with_data = unique(auto_nights_df_$GRTS))
-}
-
-}
 \keyword{GQL}
 \keyword{NABat,}
 \keyword{bats,}

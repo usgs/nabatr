@@ -16,12 +16,6 @@ get_grts_shp(grts_ids, project_id, project_df)
 \description{
 Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.
 }
-\examples{
-
-\dontrun{
-}
-
-}
 \keyword{CONUS}
 \keyword{NABat,}
 \keyword{bats,}
