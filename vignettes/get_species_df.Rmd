@@ -1,5 +1,5 @@
 ---
-title: "Get_species_df"
+title: "Get species df"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Get the NABat Species lookup dataframe}
