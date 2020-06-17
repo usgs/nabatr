@@ -18,14 +18,8 @@ build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year = NULL)
 \item{year}{Integer Project year with mobile acoustic data}
 }
 \description{
-Returns a Table and its description. Table with NABat GRTS cells surveyed and
+Returns a Table and its description. Table
+with NABat GRTS cells surveyed and
 Number of unique mobile transect routes, detector nights,
 and species detected are also shown for each cell.
-}
-\examples{
-
-\dontrun{
-ma_table_1 = build_ma_table_1(ma_bulk_df, species_df, year)
-}
-
 }

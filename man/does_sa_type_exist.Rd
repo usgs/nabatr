@@ -7,5 +7,6 @@
 does_sa_type_exist(sa_bulk_df, species_df, type)
 }
 \description{
-Returns 1 plot with grts and the number of bat passes they had
+Returns 1 plot with grts and the number of bat
+passes they had
 }

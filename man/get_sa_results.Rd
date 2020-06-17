@@ -2,23 +2,10 @@
 % Please edit documentation in R/sa_report_helpers.R
 \name{get_sa_results}
 \alias{get_sa_results}
-\title{Get Stationary Acoustic Results for Report}
+\title{Get Stationary Acoustic Report Results}
 \usage{
 get_sa_results(sa_bulk_df, selected_year, species_df)
 }
-\arguments{
-\item{sa_bulk_df}{Dataframe create from either get_sa_bulk_wavs()}
-
-\item{selected_year}{Number selected project year
-manual and automatic detections}
-}
 \description{
 Builds out text with results
-}
-\examples{
-
-\dontrun{
-get_sa_results(sa_bulk_df, selected_year, proj_species)
-}
-
 }

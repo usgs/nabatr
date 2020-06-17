@@ -16,10 +16,3 @@ build_ma_figure_2(ma_bulk_df, species_df, year = NULL)
 \description{
 Creates a Number of bat passes for each species plot
 }
-\examples{
-
-\dontrun{
-ma_figure_2 = build_ma_figure_2(ma_bulk_df, species_df, year)
-}
-
-}

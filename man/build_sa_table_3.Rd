@@ -7,5 +7,6 @@
 build_sa_table_3(sa_bulk_df, selected_year, species_df)
 }
 \description{
-Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
+Returns a table with GRTS, Species_Detected,
+and Method_of_Species_ID
 }

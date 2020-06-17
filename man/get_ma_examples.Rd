@@ -9,10 +9,3 @@ get_ma_examples()
 \description{
 Returns al ist of some preset mobile acoustic report examples
 }
-\examples{
-
-\dontrun{
-ma_report_examples = get_ma_examples()
-}
-
-}

@@ -16,14 +16,7 @@ build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year = NULL)
 \item{year}{Integer (optional) Project year with mobile acoustic data}
 }
 \description{
-Potentially returns 2 tables and their descriptions.  Table 3A is
-for the auto detected species table and table 3B is for the manual
-detected species table.
-}
-\examples{
-
-\dontrun{
-ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
-}
-
+Potentially returns 2 tables and their descriptions.
+Table 3A is for the auto detected species table and table 3B is
+for the manual detected species table.
 }
