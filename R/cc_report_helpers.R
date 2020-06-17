@@ -14,7 +14,7 @@
 
 #' @title Get Colony Count Species info
 #'
-#' @descriptionExtracts Get all of the species found within these
+#' @description Extracts Get all of the species found within these
 #' Colony Count data
 #' format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
 #' @export
