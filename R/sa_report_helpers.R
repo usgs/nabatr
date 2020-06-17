@@ -31,7 +31,7 @@
 #'}
 #'
 #' @export
-#'
+
 get_sa_species = function(
   sa_bulk_df,
   species_df,
@@ -88,7 +88,6 @@ get_sa_species = function(
 #' Using a USGS shapefile for species ranges.
 #'
 #' @export
-#'
 
 get_sa_range_maps = function(
   sa_bulk_df,
@@ -349,7 +348,6 @@ get_sa_results = function(
 #' @description Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
 #'
 #' @export
-#'
 
 build_sa_table_1 = function(
   sa_bulk_df,
@@ -441,7 +439,6 @@ build_sa_table_1 = function(
 #' and Method_of_Species_ID
 #'
 #' @export
-#'
 
 build_sa_table_3 = function(
   sa_bulk_df,
@@ -513,7 +510,6 @@ build_sa_table_3 = function(
 #' @description Returns leaflet map
 #'
 #' @export
-#'
 
 build_sa_figure_1 = function(
   sa_bulk_df,
@@ -550,7 +546,6 @@ build_sa_figure_1 = function(
 #' @description Returns 2 plots and 2 descriptions
 #'
 #' @export
-#'
 
 build_sa_figure_2 = function(
   sa_bulk_df,
@@ -717,7 +712,6 @@ build_sa_figure_2 = function(
 #' passes they had
 #'
 #' @export
-#'
 
 build_sa_figure_4 = function(
   sa_bulk_df,
@@ -772,7 +766,6 @@ build_sa_figure_4 = function(
 #' passes they had
 #'
 #' @export
-#'
 
 does_sa_type_exist = function(
   sa_bulk_df,
