@@ -34,7 +34,7 @@ project_df
 ```
 
 
-### Get all Mobile Acoustic Surveys within a single Project set with project_id_
+### Get all Mobile Acoustic Surveys within a single Project set with project_id
 ```
 # Refresh token
 token = get_refresh_token(token)

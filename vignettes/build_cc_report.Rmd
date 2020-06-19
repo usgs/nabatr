@@ -54,10 +54,13 @@ cc_survey_df
 ```
 # Refresh token
 token = get_refresh_token(token)
-# Get mobile acoustic bulk upload format dataframe
+# Get species dataframe
+species_df = get_species(token = token)
+# Get Colony Count bulk dataframe
 cc_bulk_df = get_colony_bulk_counts(token,
                                     cc_survey_df,
-                                    project_id)
+                                    project_id,
+                                    species_df)
 
 # Display Colony Count dataframe
 cc_bulk_df

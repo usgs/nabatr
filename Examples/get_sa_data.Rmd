@@ -30,7 +30,7 @@ project_df
 ```
 
 
-### Get all Stationary Acoustic Surveys within a single Project set with project_id_
+### Get all Stationary Acoustic Surveys within a single Project set with project_id
 ```{r}
 # Refresh token
 token = get_refresh_token(token)
