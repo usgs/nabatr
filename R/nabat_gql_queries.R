@@ -11,19 +11,20 @@
 # Created: 2019-9-6
 #############################################################################
 
+
 # # # Global Variables for NABatR
 pkg.env = new.env()
 pkg.env$bats_df = NULL
-# pkg.env$species_ranges = NULL
-# # message(getwd())
-# # tryCatch({
-# #   message('Loading in bat species range shapefiles')
-# #   pkg.env$species_ranges = rgdal::readOGR('./data/bat_species_ranges/')[,1:4]
-# # },error = function(cond) {
-# #   message('Failed to load in bat species ranges')
-# #   message(cond)
-# #   return(NULL)
-# # })
+
+#' @title NABat species range maps
+#'
+#' @description Reading in species range maps with readOGR
+#'
+#' @export
+
+species_range_shps = rgdal::readOGR('data/bat_species_ranges.shp')[,1:4]
+
+
 
 #' @title NABat GRTS lookup list with csvs of coordinates for all GRTS in a region
 #'
@@ -38,7 +39,7 @@ pkg.env$bats_df = NULL
 #' }
 #'
 #' @export
-#'
+
 grts_lookup_df = list('Canada' = read.csv(paste0('data/GRTS_coords_Canada.csv'), stringsAsFactors=FALSE),
   'Alaska' = read.csv(paste0('data/GRTS_coords_Alaska.csv'), stringsAsFactors=FALSE),
   'Mexico' = read.csv(paste0('data/GRTS_coords_Mexico.csv'), stringsAsFactors=FALSE),
@@ -159,7 +160,7 @@ get_species = function(
 #'
 #' \dontrun{
 #' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
-#' -- Prompts for password
+#' # Prompts for password
 #' }
 #'
 #' @export
@@ -172,21 +173,6 @@ get_nabat_gql_token = function(
   aws_gql = NULL,
   aws_alb = NULL,
   docker = FALSE){
-
-  # # Load in species ranges
-  # print (pkg.env$species_ranges)
-  # if (is.null(pkg.env$species_ranges)){
-  #   message(getwd())
-  #   tryCatch({
-  #     message('Loading in bat species range shapefiles')
-  #     species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
-  #     message(species_dir)
-  #     pkg.env$species_ranges = rgdal::readOGR(species_dir)[,1:4]
-  #   },error = function(cond) {
-  #     message('Failed to load in bat species ranges')
-  #     message(cond)
-  #   })
-  # }
 
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){

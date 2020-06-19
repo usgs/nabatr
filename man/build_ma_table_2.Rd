@@ -16,10 +16,3 @@ build_ma_table_2(ma_bulk_df, species_df, year = NULL)
 \description{
 Bat species table for this input ma_bulk_df
 }
-\examples{
-
-\dontrun{
-ma_table_2 = build_ma_table_2(ma_bulk_df, species_df, year)
-}
-
-}

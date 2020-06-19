@@ -7,3 +7,9 @@ man-roxygen
 manuscript
 ^doc$
 ^Meta$
+test
+Reviews
+notes
+Examples_sink
+docker
+

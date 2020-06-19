@@ -13,5 +13,6 @@ build_sa_figure_4(
 )
 }
 \description{
-Returns 1 plot with grts and the number of bat passes they had
+Returns 1 plot with grts and the number of bat
+passes they had
 }

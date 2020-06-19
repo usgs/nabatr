@@ -7,12 +7,6 @@
 get_sa_examples()
 }
 \description{
-Returns al ist of some preset stationary acoustic report examples
-}
-\examples{
-
-\dontrun{
-sa_report_examples = get_sa_examples()
-}
-
+Returns al ist of some preset stationary acoustic
+report examples
 }

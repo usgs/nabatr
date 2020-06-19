@@ -14,12 +14,6 @@ build_ma_figure_3(ma_bulk_df, species_df, year = NULL)
 \item{year}{Integer (optional) Project year with mobile acoustic data}
 }
 \description{
-
-}
-\examples{
-
-\dontrun{
-ma_figure_3 = build_ma_figure_3(ma_bulk_df, species_df, year)
-}
-
+Creates the Mobile acoustic Figure 3 which is
+a GRTS ID by bat calls
 }

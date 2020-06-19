@@ -1,5 +1,5 @@
 ---
-title: "Get_Mobile_Acoustic_Data"
+title: "Get Mobile Acoustic Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Explore Mobile Acoustic NABat data}
@@ -32,7 +32,7 @@ project_df
 ```
 
 
-### Get all Mobile Acoustic Surveys within a single Project set with project_id_
+### Get all Mobile Acoustic Surveys within a single Project set with project_id
 ```
 # Refresh token
 token = get_refresh_token(token)

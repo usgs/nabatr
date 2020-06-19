@@ -1,8 +1,27 @@
+#############################################################################
+#     _   _____    ____        __  ____
+#    / | / /   |  / __ )____ _/ /_/ __ \
+#   /  |/ / /| | / __  / __ `/ __/ /_/ /
+#  / /|  / ___ |/ /_/ / /_/ / /_/ _, _/
+# /_/ |_/_/  |_/_____/\__,_/\__/_/ |_|
+#
+# R Tools for accessing and manipulating North American Bat Monitoring data
+#
+# Written by: Kyle Enns
+# Created: 2020-2-15
+#############################################################################
+
+
+#' @title Get Stationary Acoustic Species data
+#'
+#' @import plotly
 #'
 #' @description Extracts all of the species found within these
 #' stationary acoustic wav files (for, manual, automatic, or both detection types)
 #' type = 'all' | 'auto' | 'man'
 #' format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
+#'
+#' @param sa_bulk_df Dataframe Output from get_sa_
 #'
 #' \dontrun{
 #'
@@ -14,7 +33,7 @@
 #'}
 #'
 #' @export
-#'
+
 get_sa_species = function(
   sa_bulk_df,
   species_df,
@@ -64,13 +83,13 @@ get_sa_species = function(
 
 
 
+#' @title Get Stationary Acoustic Report Range Maps
 #'
 #' @description builds and saves out the species grts map with species range
 #' map overlayed and species range map on its own to see full species range.
 #' Using a USGS shapefile for species ranges.
 #'
 #' @export
-#'
 
 get_sa_range_maps = function(
   sa_bulk_df,
@@ -79,11 +98,12 @@ get_sa_range_maps = function(
   all_species_totals_l_l,
   species_df,
   out_dir,
-  save_bool = TRUE){
+  save_bool = TRUE,
+  species_shp = species_range_shps){
 
-  # Load in data from data directory and read in as a shpfile
-  species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
-  species_shp = rgdal::readOGR(species_dir)[,1:4]
+  # # Load in data from data directory and read in as a shpfile
+  # species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
+  # species_shp = rgdal::readOGR(species_dir)[,1:4]
 
   # Set CRS to WGS
   proj4string(species_shp) = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
@@ -245,17 +265,10 @@ get_sa_range_maps = function(
 
 #' @title Get Stationary Acoustic Report examples
 #'
-#' @description
-#' Returns al ist of some preset stationary acoustic report examples
-#'
-#' @examples
-#'
-#' \dontrun{
-#' sa_report_examples = get_sa_examples()
-#' }
+#' @description Returns al ist of some preset stationary acoustic
+#' report examples
 #'
 #' @export
-#'
 
 get_sa_examples = function(){
   # description  = project_row_df$project_description
@@ -283,23 +296,11 @@ get_sa_examples = function(){
 
 
 
-#' @title Get Stationary Acoustic Results for Report
+#' @title Get Stationary Acoustic Report Results
 #'
-#' @description
-#' Builds out text with results
-#'
-#' @param sa_bulk_df Dataframe create from either get_sa_bulk_wavs()
-#' @param selected_year Number selected project year
-#'   manual and automatic detections
-#'
-#' @examples
-#'
-#' \dontrun{
-#' get_sa_results(sa_bulk_df, selected_year, proj_species)
-#' }
+#' @description Builds out text with results
 #'
 #' @export
-#'
 
 get_sa_results = function(
   sa_bulk_df,
@@ -350,7 +351,6 @@ get_sa_results = function(
 #' @description Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
 #'
 #' @export
-#'
 
 build_sa_table_1 = function(
   sa_bulk_df,
@@ -438,10 +438,10 @@ build_sa_table_1 = function(
 
 #' @title Build stationary acoustic table 3 for report
 #'
-#' @description Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
+#' @description Returns a table with GRTS, Species_Detected,
+#' and Method_of_Species_ID
 #'
 #' @export
-#'
 
 build_sa_table_3 = function(
   sa_bulk_df,
@@ -513,7 +513,6 @@ build_sa_table_3 = function(
 #' @description Returns leaflet map
 #'
 #' @export
-#'
 
 build_sa_figure_1 = function(
   sa_bulk_df,
@@ -550,7 +549,6 @@ build_sa_figure_1 = function(
 #' @description Returns 2 plots and 2 descriptions
 #'
 #' @export
-#'
 
 build_sa_figure_2 = function(
   sa_bulk_df,
@@ -713,10 +711,10 @@ build_sa_figure_2 = function(
 
 #' @title Build stationary acoustic figure 4 for report
 #'
-#' @description Returns 1 plot with grts and the number of bat passes they had
+#' @description Returns 1 plot with grts and the number of bat
+#' passes they had
 #'
 #' @export
-#'
 
 build_sa_figure_4 = function(
   sa_bulk_df,
@@ -767,10 +765,10 @@ build_sa_figure_4 = function(
 
 #' @title Find if sa_bulk_df has manual or auto data present
 #'
-#' @description Returns 1 plot with grts and the number of bat passes they had
+#' @description Returns 1 plot with grts and the number of bat
+#' passes they had
 #'
 #' @export
-#'
 
 does_sa_type_exist = function(
   sa_bulk_df,

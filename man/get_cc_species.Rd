@@ -7,5 +7,7 @@
 get_cc_species(cc_bulk_df, species_df, format = "df")
 }
 \description{
-Get Colony Count Species info
+Extracts Get all of the species found within these
+Colony Count data
+format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
 }

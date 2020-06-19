@@ -49,7 +49,7 @@ rename_geoms_df = function(geoms_df){
 rename_species_df = function(species_df){
   #' Return the species dataframe renamed with appropriate field headers
   #'
-  #' @param project_df Dataframe output from get_species()
+  #' @param species_df Dataframe output from get_species()
   #'
   names(species_df)[names(species_df) == 'data.allSpecies.nodes.id']          = 'id'
   names(species_df)[names(species_df) == 'data.allSpecies.nodes.speciesCode'] = 'species_code'
@@ -115,9 +115,6 @@ rename_acoustic_df = function(acoustic_df){
   row.names(acoustic_df) = c()
   return (acoustic_df)
 }
-
-
-
 
 rename_colony_df = function(colony_df){
   #' Return the colony dataframe renamed with appropriate field headers

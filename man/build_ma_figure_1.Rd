@@ -18,10 +18,3 @@ build_ma_figure_1(ma_bulk_df, project_id, project_df, year = NULL)
 \description{
 Creates a leaflet Map for mobile acoustic data
 }
-\examples{
-
-\dontrun{
-ma_figure_1 = build_ma_figure_1(ma_bulk_df, year)
-}
-
-}

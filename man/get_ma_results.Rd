@@ -2,24 +2,10 @@
 % Please edit documentation in R/ma_report_helpers.R
 \name{get_ma_results}
 \alias{get_ma_results}
-\title{Get Mobile Acoustic Results for Report}
+\title{Get Mobile Acoustic Report Results}
 \usage{
 get_ma_results(ma_bulk_df, species_df, year)
 }
-\arguments{
-\item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
-
-\item{species_df}{Dataframe species_df}
-
-\item{year}{Integer Project year with mobile acoustic data}
-}
 \description{
 Builds out text with results
-}
-\examples{
-
-\dontrun{
-get_ma_results(ma_bulk_df, species_df, year)
-}
-
 }

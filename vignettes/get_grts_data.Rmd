@@ -1,5 +1,5 @@
 ---
-title: "Get_GRTS_Data"
+title: "Get GRTS Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Get GRTS data with demo}

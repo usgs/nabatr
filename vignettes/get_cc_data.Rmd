@@ -1,5 +1,5 @@
 ---
-title: "Get_Colony_Count_data"
+title: "Get Colony Count data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Explore Colony Count NABat data}

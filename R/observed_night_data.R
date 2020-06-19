@@ -11,6 +11,7 @@
 # Created: 2019-9-6
 #############################################################################
 
+
 #' @title Observed nightly observations for NABat stationary acoustic data
 #'
 #' @description Creates a list with two dataframes (manual and automatic) nightly count
@@ -28,7 +29,7 @@
 #' }
 #'
 #' @export
-#'
+
 get_observed_nights = function(acoustic_bulk_df){
 
   species_df  = pkg.env$bats_df

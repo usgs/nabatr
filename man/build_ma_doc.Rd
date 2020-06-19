@@ -20,3 +20,11 @@ build_ma_doc(
 Using the outputs from get_projects(), get_ma_project_summary(), get_ma_bulk_wavs(),
 and get_observed_nights() this function will create a report .docx file to an out_dir.
 }
+\examples{
+
+\dontrun{
+See vignette: build_ma_report (Build Mobile Acoustic Report)
+}
+
+
+}

@@ -11,6 +11,7 @@
 # Created: 2019-10-2
 #############################################################################
 
+
 #' @title Build leaflet map for Acoustic Stationary report in CONUS
 #'
 #' @import rmarkdown
@@ -22,21 +23,16 @@
 #' Builds a leaflet map using a vector list of grts cells to add to a leaflet map.  Shows
 #' where the project's grts cells live spatially.  Keep in mind that the project_id
 #' and all_grts must be in CONUS.
+#'
 #' @param all_grts Character Vector all grts cell ids found from the survey_df dataframe by running
 #' unique(survey_df$grts_cell_id)
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
 #' @param grts_with_data (optional) Character Vector or NULL
 #' @keywords bats, NABat, GQL
-#' @examples
-#'
-#' \dontrun{
-#' map = get_grts_leaflet_map(all_grts       = unique(survey_df_$grts_cell_id),
-#'                            grts_with_data = unique(auto_nights_df_$GRTS))
-#' }
 #'
 #' @export
-#'
+
 get_grts_leaflet_map = function(
   all_grts,
   project_df,
@@ -107,6 +103,7 @@ get_grts_leaflet_map = function(
 }
 
 
+
 #' @title Build shapefile from GRTS IDs
 #'
 #' @import sp
@@ -120,13 +117,9 @@ get_grts_leaflet_map = function(
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
 #' @keywords species, bats, NABat, grts, CONUS
-#' @examples
-#'
-#' \dontrun{
-#' }
 #'
 #' @export
-#'
+
 get_grts_shp = function(
   grts_ids,
   project_id,
@@ -140,6 +133,7 @@ get_grts_shp = function(
 }
 
 
+
 #' @title Build polygons dataframe from GRTS IDs
 #'
 #' @import sp
@@ -148,11 +142,11 @@ get_grts_shp = function(
 #' @import plyr
 #'
 #' @param grts_ids Character Vector GRTS Ids
-#' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
+#' @param project_df Dataframe output from get_projects()
 #'
 #' @export
-#'
+
 get_grts_shp_df = function(
   grts_ids,
   project_id,
@@ -187,6 +181,7 @@ get_grts_shp_df = function(
 }
 
 
+
 #' @title Build spatial polygons dataframe from GRTS shape dataframe
 #'
 #' @import sp
@@ -197,7 +192,7 @@ get_grts_shp_df = function(
 #' @param grts_shp_df Dataframe
 #'
 #' @export
-#'
+
 get_spdf_from_polys_df = function(
   grts_shp_df){
 
