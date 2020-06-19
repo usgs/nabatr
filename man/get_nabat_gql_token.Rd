@@ -36,7 +36,7 @@ Get a NABat GQL token to use for queries
 
 \dontrun{
 nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
--- Prompts for password
+# Prompts for password
 }
 
 }

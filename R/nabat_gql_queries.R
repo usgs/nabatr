@@ -11,19 +11,10 @@
 # Created: 2019-9-6
 #############################################################################
 
+
 # # # Global Variables for NABatR
 pkg.env = new.env()
 pkg.env$bats_df = NULL
-# pkg.env$species_ranges = NULL
-# # message(getwd())
-# # tryCatch({
-# #   message('Loading in bat species range shapefiles')
-# #   pkg.env$species_ranges = rgdal::readOGR('./data/bat_species_ranges/')[,1:4]
-# # },error = function(cond) {
-# #   message('Failed to load in bat species ranges')
-# #   message(cond)
-# #   return(NULL)
-# # })
 
 #' @title NABat species range maps
 #'
@@ -169,7 +160,7 @@ get_species = function(
 #'
 #' \dontrun{
 #' nabat_gql_token = get_nabat_gql_token(username = 'NABat_Username')
-#' -- Prompts for password
+#' # Prompts for password
 #' }
 #'
 #' @export
@@ -182,21 +173,6 @@ get_nabat_gql_token = function(
   aws_gql = NULL,
   aws_alb = NULL,
   docker = FALSE){
-
-  # # Load in species ranges
-  # print (pkg.env$species_ranges)
-  # if (is.null(pkg.env$species_ranges)){
-  #   message(getwd())
-  #   tryCatch({
-  #     message('Loading in bat species range shapefiles')
-  #     species_dir = system.file('data/bat_species_ranges.shp', package = "nabatr")
-  #     message(species_dir)
-  #     pkg.env$species_ranges = rgdal::readOGR(species_dir)[,1:4]
-  #   },error = function(cond) {
-  #     message('Failed to load in bat species ranges')
-  #     message(cond)
-  #   })
-  # }
 
   # Prompts password input incase password isn't included in function call
   if (is.null(username)){
