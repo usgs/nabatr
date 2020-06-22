@@ -7,5 +7,6 @@
 get_gql_url(branch = "prod")
 }
 \description{
-Combine the spatial information (states and counties) with the detector info and species detected
+Combine the spatial information (states and counties)
+with the detector info and species detected
 }

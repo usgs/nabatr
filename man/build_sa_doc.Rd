@@ -19,8 +19,9 @@ build_sa_doc(
 )
 }
 \description{
-Using the outputs from get_projects(), get_sa_project_summary(), get_as_bulk_wavs(),
-and get_observed_nights() this function will create a report .docx file to an out_dir.
+Using the outputs from get_projects(), get_sa_project_summary(),
+get_as_bulk_wavs(), and get_observed_nights() this function will create a
+report .docx file to an out_dir.
 }
 \examples{
 

@@ -6,6 +6,14 @@
 \usage{
 get_sa_results(sa_bulk_df, selected_year, species_df)
 }
+\arguments{
+\item{sa_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
+
+\item{selected_year}{Integer Report year to use}
+
+\item{species_df}{Dataframe species nabat lookup dataframe}
+}
 \description{
 Builds out text with results
 }

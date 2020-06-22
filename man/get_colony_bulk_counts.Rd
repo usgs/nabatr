@@ -17,13 +17,16 @@ get_colony_bulk_counts(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token() or
+get_refresh_token()}
 
-\item{survey_df}{Dataframe a survey dataframe from the output of get_acoustic_project_summary()}
+\item{survey_df}{Dataframe a survey dataframe from the output of
+get_acoustic_project_summary()}
 
 \item{project_id}{Numeric or String a project id}
 
-\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+\item{branch}{(optional) String that defaults to 'prod' but can also be
+'dev'|'beta'|'local'}
 
 \item{url}{(optional) String url to use for GQL}
 

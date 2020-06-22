@@ -7,11 +7,12 @@
 get_observed_nights(acoustic_bulk_df)
 }
 \arguments{
-\item{acoustic_bulk_df}{Dataframe acoustic bulk dataframe from output of get_acoustic_bulk()}
+\item{acoustic_bulk_df}{Dataframe acoustic bulk dataframe from output
+of get_acoustic_bulk()}
 }
 \description{
-Creates a list with two dataframes (manual and automatic) nightly count
-data at each site id.
+Creates a list with two dataframes (manual and automatic)
+nightly count data at each site id.
 }
 \examples{
 

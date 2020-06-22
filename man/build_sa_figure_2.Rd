@@ -14,6 +14,25 @@ build_sa_figure_2(
   save_bool = FALSE
 )
 }
+\arguments{
+\item{sa_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
+
+\item{out_dir}{String Directory to save the temp directory with}
+
+\item{species_df}{Dataframe species nabat lookup dataframe
+all the maps into. Be sure not to end with '/'}
+
+\item{selected_year}{Integer Report year to use}
+
+\item{auto_species_grts_df_w}{Dataframe Species counts wide for
+automatic species. Can get from get_species_counts_wide()}
+
+\item{manual_species_grts_df_w}{Dataframe Species counts wide for
+manual species. Can get from get_species_counts_wide()}
+
+\item{save_bool}{Boolean Whether to save out maps or not}
+}
 \description{
 Returns 2 plots and 2 descriptions
 }

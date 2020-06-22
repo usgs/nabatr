@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{ll_to_county_state}
 \alias{ll_to_county_state}
-\title{Get Stationary Acoustic Results for Report}
+\title{Lat long to county/state}
 \usage{
 ll_to_county_state(points_df)
 }

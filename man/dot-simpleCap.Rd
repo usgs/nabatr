@@ -2,10 +2,10 @@
 % Please edit documentation in R/utils.R
 \name{.simpleCap}
 \alias{.simpleCap}
-\title{Get Stationary Acoustic Results for Report}
+\title{Simple Cap}
 \usage{
 .simpleCap(x)
 }
 \description{
-Combine the spatial information (states and counties) with the detector info and species detected
+Helper function for capitlization of County/states
 }

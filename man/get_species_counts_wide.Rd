@@ -7,8 +7,9 @@
 get_species_counts_wide(nightly_df)
 }
 \arguments{
-\item{nightly_df}{Dataframe acoustic bulk dataframe from output of get_observed_nights().
-Note: must run seperately for MANUAL and AUTOMATIC nights dataframes.}
+\item{nightly_df}{Dataframe acoustic bulk dataframe from output of
+get_observed_nights(). Note: must run seperately for MANUAL and AUTOMATIC
+nights dataframes.}
 }
 \description{
 Uses one of the outputs from get_observed_nights() to calculate totals for

@@ -14,9 +14,11 @@ get_all_project_types(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token() or
+get_refresh_token()}
 
-\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+\item{branch}{(optional) String that defaults to 'prod' but can also be
+'dev'|'beta'|'local'}
 
 \item{url}{(optional) String url to use for GQL}
 
@@ -27,15 +29,6 @@ get_all_project_types(
 \item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
-Returns a dataframe with all of a project's data types (stationary/mobile/colonycount)
+Returns a dataframe with all of a project's data types
+(stationary/mobile/colonycount)
 }
-\examples{
-
-\dontrun{
-survey_df = get_project_surveys(token)
-}
-
-}
-\keyword{GQL}
-\keyword{NABat,}
-\keyword{bats,}
