@@ -7,16 +7,21 @@
 get_grts_data(grid_frame, query = NULL, only_priority = FALSE)
 }
 \arguments{
-\item{grid_frame}{String name of the grid frame to return. Must be one of: Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico}
+\item{grid_frame}{String name of the grid frame to return. Must be one of:
+Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico}
 
-\item{query}{(optional) String Query to apply to the request, for example: "state_n_1='Florida'"}
+\item{query}{(optional) String Query to apply to the request, for example:
+"state_n_1='Florida'"}
 
-\item{only_priority}{(optional) Bool defaults to False.  Only return NABat priority cells (top 5 percent)}
+\item{only_priority}{(optional) Bool defaults to False.  Only return NABat
+priority cells (top 5 percent)}
 }
 \description{
 This function returns a spatial featrue with the selected GRTS Cells.
-Allows you to select which sampling frame to choose from (Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico).
-Optionally you can supply a query string in CQL format (see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
+Allows you to select which sampling frame to choose from
+(Conus, Canada, Alaska, Mexico, Hawaii, or PuertoRico).
+Optionally you can supply a query string in CQL format
+(see: https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html).
 }
 \examples{
 
@@ -29,10 +34,12 @@ spplot(hawaii_grts, zcol='own_NPS')
 
 florida_grts = get_grts_data('Conus', query="state_n_1='Florida'")
 spplot(florida_grts, zcol="lat")
-two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer') or (cnty_n_1='Colorado_Jackson'))")
+two_counties = get_grts_data('Conus', query="((cnty_n_1='Colorado_Larimer')
+                             or (cnty_n_1='Colorado_Jackson'))")
 spplot(two_counties, zcol='own_STATE')
 
-#' CA_priority_grts = get_grts_data('Conus', query="state_n_1='California'", only_priority=TRUE)
+#' CA_priority_grts = get_grts_data('Conus', query="state_n_1='California'",
+                                    only_priority=TRUE)
 spplot(CA_priority_grts, zcol="lat")
 }
 

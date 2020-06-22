@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_nabat_grts.R
 \name{get_wfs_layer_name}
 \alias{get_wfs_layer_name}
-\title{@description Return the wfs layer name from the WFS associated with a SB item}
+\title{Get wfs Layer name}
 \usage{
 get_wfs_layer_name(hash)
 }
@@ -10,5 +10,5 @@ get_wfs_layer_name(hash)
 \item{hash}{String SB hash of the item containing the wfs}
 }
 \description{
-@description Return the wfs layer name from the WFS associated with a SB item
+Return the wfs layer name from the WFS associated with a SB item
 }

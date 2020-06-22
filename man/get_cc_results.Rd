@@ -6,6 +6,9 @@
 \usage{
 get_cc_results(cc_bulk_df)
 }
+\arguments{
+\item{cc_bulkd_df}{Dataframe colony count bulk data}
+}
 \description{
 Returns compiled results for this project's Colony Count data
 }

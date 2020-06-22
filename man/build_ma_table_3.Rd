@@ -7,11 +7,12 @@
 build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year = NULL)
 }
 \arguments{
-\item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
+\item{ma_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
 
 \item{nightly_observed_list}{(optional) List from running get_observed_nights()}
 
-\item{species_df}{Dataframe Species dataframe}
+\item{species_df}{Dataframe species nabat lookup dataframe}
 
 \item{year}{Integer (optional) Project year with mobile acoustic data}
 }

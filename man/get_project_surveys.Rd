@@ -2,7 +2,8 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_project_surveys}
 \alias{get_project_surveys}
-\title{Get a project's Stationary Acoustic Surveys (DEPRECIATED) see get_acoustic_project_summary()}
+\title{Get a project's Stationary Acoustic Surveys (DEPRECIATED)
+see get_acoustic_project_summary()}
 \usage{
 get_project_surveys(
   token,
@@ -16,13 +17,15 @@ get_project_surveys(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token()
+or get_refresh_token()}
 
 \item{project_df}{Dataframe output from get_projects()}
 
 \item{project_id}{Numeric or String a project id}
 
-\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+\item{branch}{(optional) String that defaults to 'prod'
+but can also be 'dev'|'beta'|'local'}
 
 \item{url}{(optional) String url to use for GQL}
 
@@ -30,7 +33,8 @@ get_project_surveys(
 
 \item{aws_alb}{(optional) String url to use in aws}
 
-\item{docker}{(optional) Boolean if being run in docker container or not}
+\item{docker}{(optional) Boolean if being run in docker
+container or not}
 }
 \description{
 (DEPRECIATED)

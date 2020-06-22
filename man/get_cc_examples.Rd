@@ -7,5 +7,5 @@
 get_cc_examples()
 }
 \description{
-Returns al list of some preset colony count report examples
+Returns a list of some preset colony count report examples
 }

@@ -7,13 +7,14 @@
 build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year = NULL)
 }
 \arguments{
-\item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
+\item{ma_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
 
 \item{project_id}{Integer project id}
 
 \item{project_df}{Dataframe project_df}
 
-\item{species_df}{Dataframe species_df}
+\item{species_df}{Dataframe species nabat lookup dataframe}
 
 \item{year}{Integer Project year with mobile acoustic data}
 }

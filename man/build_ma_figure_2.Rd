@@ -7,9 +7,10 @@
 build_ma_figure_2(ma_bulk_df, species_df, year = NULL)
 }
 \arguments{
-\item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
+\item{ma_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
 
-\item{species_df}{Dataframe Species Dataframe}
+\item{species_df}{Dataframe species nabat lookup dataframe}
 
 \item{year}{Integer (optional) Project year with mobile acoustic data}
 }
