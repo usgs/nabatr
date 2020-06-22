@@ -18,8 +18,9 @@
 #' @description Uses one of the outputs from get_observed_nights() to calculate totals for
 #' number of species present at a GRTS cell or a site ID and then returns a dataframe.
 #'
-#' @param nightly_df Dataframe acoustic bulk dataframe from output of get_observed_nights().
-#' Note: must run seperately for MANUAL and AUTOMATIC nights dataframes.
+#' @param nightly_df Dataframe acoustic bulk dataframe from output of
+#' get_observed_nights(). Note: must run seperately for MANUAL and AUTOMATIC
+#' nights dataframes.
 #' @keywords species, bats, NABat
 #' @examples
 #'
@@ -46,14 +47,16 @@
 get_species_counts_wide = function(nightly_df){
 
   # Return NULL if no manual checked species found
-  check_values = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id'))
+  check_values = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name',
+    'observed_night','type', 'project_id'))
   if (length(unique(colSums(check_values))) == 1){
     return(list('species_site_id_df'   = NULL,
       'species_grts_df' = NULL))
   }
 
   # Select only the wav file count data to run sums on
-  species_grts_df = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id'))
+  species_grts_df = dplyr::select(nightly_df, -c('GRTS', 'site_id', 'site_name',
+    'observed_night','type', 'project_id'))
 
 
   # All of the species found at project level
@@ -71,12 +74,14 @@ get_species_counts_wide = function(nightly_df){
     # Dataframe of observed nights at this Site Id
     site_id_data            = subset(nightly_df, nightly_df$site_id == site_id_)
     # Site Id data to be used for summing up species counts
-    site_id_species_grts_df = dplyr::select(site_id_data, -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id'))
+    site_id_species_grts_df = dplyr::select(site_id_data,
+      -c('GRTS', 'site_id', 'site_name', 'observed_night','type', 'project_id'))
 
     # Select all species in project
-    species_present_site_id_df      = dplyr::select(site_id_species_grts_df, all_species_at_project)
+    species_present_site_id_df = dplyr::select(site_id_species_grts_df,
+      all_species_at_project)
     # Get species names
-    species_present_site_id_names   = names(species_present_site_id_df)
+    species_present_site_id_names = names(species_present_site_id_df)
     # Get species counts
     col_sums = colSums(species_present_site_id_df)
     names(col_sums) = c()
@@ -84,11 +89,14 @@ get_species_counts_wide = function(nightly_df){
     # Build species counts dataframe
     if (dim(species_present_site_id_sums_df)[1] == 0){
       # Create dataframe using species names at site and their sums
-      species_present_site_id_sums_df = data.frame(names = species_present_site_id_names, counts = col_sums)
-      names(species_present_site_id_sums_df)[names(species_present_site_id_sums_df) == 'counts'] = site_id_
+      species_present_site_id_sums_df =
+        data.frame(names = species_present_site_id_names, counts = col_sums)
+      names(species_present_site_id_sums_df)[names(species_present_site_id_sums_df) ==
+          'counts'] = site_id_
     }else{
       species_present_site_id_sums_df['counts'] = col_sums
-      names(species_present_site_id_sums_df)[names(species_present_site_id_sums_df) == 'counts'] = site_id_
+      names(species_present_site_id_sums_df)[names(species_present_site_id_sums_df) ==
+          'counts'] = site_id_
     }
   }
 
@@ -99,7 +107,8 @@ get_species_counts_wide = function(nightly_df){
   species_present_site_id_sums_df$names = as.character(species_present_site_id_sums_df$names)
   species_present_site_id_sums_df$names[is.na(species_present_site_id_sums_df$names)] = 'site_totals'
   # Add species totals for project
-  species_present_site_id_sums_df['species_totals'] = rowSums(dplyr::select(species_present_site_id_sums_df, -c('names')))
+  species_present_site_id_sums_df['species_totals'] =
+    rowSums(dplyr::select(species_present_site_id_sums_df, -c('names')))
   # Display the data
   species_present_site_id_sums_df
 
@@ -112,12 +121,14 @@ get_species_counts_wide = function(nightly_df){
     # Dataframe of observed nights at this Site Id
     site_id_data            = subset(nightly_df, nightly_df$GRTS == grts_)
     # Site Id data to be used for summing up species counts
-    site_id_species_grts_df = dplyr::select(site_id_data, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', 'project_id'))
+    site_id_species_grts_df = dplyr::select(site_id_data,
+      -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', 'project_id'))
 
     # Select all species in project
-    species_present_site_id_df      = dplyr::select(site_id_species_grts_df, all_species_at_project)
+    species_present_site_id_df = dplyr::select(site_id_species_grts_df,
+      all_species_at_project)
     # Get species names
-    species_present_site_id_names   = names(species_present_site_id_df)
+    species_present_site_id_names = names(species_present_site_id_df)
     # Get species counts
     col_sums = colSums(species_present_site_id_df)
     names(col_sums) = c()
@@ -125,22 +136,27 @@ get_species_counts_wide = function(nightly_df){
     # Build species counts dataframe
     if (dim(species_present_grts_sums_df)[1] == 0){
       # Create dataframe using species names at site and their sums
-      species_present_grts_sums_df = data.frame(names = species_present_site_id_names, counts = col_sums)
-      names(species_present_grts_sums_df)[names(species_present_grts_sums_df) == 'counts'] = grts_
+      species_present_grts_sums_df =
+        data.frame(names = species_present_site_id_names, counts = col_sums)
+      names(species_present_grts_sums_df)[names(species_present_grts_sums_df) ==
+          'counts'] = grts_
     }else{
       species_present_grts_sums_df['counts'] = col_sums
-      names(species_present_grts_sums_df)[names(species_present_grts_sums_df) == 'counts'] = grts_
+      names(species_present_grts_sums_df)[names(species_present_grts_sums_df) ==
+          'counts'] = grts_
     }
     # Display the data
     species_present_grts_sums_df
   }
   # Add site totals of all species
-  totals_row = c('names'=NA, colSums(dplyr::select(species_present_grts_sums_df, -c('names'))))
+  totals_row = c('names'=NA, colSums(dplyr::select(species_present_grts_sums_df,
+    -c('names'))))
   species_present_grts_sums_df = rbind(species_present_grts_sums_df, totals_row)
   species_present_grts_sums_df$names = as.character(species_present_grts_sums_df$names)
   species_present_grts_sums_df$names[is.na(species_present_grts_sums_df$names)] = 'grts_totals'
   # Add species totals for project
-  species_present_grts_sums_df['species_totals'] = rowSums(dplyr::select(species_present_grts_sums_df, -c('names')))
+  species_present_grts_sums_df['species_totals'] =
+    rowSums(dplyr::select(species_present_grts_sums_df, -c('names')))
 
   return(list('species_site_id_df'   = species_present_site_id_sums_df,
     'species_grts_df' = species_present_grts_sums_df))
@@ -170,9 +186,11 @@ get_species_counts_wide = function(nightly_df){
 #'
 get_species_counts_long = function(nights_df, filter = FALSE){
   # Money pipe for manual or auto nights_df to get sums for each year at each site
-  proj_all_counts = nights_df %>% dplyr::mutate(year = as.integer(substring(nights_df$observed_night,1,4))) %>%
+  proj_all_counts = nights_df %>%
+    dplyr::mutate(year = as.integer(substring(nights_df$observed_night,1,4))) %>%
     group_by(GRTS, year) %>%
-    transmute_at(.vars = names(dplyr::select(nights_df, -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', 'project_id'))), .funs = sum) %>%
+    transmute_at(.vars = names(dplyr::select(nights_df,
+      -c('GRTS', 'site_id', 'site_name', 'observed_night', 'type', 'project_id'))), .funs = sum) %>%
     distinct() %>% ungroup() %>%
     merge(dplyr::select(nights_df, GRTS, type, project_id)) %>%
     move_col(type, year) %>%
@@ -190,7 +208,8 @@ get_species_counts_long = function(nights_df, filter = FALSE){
     species_in_project_df  = species_grts_df_ %>% dplyr::select( species_in_project ) %>%
       mutate(GRTS=proj_all_counts$GRTS, type=proj_all_counts$type,
         project_id=proj_all_counts$project_id, year=proj_all_counts$year) %>%
-      move_col(year, ref = 1) %>% move_col(project_id, ref = 1) %>% move_col(type, ref = 1) %>% move_col(GRTS, ref = 1)
+      move_col(year, ref = 1) %>% move_col(project_id, ref = 1) %>% move_col(type, ref = 1) %>%
+      move_col(GRTS, ref = 1)
     return(species_in_project_df)
   } else{
     return(proj_all_counts)

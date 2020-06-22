@@ -20,7 +20,7 @@
 #'
 #' @param cc_bulkd_df Dataframe colony count bulk data
 #' @param species_df Dataframe species nabat lookup dataframe
-#' @param format String type of data to return 'df' = dataframe of
+#' @param format String format of data to return 'df' = dataframe of
 #' the species from this data, 'vector' = a string vector of all
 #' of the species from this data, 'vectorNoId' = a strin vector of all
 #' of the species but exclude 'NoID'

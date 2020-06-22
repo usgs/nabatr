@@ -16,28 +16,30 @@
 #'
 #' @import jsonlite
 #'
-#' @description
-#' Returns a dataframe with all of a project's data types (stationary/mobile/colonycount)
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
-#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @description Returns a dataframe with all of a project's data types
+#' (stationary/mobile/colonycount)
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
 #'
-#' @keywords bats, NABat, GQL
-#' @examples
-#'
-#' \dontrun{
-#' survey_df = get_project_surveys(token)
-#' }
-#'
 #' @export
 #'
-get_all_project_types = function(token, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_all_project_types = function(
+  token,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker=FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use the url passed through
-  #  as a variable.
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
@@ -110,32 +112,34 @@ get_all_project_types = function(token, branch ='prod', url = NULL, aws_gql = NU
 #'
 #' @import jsonlite
 #'
-#' @description
-#' Returns a dataframe with all of a project's acoustic stationary data down to the event
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @description Returns a dataframe with all of a project's acoustic
+#' stationary data down to the event
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
-#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
 #'
-#' @keywords bats, NABat, GQL
-#' @examples
-#'
-#' \dontrun{
-#' survey_df = get_project_surveys(token,
-#'                                 get_projects(token),
-#'                                 project_id)
-#' }
-#'
 #' @export
 #'
-get_sa_project_summary = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_sa_project_summary = function(
+  token,
+  project_df,
+  project_id,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker=FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use the url passed through
-  #  as a variable.
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
@@ -150,21 +154,27 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
   if (docker){
     if(!is.null(aws_gql)){
       url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
     }else {
       token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
     }
   } else{
     # If Local, use this headers_
     token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
   }
 
   # print (paste0('Project ID: ', project_id))
   # Set Query
-  query = paste0('query RRsaSummaries{ allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
+  query = paste0('query RRsaSummaries{
+    allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',
+    project_id,'}}){
     nodes{
       projectId
       grtsId
@@ -184,7 +194,8 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwStationaryAcousticSummaries$nodes, stringsAsFactors = FALSE)
+  cont_df   = as.data.frame(cont_json$data$allVwStationaryAcousticSummaries$nodes,
+    stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
   # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
@@ -200,7 +211,8 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+      aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -210,35 +222,36 @@ get_sa_project_summary = function(token, project_df, project_id, branch ='prod',
 
 
 
-
 #' @title Get a Project's Mobile Acoustic Summary Data
 #'
-#' @description
-#' Returns a dataframe with all of a project's acoustic mobile data down to the event
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @description Returns a dataframe with all of a project's acoustic
+#' mobile data down to the event
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
-#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
 #'
-#' @keywords bats, NABat, GQL
-#' @examples
-#'
-#' \dontrun{
-#' survey_df = get_project_surveys(token,
-#'                                 get_projects(token),
-#'                                 project_id)
-#' }
-#'
 #' @export
 #'
-get_ma_project_summary = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_ma_project_summary = function(
+  token,
+  project_df,
+  project_id,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker=FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use the url passed through
-  #  as a variable.
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
@@ -277,8 +290,8 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
     verified
     missing
     }
-}
-}')
+  }
+  }')
   pbody = list(query = query, operationName = 'RRmaSummaries')
 
   # Post to nabat GQL
@@ -286,8 +299,10 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwMobileAcousticSummaries$nodes, stringsAsFactors = FALSE)
-  names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
+  cont_df   = as.data.frame(cont_json$data$allVwMobileAcousticSummaries$nodes,
+    stringsAsFactors = FALSE)
+  names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df),
+    perl = TRUE))
   # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
     cont_df$year = as.integer(gsub("^.* ", "", cont_df$event))
@@ -302,7 +317,8 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+      aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
@@ -316,9 +332,11 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
 #'
 #' @import jsonlite
 #'
-#' @description
-#' Returns a dataframe with all of a project's colony count data down to the event
-#' @param token List token created from get_nabat_gql_token() or get_refresh_token()
+#' @description Returns a dataframe with all of a project's colony
+#' count data down to the event
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
 #' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
@@ -327,21 +345,20 @@ get_ma_project_summary = function(token, project_df, project_id, branch ='prod',
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
 #'
-#' @keywords bats, NABat, GQL
-#' @examples
-#'
-#' \dontrun{
-#' survey_df = get_project_surveys(token,
-#'                                 get_projects(token),
-#'                                 project_id)
-#' }
-#'
 #' @export
 #'
-get_cc_project_summary = function(token, project_df, project_id, branch ='prod', url = NULL, aws_gql = NULL, aws_alb = NULL, docker=FALSE){
+get_cc_project_summary = function(
+  token,
+  project_df,
+  project_id,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker=FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use the url passed through
-  #  as a variable.
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
   if (is.null(url)){
     # Prod URL for NABat GQL
     if (branch == 'prod'){
@@ -356,20 +373,26 @@ get_cc_project_summary = function(token, project_df, project_id, branch ='prod',
   if (docker){
     if(!is.null(aws_gql)){
       url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
     }else {
       token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
     }
   } else{
     # If Local, use this headers_
     token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
   }
 
   # Set Query
-  query = paste0('query RRccSummaries{ allVwColonyCountSummaries (filter :{projectId:{equalTo:',project_id,'}}){
+  query = paste0('query RRccSummaries{
+    allVwColonyCountSummaries (filter :{projectId:{equalTo:',
+    project_id,'}}){
     nodes{
       projectId,
       surveyId,
@@ -391,7 +414,8 @@ get_cc_project_summary = function(token, project_df, project_id, branch ='prod',
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwColonyCountSummaries$nodes, stringsAsFactors = FALSE)
+  cont_df   = as.data.frame(cont_json$data$allVwColonyCountSummaries$nodes,
+    stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
   # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
@@ -407,7 +431,8 @@ get_cc_project_summary = function(token, project_df, project_id, branch ='prod',
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
+    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+      aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 

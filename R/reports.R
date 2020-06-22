@@ -14,8 +14,9 @@
 
 #' @title Build Stationary Acoustic Report document in .docx file
 #'
-#' @description Using the outputs from get_projects(), get_sa_project_summary(), get_as_bulk_wavs(),
-#' and get_observed_nights() this function will create a report .docx file to an out_dir.
+#' @description Using the outputs from get_projects(), get_sa_project_summary(),
+#' get_as_bulk_wavs(), and get_observed_nights() this function will create a
+#' report .docx file to an out_dir.
 #'
 #' @import mapview
 #' @import officer
@@ -59,7 +60,8 @@ build_sa_doc =  function(
   # Add selected year as 1st year
   message ('Setup for temp directories')
   if (is.null(selected_year)){
-    selected_year = unique(format(as.Date(sa_bulk_df$recording_time), '%Y'))[1]
+    selected_year = unique(format(as.Date(sa_bulk_df$recording_time),
+      '%Y'))[1]
   }
   # Setup temps directory to store intermediate files
   if (dir.exists(paste0(out_dir, '/temps/'))==FALSE){
@@ -80,7 +82,8 @@ build_sa_doc =  function(
   # Getting Manipulated data for species counts at GRTS cells
   auto_nights_df = nightly_observed_list$auto_nightly_df
   manual_nights_df  = nightly_observed_list$manual_nightly_df
-  all_species_totals_l_l = get_all_species_counts_long(auto_nights_df, manual_nights_df, fil = TRUE)
+  all_species_totals_l_l = get_all_species_counts_long(auto_nights_df,
+    manual_nights_df, fil = TRUE)
   manual_species_grts_df_w   = get_species_counts_wide(manual_nights_df)$species_grts_df
   auto_species_grts_df_w   = get_species_counts_wide(auto_nights_df)$species_grts_df
   manual_species_totals_l = get_species_counts_long(manual_nights_df, filter=TRUE)
@@ -89,7 +92,8 @@ build_sa_doc =  function(
   message ('Setting project specific variables')
   # Set Variables
   sa_logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
-  sa_circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
+  sa_circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg',
+    package = 'nabatr')
   sa_proj_id = project_id
   sa_project_row_df = subset(project_df, project_df$project_id == sa_proj_id)
   sa_title        = sa_project_row_df$project_name
@@ -106,7 +110,8 @@ build_sa_doc =  function(
 
   message ('Build table 1')
   # sa_table_1
-  sa_table_1 = build_sa_table_1(sa_bulk_df, project_id, project_df, species_df, selected_year)
+  sa_table_1 = build_sa_table_1(sa_bulk_df, project_id, project_df,
+    species_df, selected_year)
 
   message ('Build table 3')
   # sa table 3
@@ -114,21 +119,25 @@ build_sa_doc =  function(
 
   message ('Build figure 1')
   # Figure 1 (map)
-  sa_figure_1 = build_sa_figure_1(sa_bulk_df, out_dir, project_df, project_id, sa_survey_df, selected_year, save_figures)
+  sa_figure_1 = build_sa_figure_1(sa_bulk_df, out_dir, project_df,
+    project_id, sa_survey_df, selected_year, save_figures)
 
   message('Build figure 2')
   # Figure 2a/2b
-  sa_figure_2 = build_sa_figure_2(sa_bulk_df, out_dir, species_df, selected_year,
-    auto_species_grts_df_w, manual_species_grts_df_w, save_figures)
+  sa_figure_2 = build_sa_figure_2(sa_bulk_df, out_dir, species_df,
+    selected_year, auto_species_grts_df_w, manual_species_grts_df_w,
+    save_figures)
 
   message('Build figure 4')
   # Figure 4
-  sa_figure_4 = build_sa_figure_4(sa_bulk_df, out_dir, species_df, selected_year, save_figures)
+  sa_figure_4 = build_sa_figure_4(sa_bulk_df, out_dir, species_df,
+    selected_year, save_figures)
 
   if (range_maps){
     message ('Build range maps')
     # build range maps
-    maps_data = get_sa_range_maps(sa_bulk_df, project_df, project_id, all_species_totals_l_l, species_df, out_dir, range_maps)
+    maps_data = get_sa_range_maps(sa_bulk_df, project_df, project_id,
+      all_species_totals_l_l, species_df, out_dir, range_maps)
   }
 
 
@@ -137,19 +146,25 @@ build_sa_doc =  function(
   # Fonts
   bold_face_map = shortcuts$fp_bold(font.size = 12)
   bold_face = shortcuts$fp_bold(font.size = 16)
-  date_font = fp_text(color = 'black', font.family = 'Cambria', font.size = 12)
+  date_font = fp_text(color = 'black', font.family =
+      'Cambria', font.size = 12)
   par_style = fp_par(text.align = "center")
-  example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
-    italic = FALSE, underlined = FALSE, font.family = "Cambria",
-    vertical.align = "baseline", shading.color = "transparent")
-  fig6_font = fp_text(color = "black", font.size = 10, font.family = "Cambria")
+  example_font = fp_text(color = "#bfbfbf", font.size = 12,
+    bold = FALSE, italic = FALSE, underlined = FALSE,
+    font.family = "Cambria", vertical.align = "baseline",
+    shading.color = "transparent")
+  fig6_font = fp_text(color = "black", font.size = 10,
+    font.family = "Cambria")
 
   message ('Begin .docx build')
   sa_doc = read_docx() %>%
-    body_add_fpar(fpar(ftext('Stationary Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
-    body_add_fpar(fpar(ftext(paste0(selected_year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext('Stationary Acoustic Report',
+      prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext(paste0(selected_year, ' Data'),
+      prop = date_font), fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_fpar(fpar(ftext(sa_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext(sa_title, prop = bold_face),
+      fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = sa_organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
@@ -159,7 +174,8 @@ build_sa_doc =  function(
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
 
-    body_add_img(src = sa_circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+    body_add_img(src = sa_circle_logo_, width = 2.5, height = 2.5,
+      style= 'centered') %>%
 
 
     # Add summary data for project and GRTS cells
@@ -168,11 +184,14 @@ build_sa_doc =  function(
     body_add_break() %>%
 
     # Project Description
-    body_add_par(value = "Project Description", style = "heading 1") %>%
+    body_add_par(value = "Project Description",
+      style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = sa_this_project_description, style = "Normal") %>%
+    body_add_par(value = sa_this_project_description,
+      style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(sa_examples$sa_ex_description, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(sa_examples$sa_ex_description,
+      prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -185,7 +204,8 @@ build_sa_doc =  function(
     body_add_par(value = "Data Collection", style = "heading 2") %>%
     body_add_par(value = sa_examples$sa_methods_2, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "Call Processing/Species Identification", style = "heading 2") %>%
+    body_add_par(value = "Call Processing/Species Identification",
+      style = "heading 2") %>%
     body_add_par(value = sa_examples$sa_methods_3, style = "Normal") %>%
 
     body_add_break() %>%
@@ -200,9 +220,11 @@ build_sa_doc =  function(
     # Summary
     body_add_par(value = "Summary", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(sa_examples$sa_summary_1, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(sa_examples$sa_summary_1,
+      prop = example_font)), style = 'Normal') %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(sa_examples$sa_summary_2, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(sa_examples$sa_summary_2,
+      prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -223,7 +245,8 @@ build_sa_doc =  function(
     # Figure 1
     body_add_par(value = sa_figure_1$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_img(src = sa_figure_1$file, width = 5.7, height = 4, style= 'centered') %>%
+    body_add_img(src = sa_figure_1$file, width = 5.7,
+      height = 4, style= 'centered') %>%
 
     body_add_break() %>%
 
@@ -252,17 +275,33 @@ build_sa_doc =  function(
     for (range_m in maps_data$maps_range_files){
       map_c = map_c + 1
       grts_m = maps_data$maps_grts_files[map_c]
-      spc_range_name = str_split(str_split(sub('\\.png$', '', range_m), 'range_maps/')[[1]][2], '_range')[[1]][1]
-      spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m), 'range_maps/')[[1]][2], '_grts')[[1]][1]
-      descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",spc_range_name)
-      descr_fig6 = paste0("Figure 6",letters_[map_c],". NABat GRTS map with the species range map overlayed(",spc_range_name,").  Green GRTS cells represent the presence of ",spc_range_name," found using only Manual detection.  Blue GRTS cells represent the presence of ",spc_range_name," found using only Automatic detection.  Orange GRTS cells represent the presence of ",spc_range_name," found using both Automatic and Manual detection.  Transparent GRTS cells represent no detections found for ",spc_range_name,".")
+      spc_range_name = str_split(str_split(sub('\\.png$', '', range_m),
+        'range_maps/')[[1]][2], '_range')[[1]][1]
+      spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m),
+        'range_maps/')[[1]][2], '_grts')[[1]][1]
+      descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",
+        spc_range_name)
+      descr_fig6 = paste0("Figure 6",letters_[map_c],
+        ". NABat GRTS map with the species range map overlayed(",
+        spc_range_name,").  Green GRTS cells represent the presence of ",
+        spc_range_name,
+        " found using only Manual detection.  Blue GRTS cells represent the
+        presence of ",
+        spc_range_name," found using only Automatic detection.
+        Orange GRTS cells represent the presence of ",
+        spc_range_name," found using both Automatic and Manual detection.
+        Transparent GRTS cells represent no detections found for ",
+        spc_range_name,".")
       # Add the maps to the doc
       sa_doc = sa_doc %>%
-        body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name), prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
-        body_add_fpar(fpar(ftext(descr_fig5, prop = fig6_font)), style = 'Normal') %>%
+        body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name),
+          prop = bold_face_map), fp_p = par_style ), style = 'Normal') %>%
+        body_add_fpar(fpar(ftext(descr_fig5, prop = fig6_font)),
+          style = 'Normal') %>%
         slip_in_img(src = range_m, width = 5.7, height = 4) %>%
         body_add_par(value = "", style = "Normal") %>%
-        body_add_fpar(fpar(ftext(descr_fig6, prop = fig6_font)), style = 'Normal') %>%
+        body_add_fpar(fpar(ftext(descr_fig6, prop = fig6_font)),
+          style = 'Normal') %>%
         body_add_par(value = "", style = "Normal") %>%
         slip_in_img(src = grts_m, width = 5.7, height = 4) %>%
         body_add_break()
@@ -282,7 +321,8 @@ build_sa_doc =  function(
 
 #' @title Build Report document in .docx file for Colony Count Data
 #'
-#' @description Using the outputs from get_projects(), get_project_surveys(), get_colony_bulk_counts(),
+#' @description Using the outputs from get_projects(),
+#' get_project_surveys(), get_colony_bulk_counts(),
 #' and () this function will create a report .docx file to an out_dir.
 #'
 #' @import mapview
@@ -317,8 +357,10 @@ build_col_doc = function(
 
   message('Get front page info')
   # Get front page info
-  cc_logo_img_      = system.file("templates", "nabat_logo.png", package = "nabatr")
-  cc_circle_logo_   = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
+  cc_logo_img_      = system.file("templates", "nabat_logo.png",
+    package = "nabatr")
+  cc_circle_logo_   = system.file('templates', 'NABat_Circle_color.jpg',
+    package = 'nabatr')
   cc_proj_id        = project_id
   cc_project_row_df = subset(project_df, project_df$project_id == cc_proj_id)
   cc_title          = cc_project_row_df$project_name
@@ -356,9 +398,11 @@ build_col_doc = function(
   message ('Begin Colony Count .docx build')
   # Build Colony Count document
   cc_doc = read_docx() %>%
-    body_add_fpar(fpar(ftext('Colony Count Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext('Colony Count Report', prop = bold_face),
+      fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_fpar(fpar(ftext(cc_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext(cc_title, prop = bold_face), fp_p = par_style ),
+      style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = cc_organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
@@ -367,7 +411,8 @@ build_col_doc = function(
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
 
-    body_add_img(src = cc_circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+    body_add_img(src = cc_circle_logo_, width = 2.5, height = 2.5,
+      style = 'centered') %>%
 
     body_add_break() %>%
 
@@ -376,14 +421,16 @@ build_col_doc = function(
     body_add_par(value = "", style = "Normal") %>%
     body_add_par(value = cc_description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(cc_examples$description, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(cc_examples$description, prop = example_font)),
+      style = 'Normal') %>%
 
     body_add_break() %>%
 
     # Methods
     body_add_par(value = "Methods", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(cc_examples$methods_1, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(cc_examples$methods_1, prop = example_font)),
+      style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -440,8 +487,10 @@ build_col_doc = function(
 
 #' @title Build Mobile Acoustic Report document in .docx file
 #'
-#' @description Using the outputs from get_projects(), get_ma_project_summary(), get_ma_bulk_wavs(),
-#' and get_observed_nights() this function will create a report .docx file to an out_dir.
+#' @description Using the outputs from get_projects(),
+#' get_ma_project_summary(), get_ma_bulk_wavs(),
+#' and get_observed_nights() this function will create
+#' a report .docx file to an out_dir.
 #'
 #' @import mapview
 #' @import officer
@@ -489,10 +538,13 @@ build_ma_doc = function(
     dir.create(paste0(out_dir, '/temps/range_maps/'))
   }
 
-  logo_img_ = system.file("templates", "nabat_logo.png", package = "nabatr")
-  circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg', package = 'nabatr')
+  logo_img_ = system.file("templates", "nabat_logo.png",
+    package = "nabatr")
+  circle_logo_ = system.file('templates', 'NABat_Circle_color.jpg',
+    package = 'nabatr')
   proj_id = project_id
-  project_row_df = subset(project_df, project_df$project_id == proj_id)
+  project_row_df = subset(project_df,
+    project_df$project_id == proj_id)
   ma_title        = project_row_df$project_name
   ma_organization = project_row_df$organization
   ma_description = project_row_df$project_description
@@ -507,7 +559,8 @@ build_ma_doc = function(
 
   message ('build table 1')
   # Build table 1
-  ma_table_1 = build_ma_table_1(ma_bulk_df, project_id, project_df, species_df, year)
+  ma_table_1 = build_ma_table_1(ma_bulk_df, project_id,
+    project_df, species_df, year)
 
   message ('build table 2')
   # Build table 2
@@ -515,11 +568,13 @@ build_ma_doc = function(
 
   message ('build table 3')
   # Build table 3
-  ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list, species_df, year)
+  ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list,
+    species_df, year)
 
   message ('build figure 1')
   # Build figure 1
-  ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id, project_df, year)
+  ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id,
+    project_df, year)
   # Save out map to import into officer word doc builder later
   map_out_ = paste0(out_dir, '/temps/intermediate_map.png')
   message ('Saving map out')
@@ -546,18 +601,23 @@ build_ma_doc = function(
 
 
   bold_face = shortcuts$fp_bold(font.size = 16)
-  date_font = fp_text(color = 'black', font.family = 'Cambria', font.size = 12)
+  date_font = fp_text(color = 'black', font.family = 'Cambria',
+    font.size = 12)
   par_style = fp_par(text.align = "center")
-  example_font = fp_text(color = "#bfbfbf", font.size = 12, bold = FALSE,
-    italic = FALSE, underlined = FALSE, font.family = "Cambria",
-    vertical.align = "baseline", shading.color = "transparent")
+  example_font = fp_text(color = "#bfbfbf", font.size = 12,
+    bold = FALSE, italic = FALSE, underlined = FALSE,
+    font.family = "Cambria", vertical.align = "baseline",
+    shading.color = "transparent")
 
   message ('Build mobile acoustic .docx')
   ma_doc = read_docx() %>%
-    body_add_fpar(fpar(ftext('Mobile Acoustic Report', prop = bold_face), fp_p = par_style ), style = 'centered') %>%
-    body_add_fpar(fpar(ftext(paste0(year, ' Data'), prop = date_font), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext('Mobile Acoustic Report', prop = bold_face),
+      fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext(paste0(year, ' Data'), prop = date_font),
+      fp_p = par_style ), style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
-    body_add_fpar(fpar(ftext(ma_title, prop = bold_face), fp_p = par_style ), style = 'centered') %>%
+    body_add_fpar(fpar(ftext(ma_title, prop = bold_face), fp_p = par_style ),
+      style = 'centered') %>%
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = ma_organization, style = "centered") %>%
     body_add_par(value = date, style = "centered") %>%
@@ -567,7 +627,8 @@ build_ma_doc = function(
     body_add_par(value = "", style = "centered") %>%
     body_add_par(value = "", style = "centered") %>%
 
-    body_add_img(src = circle_logo_, width = 2.5, height = 2.5, style= 'centered') %>%
+    body_add_img(src = circle_logo_, width = 2.5, height = 2.5,
+      style= 'centered') %>%
 
     body_add_break() %>%
 
@@ -576,7 +637,8 @@ build_ma_doc = function(
     body_add_par(value = "", style = "Normal") %>%
     body_add_par(value = ma_description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(ma_examples$ma_ex_description, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(ma_examples$ma_ex_description,
+      prop = example_font)), style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -589,7 +651,8 @@ build_ma_doc = function(
     body_add_par(value = "Data Collection", style = "heading 2") %>%
     body_add_par(value = ma_examples$ma_methods_2, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_par(value = "Call Processing/Species Identification", style = "heading 2") %>%
+    body_add_par(value = "Call Processing/Species Identification",
+      style = "heading 2") %>%
     body_add_par(value = ma_examples$ma_methods_3, style = "Normal") %>%
 
     body_add_break() %>%
@@ -604,9 +667,11 @@ build_ma_doc = function(
     # Summary
     body_add_par(value = "Summary", style = "heading 1") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(ma_examples$ma_summary_1, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(ma_examples$ma_summary_1, prop = example_font)),
+      style = 'Normal') %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_fpar(fpar(ftext(ma_examples$ma_summary_2, prop = example_font)), style = 'Normal') %>%
+    body_add_fpar(fpar(ftext(ma_examples$ma_summary_2, prop = example_font)),
+      style = 'Normal') %>%
 
     body_add_break() %>%
 
@@ -650,7 +715,7 @@ build_ma_doc = function(
   ma_doc = ma_doc %>%
     # Figure 1
     body_add_par(value = ma_figure_1$description, style = "Normal") %>%
-    body_add_img(src = map_out_, width = 8, height = 6, style= 'centered')  %>%
+    body_add_img(src = map_out_, width = 8, height = 6, style= 'centered') %>%
 
     # Figure 2a
     body_add_par(value = ma_figure_2$description_a, style = "Normal") %>%
