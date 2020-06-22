@@ -17,6 +17,14 @@
 #' @description Extracts Get all of the species found within these
 #' Colony Count data
 #' format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
+#'
+#' @param cc_bulkd_df Dataframe colony count bulk data
+#' @param species_df Dataframe species nabat lookup dataframe
+#' @param format String type of data to return 'df' = dataframe of
+#' the species from this data, 'vector' = a string vector of all
+#' of the species from this data, 'vectorNoId' = a strin vector of all
+#' of the species but exclude 'NoID'
+#'
 #' @export
 
 get_cc_species = function(
@@ -28,7 +36,8 @@ get_cc_species = function(
   # Colony Count species
   cc_project_species = (data.frame(id = unique(species_ids), stringsAsFactors = FALSE) %>%
       dplyr::left_join(species_df, by = 'id'))
-  cc_species_found = subset(cc_project_species, cc_project_species$bat_call) %>% dplyr::mutate(detection_type = 'colony_count')
+  cc_species_found = subset(cc_project_species, cc_project_species$bat_call) %>%
+      dplyr::mutate(detection_type = 'colony_count')
   cc_species_detected_wav = subset(cc_bulk_df, cc_bulk_df$species_id %in% cc_species_found$id)
 
   final_species = unique(cc_species_found$species_code)
@@ -47,7 +56,7 @@ get_cc_species = function(
 
 #' @title Get Colony Count Examples
 #'
-#' @description Returns al list of some preset colony count report examples
+#' @description Returns a list of some preset colony count report examples
 #'
 #' @export
 
@@ -55,9 +64,19 @@ get_cc_examples = function(){
   # Description
   cc_description = "[EXAMPLE]:  "
   # Methods
-  cc_methods = "[EXAMPLE]: Survey sites were chosen based on previous knowledge of winter hibernacula in the region, historical monitoring efforts, and suitability criteria outlined in Loeb et al. (2015). Because detection probability of hibernating bats is highly variable within seasons, surveys were conducted between late January and early March to maximize detection (Loeb et al. 2015). Abundance was estimated using visual counts and accompanying digital photographs. Multiple observers conducted counts in each section of the hibernacula to facilitate the estimation of detection probability and to validate species identifications."
+  cc_methods = "[EXAMPLE]: Survey sites were chosen based on previous knowledge of winter hibernacula
+  in the region, historical monitoring efforts, and suitability criteria outlined in Loeb et al. (2015).
+  Because detection probability of hibernating bats is highly variable within seasons, surveys were
+  conducted between late January and early March to maximize detection (Loeb et al. 2015). Abundance was
+  estimated using visual counts and accompanying digital photographs. Multiple observers conducted counts
+  in each section of the hibernacula to facilitate the estimation of detection probability and to validate
+  species identifications."
   # Lit Cited
-  cc_lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research Station. 112 p."
+  cc_lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine,
+  T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley,
+  and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical
+  Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research
+  Station. 112 p."
 
   return(list(description = cc_description,
               methods_1 = cc_methods,
@@ -70,6 +89,8 @@ get_cc_examples = function(){
 #'
 #' @description Returns compiled results for this project's Colony Count data
 #'
+#' @param cc_bulkd_df Dataframe colony count bulk data
+#'
 #' @export
 
 get_cc_results = function(
@@ -80,12 +101,15 @@ get_cc_results = function(
 
   ## Set variables to be printed in results section
   spp = unique(cc_bulk_df$species_code)
-  species_sampled = paste(length(spp), " species ", "(", paste(spp, collapse = ", "), ")", sep = "")
+  species_sampled = paste(length(spp), " species ", "(",
+                          paste(spp, collapse = ", "), ")", sep = "")
   number_of_sites = length(unique(cc_bulk_df$site_name))
-  range_winter_years = paste(min(cc_bulk_df$wyear, na.rm = TRUE), "to", max(cc_bulk_df$wyear, na.rm = TRUE))
+  range_winter_years = paste(min(cc_bulk_df$wyear, na.rm = TRUE), "to",
+                              max(cc_bulk_df$wyear, na.rm = TRUE))
   number_of_grts = length(unique(cc_bulk_df$grts_id))
 
-  results_overview = paste0("Winter colonies for ", species_sampled, " were counted at ",
+  results_overview = paste0("Winter colonies for ",
+    species_sampled, " were counted at ",
     number_of_sites, " sites from ", range_winter_years, ", and across ",
     number_of_grts, " grid cells (Table 1).")
 }
@@ -95,6 +119,9 @@ get_cc_results = function(
 #' @title Build Colony Count Table 1
 #'
 #' @description Summary of winter colony count surveys
+#'
+#' @param cc_bulkd_df Dataframe colony count bulk data
+#' @param noid Boolean Whether or not to include NoID in table
 #'
 #' @export
 
@@ -120,7 +147,8 @@ build_cc_table_1 = function(
     tidyr::spread(species_code, number_of_sites) %>%
     dplyr::rename(`Winter Year` = wyear)
 
-  cc_descr_table1 = paste0("Table 1. Summary of winter colony count surveys. Number of sites surveyed for species by winter year")
+  cc_descr_table1 = paste0("Table 1. Summary of winter colony count surveys.
+    Number of sites surveyed for species by winter year")
 
   big_border = fp_border(color="grey", width = 2)
 
@@ -148,6 +176,8 @@ build_cc_table_1 = function(
 #' @description Number of species found dead
 #' and alive at each GRTS cell
 #'
+#' @param cc_bulkd_df Dataframe colony count bulk data
+#'
 #' @export
 
 build_cc_table_2 = function(
@@ -157,7 +187,8 @@ build_cc_table_2 = function(
   cc_descr_table_2 = 'Table 2. Number of species dead/alive found at each GRTS Cell.'
 
   cc_df_2 = cc_bulk_df %>%
-    dplyr::select(site_id, site_name, site_type, wyear, species_code, count_dead, count_alive) %>%
+    dplyr::select(site_id, site_name, site_type, wyear,
+                  species_code, count_dead, count_alive) %>%
     dplyr::mutate(count_dead = ifelse(is.na(count_dead), 0, count_dead)) %>%
     dplyr::group_by(site_id, wyear, species_code) %>%
     dplyr::mutate(count_dead = sum(count_dead)) %>%
@@ -185,7 +216,6 @@ build_cc_table_2 = function(
   cc_ft2 = flextable::height(cc_ft2, height =.5, part = 'header')
   cc_ft2 = flextable::width(cc_ft2, width = .9)
   cc_ft2 = flextable::width(cc_ft2, width = 1.3, j = 1)
-  # cc_ft2 = flextable::color(cc_ft2, color = "#6daadc")
   cc_ft2 = flextable::fontsize(cc_ft2, size = 10, part = "all")
   cc_ft2 = flextable::merge_v(cc_ft2, j = 1)
   cc_ft2 = flextable::merge_v(cc_ft2, j = 2)
@@ -205,8 +235,6 @@ build_cc_table_2 = function(
   cc_ft2 = flextable::border(cc_ft2, j = 6,
     border.right = fp_border(color = 'grey', width = 1))
 
-  # cc_ft2 =  flextable::bg(cc_ft2, bg = "#6daadc", part = "header")
-  # cc_ft2 =  flextable::bg(cc_ft2, bg = "#1b386a", part = "body")
   cc_ft2 = flextable::align(cc_ft2, align = 'center', part = 'all')
   cc_ft2 = border_outer(cc_ft2, part="all", border = big_border )
 
@@ -219,6 +247,11 @@ build_cc_table_2 = function(
 #'
 #' @description Winter Colony counts of bats by site and species
 #'
+#' @param cc_bulkd_df Dataframe colony count bulk data
+#' @param out_dir String output directory. Make sure it doesn't
+#' end with '/'
+#' @save_bool Boolean Whether or not to save the figure out
+#'
 #' @export
 
 build_cc_figure_1 = function(
@@ -226,7 +259,8 @@ build_cc_figure_1 = function(
   out_dir,
   save_bool = TRUE){
 
-  cc_sites = unique((cc_bulk_df %>% dplyr::arrange(site_name, wyear, species_code))$site_id)
+  cc_sites = unique((cc_bulk_df %>%
+      dplyr::arrange(site_name, wyear, species_code))$site_id)
   num_sites =length(cc_sites)
   figure_number = '1'
   fig_files = c()
@@ -331,6 +365,8 @@ build_cc_figure_1 = function(
 #'
 #' @description Use this to display returned figures in list from
 #' build_cc_figure_1
+#'
+#' @param fig Ggplot2 output figures from build_cc_figure_1
 #'
 #' @export
 
