@@ -2,7 +2,8 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_sa_bulk_wavs}
 \alias{get_sa_bulk_wavs}
-\title{Get Acoustic stationary bulk upload template dataframe for a project}
+\title{Get Acoustic stationary bulk upload template dataframe
+for a project}
 \usage{
 get_sa_bulk_wavs(
   token,
@@ -17,16 +18,20 @@ get_sa_bulk_wavs(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token()
+or get_refresh_token()}
 
-\item{survey_df}{Dataframe a survey dataframe from the output of get_acoustic_project_summary()}
+\item{survey_df}{Dataframe a survey dataframe from the output
+of get_acoustic_project_summary()}
 
 \item{project_id}{Numeric or String a project id}
 
 \item{year}{(optional) Numeric year of data to be returned.
-NULL = first year, 'all' = all years, 2018 = only 2018 data}
+NULL = first year, 'all' = all years, 2018 =
+only 2018 data}
 
-\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+\item{branch}{(optional) String that defaults to 'prod' but
+can also be 'dev'|'beta'|'local'}
 
 \item{url}{(optional) String url to use for GQL}
 
@@ -34,7 +39,8 @@ NULL = first year, 'all' = all years, 2018 = only 2018 data}
 
 \item{aws_alb}{(optional) String url to use in aws}
 
-\item{docker}{(optional) Boolean if being run in docker container or not}
+\item{docker}{(optional) Boolean if being run in docker container
+or not}
 }
 \description{
 Returns all surveys within a single project (project_id)
@@ -42,9 +48,10 @@ Returns all surveys within a single project (project_id)
 \examples{
 
 \dontrun{
-acoustic_bulk_df = get_sa_bulk_wavs(token,
-                                          get_acoustic_project_summary(),
-                                          project_id)
+acoustic_bulk_df = get_sa_bulk_wavs(
+  token,
+  get_acoustic_project_summary(),
+  project_id)
 }
 
 }

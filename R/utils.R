@@ -22,17 +22,20 @@ clean_time_fields = function(df){
   if ('recording_time' %in% names(df)){
     df$recording_time = gsub("T", " ", df$recording_time, fixed = TRUE)
     df$recording_time = as.POSIXct(df$recording_time,
-      tryFormats = c('%Y-%m-%d' , '%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
+      tryFormats = c('%Y-%m-%d' , '%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'),
+      tz=Sys.timezone())
   }
   if ('survey_start_time' %in% names(df)){
     df$survey_start_time = gsub("T", " ", df$survey_start_time, fixed = TRUE)
     df$survey_start_time = as.POSIXct(df$survey_start_time,
-      tryFormats = c('%Y-%m-%d' ,'%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
+      tryFormats = c('%Y-%m-%d' ,'%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'),
+      tz=Sys.timezone())
   }
   if ('survey_end_time' %in% names(df)){
     df$survey_end_time = gsub("T", " ", df$survey_end_time, fixed = TRUE)
     df$survey_end_time = as.POSIXct(df$survey_end_time,
-      tryFormats = c('%Y-%m-%d' ,'%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'), tz=Sys.timezone())
+      tryFormats = c('%Y-%m-%d' ,'%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'),
+      tz=Sys.timezone())
   }
   return (df)
 }
@@ -66,7 +69,8 @@ add_observed_nights = function(df){
       dplyr::mutate(observed_night = as.Date(observed_night))
     return(clean_df)
   } else if('recording_time' %in% names(df) & !'POSIXct' %in% class(df$recording_time)){
-    message('Field name recording_time is not in POSIXct format.  Run clean_time_fields() against your dataframe first')
+    message('Field name recording_time is not in POSIXct format.
+      Run clean_time_fields() against your dataframe first')
   } else{
     message('Field name recording_time is not found in input dataframe')
   }
@@ -141,7 +145,7 @@ myLetters = function(length.out) {
 }
 
 
-#' @title Get Stationary Acoustic Results for Report
+#' @title Lat long to county/state
 #'
 #' @description
 #' Get the county and state for a lat/lon wgs84 point
@@ -155,11 +159,14 @@ ll_to_county_state = function(points_df) {
   # per state (plus DC, minus HI & AK)
   this_map =  map('county' , fill=TRUE, col="transparent", plot=FALSE)
   # Upper case to first letter in states or counties
-  IDs = sapply(sapply(strsplit(this_map$names, ":"), function(x) x[1]), .simpleCap)
+  IDs = sapply(sapply(strsplit(this_map$names, ":"),
+    function(x) x[1]), .simpleCap)
   names(IDs) = NULL
-  states_sp = map2SpatialPolygons(this_map, IDs=IDs,proj4string=CRS("+proj=longlat +datum=WGS84"))
+  states_sp = map2SpatialPolygons(this_map,
+    IDs=IDs,proj4string=CRS("+proj=longlat +datum=WGS84"))
   # Convert points_df to a SpatialPoints object
-  points_sp = SpatialPoints(points_df, proj4string=CRS("+proj=longlat +datum=WGS84"))
+  points_sp = SpatialPoints(points_df,
+    proj4string=CRS("+proj=longlat +datum=WGS84"))
   # Use 'over' to get _indices_ of the Polygons object containing each point
   indices = over(points_sp, states_sp)
   # Return the state or county names of the Polygons object containing each point
@@ -167,10 +174,9 @@ ll_to_county_state = function(points_df) {
   return (stateNames[indices])
 }
 
-#' @title Get Stationary Acoustic Results for Report
+#' @title Simple Cap
 #'
-#' @description
-#' Combine the spatial information (states and counties) with the detector info and species detected
+#' @description Helper function for capitlization of County/states
 #'
 #' @export
 #'
@@ -184,8 +190,8 @@ ll_to_county_state = function(points_df) {
 
 #' @title Get GQL url
 #'
-#' @description
-#' Combine the spatial information (states and counties) with the detector info and species detected
+#' @description Combine the spatial information (states and counties)
+#' with the detector info and species detected
 #'
 #' @export
 #'
@@ -201,8 +207,9 @@ get_gql_url =  function(
 
 #' @title Get Project file bucket for AWS
 #'
-#' @description
-#' Combine the spatial information (states and counties) with the detector info and species detected
+#' @description Returns the name of the AWS bucket based on beta/prod
+#'
+#' @param branch String Branch to use either 'beta' or 'prod'
 #'
 #' @export
 #'

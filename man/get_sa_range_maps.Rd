@@ -15,8 +15,30 @@ get_sa_range_maps(
   species_shp = species_range_shps
 )
 }
+\arguments{
+\item{sa_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
+
+\item{project_df}{Dataframe NABat projects. Can get from
+get_projects()}
+
+\item{project_id}{Integer Project Id}
+
+\item{all_species_totals_l_l}{Dataframe Species totals. Can get from
+get_all_species_counts_long()}
+
+\item{species_df}{Dataframe species nabat lookup dataframe}
+
+\item{out_dir}{String Directory to save the temp directory with
+all the maps into. Be sure not to end with '/'}
+
+\item{save_bool}{Boolean Whether to save out maps or not}
+
+\item{species_shp}{SpatialPolygonsDataFrame Species range maps
+for NABat. Auto set to global species_range_shps variable}
+}
 \description{
-builds and saves out the species grts map with species range
+Builds and saves out the species grts map with species range
 map overlayed and species range map on its own to see full species range.
 Using a USGS shapefile for species ranges.
 }

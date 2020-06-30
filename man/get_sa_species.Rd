@@ -7,7 +7,19 @@
 get_sa_species(sa_bulk_df, species_df, type = "all", format = "df")
 }
 \arguments{
-\item{sa_bulk_df}{Dataframe Output from get_sa_
+\item{sa_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
+
+\item{species_df}{Dataframe species nabat lookup dataframe}
+
+\item{type}{String type of data to return for Stationary
+Acoustic 'auto' | 'man' | 'all' (automatic detection,
+manual detections, and both)}
+
+\item{format}{String format of data to return 'df' = dataframe of
+the species from this data, 'vector' = a string vector of all
+of the species from this data, 'vectorNoId' = a strin vector of all
+of the species but exclude 'NoID'
 
 \dontrun{
 

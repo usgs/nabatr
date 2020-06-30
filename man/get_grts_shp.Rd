@@ -14,7 +14,8 @@ get_grts_shp(grts_ids, project_id, project_df)
 \item{project_df}{Dataframe output from get_projects()}
 }
 \description{
-Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.
+Builds a grts shapefile from the grts_ids parameter.
+note: uses rgdal and spatial packages.
 }
 \keyword{CONUS}
 \keyword{NABat,}

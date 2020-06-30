@@ -40,7 +40,8 @@ get_grts_leaflet_map = function(
   grts_with_data = NULL){
 
   project_id_ = project_id
-  grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
+  grts_fname = as.character(subset(project_df,
+                            project_df$project_id == project_id_)$sample_frame_short)
   # Get grts_fname_df
   grts_fname_df = grts_lookup_df[grts_fname][[1]]
   # Create grts_template_df dataframe and merge with grts_fname_df
@@ -48,10 +49,7 @@ get_grts_leaflet_map = function(
   grts_df = plyr::join(grts_template_df, grts_fname_df, by = c('GRTS_ID'), type = "left")
 
   # Creating map with an Imagery layer
-  m = leaflet() %>% #addTiles("http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
-    #attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    #group = "World Imagery")
-    addTiles()
+  m = leaflet() %>% addTiles()
   # Loop through all all_grts, create a polygon for each, and add to the leaflet map m
   count = 0
   for (grts_cell in all_grts){
@@ -72,7 +70,8 @@ get_grts_leaflet_map = function(
     # Content for the hover
     content = paste0(as.character(grts_cell))
     # Content for the popup (on click)
-    content_popup = paste0('<b style = "color:',color_2,';" >GRTS cell</b>', '<br> <div style = "color:', color_2, ';" >', content, '</div>')
+    content_popup = paste0('<b style = "color:',color_2,';" >GRTS cell</b>',
+                          '<br> <div style = "color:', color_2, ';" >', content, '</div>')
 
     # Creating lat/lon points for the grts polygon
     this_row = subset(grts_df,grts_df$GRTS_ID == grts_cell)
@@ -96,7 +95,8 @@ get_grts_leaflet_map = function(
 
   }
   # Add legend to leaflet map
-  m = m %>% addLegend('bottomright',labels = c('Has survey data', 'No survey data'), colors = c('#198a00', '#ff0000'), opacity =1)
+  m = m %>% addLegend('bottomright',labels = c('Has survey data', 'No survey data'),
+    colors = c('#198a00', '#ff0000'), opacity =1)
 
   # Return the leaflet map
   return (m)
@@ -111,8 +111,9 @@ get_grts_leaflet_map = function(
 #' @import rgdal
 #' @import plyr
 #'
-#' @description
-#' Builds a grts shapefile from the grts_ids parameter.  note: uses rgdal and spatial packages.
+#' @description Builds a grts shapefile from the grts_ids parameter.
+#' note: uses rgdal and spatial packages.
+#'
 #' @param grts_ids Character Vector GRTS Ids
 #' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
@@ -126,7 +127,8 @@ get_grts_shp = function(
   project_df){
 
   # Call Build polygons dataframe from GRTS IDs function
-  grts_shp_df = get_grts_shp_df(grts_ids = grts_ids, project_id = project_id, project_df = project_df)
+  grts_shp_df = get_grts_shp_df(grts_ids = grts_ids,
+    project_id = project_id, project_df = project_df)
   # Call Build spatial polygons dataframe from GRTS shape dataframe
   grts_spdf   = get_spdf_from_polys_df(grts_shp_df)
   return (grts_spdf)
@@ -154,7 +156,8 @@ get_grts_shp_df = function(
 
   grts_template_df = data.frame(GRTS_ID = as.integer(grts_ids))
   project_id_ = project_id
-  grts_fname = as.character(subset(project_df, project_df$project_id == project_id_)$sample_frame_short)
+  grts_fname = as.character(subset(project_df,
+                            project_df$project_id == project_id_)$sample_frame_short)
   grts_fname_df = grts_lookup_df[grts_fname][[1]]
   grts_df = plyr::join(grts_template_df, grts_fname_df, by = c('GRTS_ID'), type = "left")
 

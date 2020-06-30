@@ -16,13 +16,15 @@ get_ma_project_summary(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token() or
+get_refresh_token()}
 
 \item{project_df}{Dataframe output from get_projects()}
 
 \item{project_id}{Numeric or String a project id}
 
-\item{branch}{(optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'}
+\item{branch}{(optional) String that defaults to 'prod' but can also be
+'dev'|'beta'|'local'}
 
 \item{url}{(optional) String url to use for GQL}
 
@@ -33,17 +35,6 @@ get_ma_project_summary(
 \item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
-Returns a dataframe with all of a project's acoustic mobile data down to the event
+Returns a dataframe with all of a project's acoustic
+mobile data down to the event
 }
-\examples{
-
-\dontrun{
-survey_df = get_project_surveys(token,
-                                get_projects(token),
-                                project_id)
-}
-
-}
-\keyword{GQL}
-\keyword{NABat,}
-\keyword{bats,}

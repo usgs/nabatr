@@ -6,6 +6,19 @@
 \usage{
 build_sa_table_1(sa_bulk_df, project_id, project_df, species_df, selected_year)
 }
+\arguments{
+\item{sa_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
+
+\item{project_id}{Integer Project Id}
+
+\item{project_df}{Dataframe NABat projects. Can get from
+get_projects()}
+
+\item{species_df}{Dataframe species nabat lookup dataframe}
+
+\item{selected_year}{Integer Report year to use}
+}
 \description{
 Returns a table with GRTS, Species_Detected, and Method_of_Species_ID
 }

@@ -14,7 +14,8 @@ build_col_doc(
 )
 }
 \description{
-Using the outputs from get_projects(), get_project_surveys(), get_colony_bulk_counts(),
+Using the outputs from get_projects(),
+get_project_surveys(), get_colony_bulk_counts(),
 and () this function will create a report .docx file to an out_dir.
 }
 \examples{

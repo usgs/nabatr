@@ -6,6 +6,16 @@
 \usage{
 get_cc_species(cc_bulk_df, species_df, format = "df")
 }
+\arguments{
+\item{species_df}{Dataframe species nabat lookup dataframe}
+
+\item{format}{String format of data to return 'df' = dataframe of
+the species from this data, 'vector' = a string vector of all
+of the species from this data, 'vectorNoId' = a strin vector of all
+of the species but exclude 'NoID'}
+
+\item{cc_bulkd_df}{Dataframe colony count bulk data}
+}
 \description{
 Extracts Get all of the species found within these
 Colony Count data

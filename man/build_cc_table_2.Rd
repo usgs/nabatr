@@ -6,6 +6,9 @@
 \usage{
 build_cc_table_2(cc_bulk_df)
 }
+\arguments{
+\item{cc_bulkd_df}{Dataframe colony count bulk data}
+}
 \description{
 Number of species found dead
 and alive at each GRTS cell

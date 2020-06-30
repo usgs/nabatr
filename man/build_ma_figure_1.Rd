@@ -7,7 +7,8 @@
 build_ma_figure_1(ma_bulk_df, project_id, project_df, year = NULL)
 }
 \arguments{
-\item{ma_bulk_df}{Dataframe create from either get_ma_bulk_wavs()}
+\item{ma_bulk_df}{Dataframe Mobile acoustic bulk data. Can get from
+get_ma_bulk_wavs() in nabatr}
 
 \item{project_id}{Integer project id}
 

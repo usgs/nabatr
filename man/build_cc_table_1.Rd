@@ -6,6 +6,11 @@
 \usage{
 build_cc_table_1(cc_bulk_df, noid = TRUE)
 }
+\arguments{
+\item{noid}{Boolean Whether or not to include NoID in table}
+
+\item{cc_bulkd_df}{Dataframe colony count bulk data}
+}
 \description{
 Summary of winter colony count surveys
 }

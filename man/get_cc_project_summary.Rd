@@ -16,7 +16,8 @@ get_cc_project_summary(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token() or
+get_refresh_token()}
 
 \item{project_df}{Dataframe output from get_projects()}
 
@@ -33,17 +34,6 @@ get_cc_project_summary(
 \item{docker}{(optional) Boolean if being run in docker container or not}
 }
 \description{
-Returns a dataframe with all of a project's colony count data down to the event
+Returns a dataframe with all of a project's colony
+count data down to the event
 }
-\examples{
-
-\dontrun{
-survey_df = get_project_surveys(token,
-                                get_projects(token),
-                                project_id)
-}
-
-}
-\keyword{GQL}
-\keyword{NABat,}
-\keyword{bats,}

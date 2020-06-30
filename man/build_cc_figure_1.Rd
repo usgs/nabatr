@@ -6,6 +6,12 @@
 \usage{
 build_cc_figure_1(cc_bulk_df, out_dir, save_bool = TRUE)
 }
+\arguments{
+\item{out_dir}{String output directory. Make sure it doesn't
+end with '/'}
+
+\item{cc_bulkd_df}{Dataframe colony count bulk data}
+}
 \description{
 Winter Colony counts of bats by site and species
 }

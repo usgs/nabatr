@@ -6,6 +6,9 @@
 \usage{
 cc_fig_1_ggplot(fig)
 }
+\arguments{
+\item{fig}{Ggplot2 output figures from build_cc_figure_1}
+}
 \description{
 Use this to display returned figures in list from
 build_cc_figure_1

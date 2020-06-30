@@ -6,6 +6,9 @@
 \usage{
 get_project_file_bucket(branch = "prod")
 }
+\arguments{
+\item{branch}{String Branch to use either 'beta' or 'prod'}
+}
 \description{
-Combine the spatial information (states and counties) with the detector info and species detected
+Returns the name of the AWS bucket based on beta/prod
 }
