@@ -1,0 +1,175 @@
+---
+title: "Detection History workbook"
+output:
+  html_document: default
+---
+
+## Extract Nightly data from NABat Project and convert to 'detection history' format
+
+### Note: if you can't get nabatr to load on your computer, you can download this
+###  data from the website by going to your projects, selecting a project, going
+###  to the 'expore project data' button in the top right, selecting 'Frequency by
+###  Time' tab at the top right and then clicking the 'Export NABat Data' button.
+###  Using that data go to line
+
+
+```{r}
+username_ = 'nabat_username'
+token_ = get_nabat_gql_token(username = username_)
+token_
+```
+
+
+### Extract data from database using GQL query function
+```{r}
+# refresh login token (if it fails just relogin with first cell)
+token_ = get_refresh_token(token_)
+
+#how to pull Stationary acoustic data
+sae_nightly_data = get_nightly_data(token = token_, 
+  project_id = 284, 
+  years = '[]',
+  survey_type = 'bulk_sae')
+
+# how to pull Mobile acoustic data
+mae_nightly_data = get_nightly_data(token = token_, 
+  project_id = 128, 
+  years = '[]',
+  survey_type = 'bulk_mae')
+
+# how to pull Colony Count data
+cc_nightly_data = get_nightly_data(token = token_, 
+  project_id = 128, 
+  years = '[]',
+  survey_type = 'bulk_cc')
+
+sae_nightly_data
+# mae_nightly_data
+# cc_nightly_data
+```
+
+### Use this if you want to import the data locally
+```{r}
+file_path = '/path/to/your/NABat_Data_Export.csv'
+# Stationary acoustic csv
+sae_nightly_data = read.csv(file_path, stringsAsFactors = FALSE)
+```
+
+
+Right now my workflow is ----
+1. Pull data from database using GQL and NabatR ( Should be the exact format the website allows you to download - need to double check this)
+2. This data is in a long format with absence data present and actual count values (not just 0 and 1)
+3. The next step is to convert this data into a digestible format for Wilson modeling software
+  -Using these parameters:
+    nightly_data = sae_nightly_data     - stationary acoustic
+    species = 'MYLU'                    - species code
+    years_ = unique(nightly_data$year)  - years ex: (2016,2017,2018,2019)
+    year = years_[1]                    - 1 year (2016)
+    survey_type = 'bulk_sae'            - stationary acoustic
+    method = 'manual'                   - was the data manually vetted ('manual' = manually vetted and 'automatic' = just use software results)
+    add_metadata = TRUE                 - add metadata to the final wide format with nights on top
+    count_boolean = TRUE                - if TRUE, then only use 0 and 1 values for presence of species at this event/night
+    grts_only = TRUE                    - if TRUE, then aggregate the values to the GRTS level
+
+
+### Follows the above workflow (will eventually be turned into a function and added to /R code)
+```{r}
+nightly_data = sae_nightly_data
+species = 'MYLU'
+years_ = unique(nightly_data$year)
+year = years_[1]
+survey_type = 'bulk_sae'
+method = 'automatic'
+add_metadata = TRUE
+count_boolean = TRUE
+grts_only = TRUE
+
+  years = year # Can't be year, otherwise subset function breaks
+  species_list = unique(nightly_data$species_code)
+  
+  if (survey_type == 'bulk_sae'){
+    fields = c('night_count', 'night', 'site_name', 'species_code','count_auto_id', 
+                  'count_vetted', 'start_time', 'end_time', 'project_id', 'year', 'event_id', 
+                  'grts_cell_id', 'grts_id', 'location_name', 'software') 
+  }else if (survey_type == 'bulk_mae'){
+    fields = c('night_count', 'night', 'site_name', 'species_code','count_auto_id', 
+                  'count_vetted', 'start_time', 'end_time', 'project_id', 'year', 'event_id', 
+                  'grts_cell_id', 'grts_id', 'location_name', 'software')
+  }
+  
+  # Create fields for MAE and SAE data
+  nightly_df_1 = nightly_data %>% 
+    subset(., year == as.character(years)) %>%
+    subset(., species_code == species) %>%
+    dplyr::group_by(event_id) %>% 
+    dplyr::mutate(start_time = as.Date(str_split(activation_start_time, 'GMT')[[1]][1], '%a %b %d %Y')) %>%
+    dplyr::mutate(end_time = as.Date(str_split(activation_end_time, 'GMT')[[1]][1], '%a %b %d %Y')) %>%
+    dplyr::mutate(night = as.Date(paste(year,month,day, sep='-'),'%Y-%M-%d')) %>%
+    dplyr::mutate(site_name = paste(grts_cell_id, location_name, sep = '_')) %>%
+    dplyr::mutate(count_auto_id = as.integer(count_auto_id)) %>%
+    dplyr::mutate(count_vetted = as.integer(count_vetted)) %>%
+    dplyr::mutate(count_auto_id = ifelse(is.na(count_auto_id), 0, count_auto_id)) %>%
+    dplyr::mutate(count_vetted = ifelse(is.na(count_vetted), 0, count_vetted)) %>%
+    dplyr::arrange(site_name, night) %>%
+    dplyr::mutate(night_count = seq(1:n())) %>%
+    dplyr::ungroup()
+  
+  if(count_boolean){
+    nightly_df_1 = nightly_df_1 %>% dplyr::mutate(count_auto_id = ifelse(count_auto_id == 0, 0, 1)) %>%
+      dplyr::mutate(count_vetted = ifelse(count_vetted == 0, 0, 1))
+  }
+  
+  
+  # Only select specific fields based on survey_type
+  nightly_df_2 = nightly_df_1 %>%
+    dplyr::select(fields)
+  
+  if (method == 'manual'){
+    count_name = 'count_vetted'
+    manually_vetted = TRUE
+  }else if (method == 'automatic'){
+    count_name = 'count_auto_id'
+    manually_vetted = FALSE
+  }
+  
+  # Go from Long to Wide format Manual Vetted
+  nightly_df_3 = nightly_df_2 %>% dplyr::group_by(site_name) %>% 
+    dplyr::select('night_count', 'site_name', count_name, 'event_id') %>% 
+    spread(., night_count, count_name) %>% 
+    ungroup()
+  # Rename the field headers with Night (this is the method to use if you want to keep them in the correct order)
+  night_fields = paste0('Night_', colnames(nightly_df_3)[3:length(colnames(nightly_df_3))])
+  colnames(nightly_df_3) = c('site_name', 'event_id', night_fields) 
+  
+  # Metadata lookup table
+  metadata_df = nightly_data %>% dplyr::select('grts_cell_id', 'location_name', 'software_id', 'year', 'project_id', 'event_id') %>% distinct() %>%
+    subset(., year == as.character(years))
+  
+  # Add in some metadata
+  if (add_metadata){
+    nightly_df_4 = nightly_df_3 %>% 
+      dplyr::left_join(metadata_df, by='event_id') %>% 
+      dplyr::mutate(manually_vetted = manually_vetted) %>%
+      dplyr::select(c(c('site_name', 'event_id', 'manually_vetted', night_fields), 'grts_cell_id', 'location_name', 'software_id', 'year', 'project_id')) %>%
+      dplyr::mutate(species = species)
+  }else{
+    nightly_df_4 = nightly_df_3
+  }
+
+  # Aggregates to GRTS instead of sites if grts_only = TRUE
+  if (grts_only){
+    nightly_df_5 = nightly_df_4 %>%  
+      dplyr::group_by(grts_cell_id) %>% 
+      dplyr::summarise_at(night_fields, funs(sum)) %>%
+      dplyr::left_join(nightly_df_4 %>% dplyr::select(-c(night_fields, site_name, event_id, location_name)) %>% dplyr::distinct(), 
+        by = 'grts_cell_id')
+    # Convert all values to 0 or 1 values
+    if(count_boolean){
+      nightly_df_5[,1:length(night_fields)+1] [nightly_df_5[,1:length(night_fields)+1] > 0] = 1
+    }
+  }else {
+    nightly_df_5 = nightly_df_4
+  }
+
+nightly_df_5
+```
