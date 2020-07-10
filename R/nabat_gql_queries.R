@@ -1917,7 +1917,152 @@ process_uploaded_csv = function(
   pro_content = httr::content(pro_res, as = 'text')
   content_json = fromJSON(pro_content, flatten = TRUE)
   return(pro_content)
+}
+
+
+#' @title Get Nightly data for a specific Survey Type
+#'
+#' @description Returns a dataframe with Detection history (long format)
+#' that can be used to create a wide format per species
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param project_id Numeric or String a project id
+#' @param years String or Number This value is a little more confusing since
+#' it gets passed through a JSON and interpreted as an array.  If using a
+#' single year, just do year = 2018.  If using a String, it can be an empty
+#' array or an array with years inside.
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @export
+#'
+
+get_nightly_data = function(
+  token,
+  project_id,
+  years = '[]',
+  survey_type = 'bulk_sae',
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+      bucket = 'nabat-prod-project-files'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+      bucket = 'nabat-beta-project-files'
+    }
+  }else {
+    url_ = url
+    bucket = NULL
   }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  if (survey_type == 'bulk_sae'){
+    data_type = 1
+  }else if(survey_type == 'bulk_mae'){
+    data_type = 2
+  }else if (survey_type == 'bulk_cc'){
+    data_type = 3
+  }else{
+    message('Incorrect survey_type input')
+  }
+
+  operation_name = paste0('RR',survey_type,'NightDetections')
+  nightly_query = 'query visualizationData(
+  $type: Int!
+  $vetted: Boolean!
+  $grtsOnly: Boolean!
+  $projectIds: [Int]!
+  $years: [Int]!
+  $months: [Int]!
+  $days: [Int]!
+  $hours: [Int]!
+  $minutes: [Int]!
+  $speciesIds: [Int]!
+  $softwareIds: [Int]!
+  $eventIds: [Int]!
+  $eventGeometryIds: [Int]!
+  $grtsIds: [Int]!
+  ) {
+  visualizationData(
+  type: $type
+  vetted: $vetted
+  grtsOnly: $grtsOnly
+  projectIds: $projectIds
+  years: $years
+  months: $months
+  days: $days
+  hours: $hours
+  minutes: $minutes
+  speciesIds: $speciesIds
+  softwareIds: $softwareIds
+  eventIds: $eventIds
+  eventGeometryIds: $eventGeometryIds
+  grtsIds: $grtsIds
+  ) {
+  headers
+  body
+  }
+  }'
+
+  pr_variables = paste0('{
+    "type": ',data_type,',
+    "vetted": true,
+    "grtsOnly": true,
+    "projectIds": ',project_id,',
+    "years": ',years,',
+    "months": [],
+    "days": [],
+    "hours": [],
+    "minutes": [],
+    "speciesIds": [],
+    "softwareIds": [],
+    "eventIds": [],
+    "eventGeometryIds": [],
+    "grtsIds": []
+}')
+
+  pr_pbody = list(query = nightly_query,
+    variables = pr_variables)
+  # operationName = operation_name)
+  res = httr::POST(url_, headers_, body = pr_pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  content_json = fromJSON(content, flatten = TRUE)
+  content_df   = as.data.frame(content_json$data$visualizationData$body, stringsAsFactors = FALSE)
+  colnames(content_df) = content_json$data$visualizationData$headers
+
+  return(content_df)
+}
 
 
 
