@@ -10,10 +10,11 @@ output:
 ###  data from the website by going to your projects, selecting a project, going
 ###  to the 'expore project data' button in the top right, selecting 'Frequency by
 ###  Time' tab at the top right and then clicking the 'Export NABat Data' button.
-###  Using that data go to line
+###  Skip to line 51
 
 
 ```{r}
+library(nabatr)
 username_ = 'nabat_username'
 token_ = get_nabat_gql_token(username = username_)
 token_
