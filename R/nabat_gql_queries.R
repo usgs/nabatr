@@ -336,7 +336,7 @@ get_refresh_token = function(
   }
 
   if (is.null(token)){
-    message('Run get_nabat_gql_token() to log back in.')
+    stop('Run get_nabat_gql_token() to log back in.')
     # return (get_nabat_gql_token(username=NULL,
     #   password =NULL,
     #   branch = branch,
