@@ -74,9 +74,9 @@ get_observed_nights = function(acoustic_bulk_df){
 
     # Replace Unconfirmed with NoID in Auto Id field
     ex_grts_df$auto_species[is.na(ex_grts_df$auto_species)] = "NoID"
-    ex_grts_df$manual_species[is.na(ex_grts_df$manual_species)] = "NoID"
+    # ex_grts_df$manual_species[is.na(ex_grts_df$manual_species)] = "NoID"
     ex_grts_df$auto_id[is.na(ex_grts_df$auto_id)] = "NoID"
-    ex_grts_df$manual_id[is.na(ex_grts_df$manual_id)] = "NoID"
+    # ex_grts_df$manual_id[is.na(ex_grts_df$manual_id)] = "NoID"
 
     survey_dates = unique(ex_grts_df$observed_night)
     for (x in c(1:length(survey_dates))){

@@ -424,8 +424,7 @@ get_sa_results = function(
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
   # Total number of bat calls (all recording wav files counted)
   # Total number of detector nights across all sites
-  total_nights_df = sa_bulk_df %>% dplyr::select(stationary_acoustic_values_id,
-    survey_night_start, survey_night_end) %>%
+  total_nights_df = sa_bulk_df %>% dplyr::select(survey_night_start, survey_night_end) %>%
     dplyr::distinct() %>% dplyr::rowwise() %>%
     dplyr::mutate(total_nights =
         as.integer(as.Date(survey_night_end) - as.Date(survey_night_start)) + 1)

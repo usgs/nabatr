@@ -285,12 +285,9 @@ build_sa_doc =  function(
         ". NABat GRTS map with the species range map overlayed(",
         spc_range_name,").  Green GRTS cells represent the presence of ",
         spc_range_name,
-        " found using only Manual detection.  Blue GRTS cells represent the
-        presence of ",
-        spc_range_name," found using only Automatic detection.
-        Orange GRTS cells represent the presence of ",
-        spc_range_name," found using both Automatic and Manual detection.
-        Transparent GRTS cells represent no detections found for ",
+        " found using only Manual detection.  Blue GRTS cells represent the presence of ",
+        spc_range_name," found using only Automatic detection. Orange GRTS cells represent the presence of ",
+        spc_range_name," found using both Automatic and Manual detection. Transparent GRTS cells represent no detections found for ",
         spc_range_name,".")
       # Add the maps to the doc
       sa_doc = sa_doc %>%
