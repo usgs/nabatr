@@ -62,7 +62,6 @@ token = get_refresh_token(token)
 # Get mobile acoustic bulk upload format dataframe
 ma_bulk_df = get_ma_bulk_wavs(token,
                               ma_survey_df,
-                              project_id,
                               year)
 # Display mobile acoustic bulk upload format dataframe
 ma_bulk_df
