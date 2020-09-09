@@ -62,7 +62,6 @@ token = get_refresh_token(token)
 # Get stationary acoustic bulk upload format dataframe
 sa_bulk_df = get_sa_bulk_wavs(token, 
                                sa_survey_df,
-                               project_id,
                                year)
 # Display stationary acoustic bulk upload format dataframe
 sa_bulk_df

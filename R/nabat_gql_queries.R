@@ -1028,13 +1028,13 @@ get_sa_bulk_wavs_old = function(
 #' @examples
 #'
 #' \dontrun{
-#' acoustic_bulk_df = get_ma_bulk_wavs(token,
+#' acoustic_bulk_df = get_ma_bulk_wavs_old(token,
 #'                                           get_acoustic_m_project_summary(),
 #'                                           project_id)
 #' }
 #'
 #' @export
-get_ma_bulk_wavs = function(
+get_ma_bulk_wavs_old = function(
   token,
   survey_df,
   project_id,
@@ -2461,4 +2461,405 @@ get_sa_bulk_wavs = function(
 
 
 
+#' @title Get Mobile Acoustic Batch
+#'
+#' @description Returns all MA batch files at selected year from information
+#' extracted using the survey_df (output of get_ma_project_summary())
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param survey_df Dataframe MA summary data for a project.  Running
+#' get_ma_project_summary() will create this survey_df
+#' @param year (optional) String Year of data to extract out.  Can also be set to 'all'
+#' Defaults to NULL which grabs first year available from survey_df.
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @export
+#'
+get_ma_batch = function(
+  token,
+  survey_df,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise
+  ## use the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  # Extract all survey ids from survey_df
+  if (is.null(year)){
+    year_ = as.integer(unique(survey_df$year)[1])
+    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+  } else if (year == 'all'){
+    survey_ids = unique(survey_df$survey_id)
+    event_ids = unique(survey_df$event_id)
+    year_ = NULL
+  } else{
+    year_ = as.integer(year)
+    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+  }
+
+  event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
+
+  query =paste0('query {
+    allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 8}}) {
+    nodes {
+    eventId
+    softwareId
+    softwareBySoftwareId {
+    name
+    versionNumber
+    }
+    classifierId
+    classifierByClassifierId {
+    name
+    description
+    }
+    acousticFileBatchesByBatchId {
+    nodes {
+    recordingNight
+    autoId
+    speciesByAutoId {
+    speciesCode
+    }
+    manualId
+    speciesByManualId {
+    speciesCode
+    }
+    acousticFileByFileId {
+    id
+    fileName
+    recordingTime
+    recordingLocation{
+    geojson
+    }
+    }
+    }
+    }
+    }
+    }
+}')
+  # Create body to send to GQL
+  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
+  pbody = list(query = query)
+  # Post to nabat GQL
+  res      = httr::POST(url_, headers_, body = pbody, encode='json')
+  content  = httr::content(res, as = 'text')
+  content_json = fromJSON(content, flatten = TRUE)
+
+  ma_content_df = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
+    tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+
+  if (dim(ma_content_df)[1] == 0){
+    message('This survey has no data')
+    return (NULL)
+  }else{
+
+    names(ma_content_df)[names(ma_content_df) =='classifierByClassifierId.name'] = 'species_list_name'
+    names(ma_content_df)[names(ma_content_df) =='classifierByClassifierId.description'] = 'species_list_description'
+    names(ma_content_df)[names(ma_content_df) =='softwareBySoftwareId.name'] = 'software_name'
+    names(ma_content_df)[names(ma_content_df) =='speciesByAutoId.speciesCode'] = 'auto_name'
+    names(ma_content_df)[names(ma_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
+
+    names(ma_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(ma_content_df), perl = TRUE))
+    names(ma_content_df) = sub('.*\\.', '', names(ma_content_df))
+
+    names(ma_content_df)[names(ma_content_df) =='file_name'] = 'audio_recording_name'
+
+    coordinates = as.data.frame(ma_content_df, stringsAsFactors = FALSE) %>% dplyr::select(c('id','coordinates', 'type'))
+
+    coordinates_polygons = dplyr::filter(coordinates, type == 'Polygon')
+    coordinates_points   = dplyr::filter(coordinates, type == 'Point')
+
+    # If points exist
+    if (dim(coordinates_points)[1] > 0){
+      coordinates_points_df = as.data.frame(
+        cbind(
+          coordinates_points$id,
+          do.call(rbind, coordinates_points$coordinates),
+          coordinates_points$type,
+          stringsAsFactors = F), stringsAsFactors = F) %>%
+        dplyr::rename('longitude' = 'V2', 'latitude' = 'V3', 'wav_id' = 'V1', 'type' = 'V4') %>%
+        dplyr:: select(-c('stringsAsFactors', 'type'))
+      coordinates_points_df$wav_id = as.integer(coordinates_points_df$wav_id)
+      coordinates_points_df$longitude = as.numeric(coordinates_points_df$longitude)
+      coordinates_points_df$latitude = as.numeric(coordinates_points_df$latitude)
+    } else{
+      coordinates_points_df = data.frame()
+    }
+
+    # If Polygons exist
+    if (dim(coordinates_polygons)[1] > 0){
+      coordinates_polygons_df = coordinates_polygons %>% dplyr::select(-coordinates) %>%
+        dplyr::mutate(longitude = NA) %>%
+        dplyr::mutate(latitude = NA) %>%
+        dplyr::rename('wav_id' = 'id') %>%
+        dplyr::select(-c('type'))
+      coordinates_polygons_df$wav_id = as.integer(coordinates_polygons_df$wav_id)
+    }else{
+      coordinates_polygons_df = data.frame()
+    }
+
+    # Combine points and polygons if they exist.  (polygons will just be NULL lat/lon values)
+    ##  If you want the geometry for the polygons use GRTS CELL ID and sample frame to lookup geoms
+    coordinates_df = rbind(coordinates_points_df, coordinates_polygons_df)
+    # Set correct type to id field to join the two dfs together
+    ma_content_df$id = as.integer(ma_content_df$id)
+    # Join the events metadata df with the event coordinates df
+    ma_batch_df = dplyr::left_join(ma_content_df, coordinates_df, by = c('id' = 'wav_id')) %>%
+      dplyr::select(-c('coordinates'))
+
+    return (as.data.frame(ma_batch_df))
+  }
+}
+
+
+
+
+#' @title Get Mobile Acoustic event metadata
+#'
+#' @description Returns a dataframe with metadata that is linked
+#' to the event id.  This is used with get_ma_batch() output
+#' to create the MA bulk wav output.
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param survey_df Dataframe MA summary data for a project.  Running
+#' get_ma_project_summary() will create this survey_df
+#' @param year (optional) String Year of data to extract out.  Can also be set to 'all'
+#' Defaults to NULL which grabs first year available from survey_df.
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#'
+#' @export
+#'
+get_ma_event_metadata = function(
+  token,
+  survey_df,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise
+  ## use the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  # Extract all survey ids from survey_df
+  if (is.null(year)){
+    year_ = as.integer(unique(survey_df$year)[1])
+    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+  } else if (year == 'all'){
+    survey_ids = unique(survey_df$survey_id)
+    event_ids = unique(survey_df$event_id)
+    year_ = NULL
+  } else{
+    year_ = as.integer(year)
+    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
+    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+  }
+
+  event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
+
+  query =paste0('query MyQuery {
+    allMobileAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
+      nodes {
+        id
+        surveyId
+        activationEndTime
+        activationStartTime
+        surveyBySurveyId {
+          grtsId
+          projectId
+        }
+        contactInfo
+        createdBy
+        createdDate
+        comments
+        deviceId
+        eventGeometryId
+        habitatTypeId
+        lastModifiedBy
+        lastModifiedDate
+        microphonePlacement
+        microphoneHousingTypeId
+        microphoneId
+        timeZone
+        unusualOccurrences
+        eventGeometryByEventGeometryId {
+          name
+          description
+          geom {
+            geojson
+          }
+        }
+      }
+    }
+  }')
+  # Create body to send to GQL
+  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
+  pbody = list(query = query)
+  # Post to nabat GQL
+  res      = httr::POST(url_, headers_, body = pbody, encode='json')
+  content  = httr::content(res, as = 'text')
+  content_json = fromJSON(content, flatten = TRUE)
+
+  event_meta_content_df = as_tibble(content_json$data$allMobileAcousticEvents$nodes)
+
+  names(event_meta_content_df)[names(event_meta_content_df) =='eventGeometryByEventGeometryId.name'] = 'location_name'
+  names(event_meta_content_df)[names(event_meta_content_df) =='eventGeometryByEventGeometryId.description'] = 'location_description'
+
+  names(event_meta_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(event_meta_content_df), perl = TRUE))
+  names(event_meta_content_df) = sub('.*\\.', '', names(event_meta_content_df))
+
+  # Join the events metadata df with the event coordinates df
+  event_metadata_df = event_meta_content_df %>%
+    dplyr::rename('grts_cell_id' = 'grts_id',
+      'survey_start_time' = 'activation_start_time',
+      'survey_end_time' = 'activation_end_time') %>%
+    dplyr::select(-c('coordinates', 'type')) %>%
+    dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))
+
+  return (as.data.frame(event_metadata_df))
+}
+
+
+
+
+#' @title Get Acoustic Mobile bulk upload template dataframe
+#' for a project
+#'
+#' @description Returns all MA surveys within a single project (project_id)
+#' that are parsed by year using survey_df
+#'
+#' @param token List token created from get_nabat_gql_token()
+#'  or get_refresh_token()
+#' @param survey_df Dataframe a survey dataframe from the output
+#' of get_ma_project_summary()
+#' @param project_id Numeric or String a project id
+#' @param year (optional) Numeric year of data to be returned.
+#' NULL = first year, 'all' = all years, 2018 = only 2018 data
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#'  or not
+#'
+#' @export
+#'
+get_ma_bulk_wavs = function(
+  token,
+  survey_df,
+  year = NULL,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+  # New query against all batches in the event
+  message('Querying MA wav files')
+  acc_events = get_ma_batch(token = token,
+    survey_df = survey_df,
+    year = year,
+    branch = branch,
+    url = url,
+    aws_gql = aws_gql,
+    aws_alb = aws_alb,
+    docker = docker)
+
+  if (is.null(acc_events)){
+    message('Will not merge with metadata since no data exists')
+    return (NULL)
+  }else{
+    message('Querying and merging metadata to wav files')
+    # New query for all metadata at a Stationary Acoustic Event
+    event_metadata = get_ma_event_metadata(token = token,
+      survey_df = survey_df,
+      year = year,
+      branch = branch,
+      url = url,
+      aws_gql = aws_gql,
+      aws_alb = aws_alb,
+      docker = docker)
+
+    ma_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('event_id' = 'id'))
+    return (as.data.frame(ma_bulk_wav_df))
+  }
+}
 
