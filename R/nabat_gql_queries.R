@@ -2148,7 +2148,7 @@ get_sa_batch = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query {
+  query =paste0('query RRallSaBatches{
     allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 7}}) {
     nodes {
     eventId
@@ -2184,8 +2184,7 @@ get_sa_batch = function(
     }
 }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallSaBatches')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
@@ -2294,7 +2293,7 @@ get_sa_event_metadata = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query MyQuery {
+  query =paste0('query RRallSaEvents {
     allStationaryAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
     nodes {
     id
@@ -2339,8 +2338,7 @@ get_sa_event_metadata = function(
     }
 }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallSaEvents')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
@@ -2557,7 +2555,7 @@ get_ma_batch = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query {
+  query =paste0('query RRallMaBatches{
     allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 8}}) {
     nodes {
     eventId
@@ -2597,8 +2595,7 @@ get_ma_batch = function(
     }
 }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallMaBatches')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
@@ -2754,7 +2751,7 @@ get_ma_event_metadata = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query MyQuery {
+  query =paste0('query RRallSaEvents{
     allMobileAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
       nodes {
         id
@@ -2790,8 +2787,7 @@ get_ma_event_metadata = function(
     }
   }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallMaEvents')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
