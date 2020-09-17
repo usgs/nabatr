@@ -2162,6 +2162,7 @@ get_sa_batch = function(
     name
     description
     }
+    id
     acousticFileBatchesByBatchId {
     nodes {
     recordingNight
@@ -2198,6 +2199,7 @@ get_sa_batch = function(
   names(sae_content_df)[names(sae_content_df) =='softwareBySoftwareId.name'] = 'software_name'
   names(sae_content_df)[names(sae_content_df) =='speciesByAutoId.speciesCode'] = 'auto_name'
   names(sae_content_df)[names(sae_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
+  names(sae_content_df)[names(sae_content_df) =='id'] = 'batch_id'
 
   names(sae_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(sae_content_df), perl = TRUE))
   names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
@@ -2430,6 +2432,7 @@ get_sa_bulk_wavs = function(
   token,
   survey_df,
   year = NULL,
+  batch = 'first',
   branch = 'prod',
   url = NULL,
   aws_gql = NULL,
@@ -2444,18 +2447,32 @@ get_sa_bulk_wavs = function(
     aws_gql = aws_gql,
     aws_alb = aws_alb,
     docker = docker)
-  # New query for all metadata at a Stationary Acoustic Event
-  event_metadata = get_sa_event_metadata(token = token,
-    survey_df = survey_df,
-    year = year,
-    branch = branch,
-    url = url,
-    aws_gql = aws_gql,
-    aws_alb = aws_alb,
-    docker = docker)
 
-  sa_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('event_id' = 'id'))
-  return (as.data.frame(sa_bulk_wav_df))
+  if (is.null(acc_events)){
+    message('Will not merge with metadata since no data exists')
+    return (NULL)
+  }else{
+
+    if (batch == 'first'){
+      unique_batches = acc_events %>% dplyr::select(software_id, classifier_id) %>% dplyr::distinct()
+      acc_events = subset(acc_events,
+        acc_events$software_id == unique_batches[1,]$software_id &
+        acc_events$classifier_id == unique_batches[1,]$classifier_id)
+    }
+
+    # New query for all metadata at a Stationary Acoustic Event
+    event_metadata = get_sa_event_metadata(token = token,
+      survey_df = survey_df,
+      year = year,
+      branch = branch,
+      url = url,
+      aws_gql = aws_gql,
+      aws_alb = aws_alb,
+      docker = docker)
+
+    sa_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('event_id' = 'id'))
+    return (as.data.frame(sa_bulk_wav_df))
+  }
 }
 
 
@@ -2554,6 +2571,7 @@ get_ma_batch = function(
     name
     description
     }
+    id
     acousticFileBatchesByBatchId {
     nodes {
     recordingNight
@@ -2599,6 +2617,7 @@ get_ma_batch = function(
     names(ma_content_df)[names(ma_content_df) =='softwareBySoftwareId.name'] = 'software_name'
     names(ma_content_df)[names(ma_content_df) =='speciesByAutoId.speciesCode'] = 'auto_name'
     names(ma_content_df)[names(ma_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
+    names(ma_content_df)[names(ma_content_df) =='id'] = 'batch_id'
 
     names(ma_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(ma_content_df), perl = TRUE))
     names(ma_content_df) = sub('.*\\.', '', names(ma_content_df))
@@ -2827,6 +2846,7 @@ get_ma_bulk_wavs = function(
   token,
   survey_df,
   year = NULL,
+  batch = 'first',
   branch = 'prod',
   url = NULL,
   aws_gql = NULL,
@@ -2847,6 +2867,14 @@ get_ma_bulk_wavs = function(
     message('Will not merge with metadata since no data exists')
     return (NULL)
   }else{
+
+    if (batch == 'first'){
+      unique_batches = acc_events %>% dplyr::select(software_id, classifier_id) %>% dplyr::distinct()
+      acc_events = subset(acc_events,
+        acc_events$software_id == unique_batches[1,]$software_id &
+        acc_events$classifier_id == unique_batches[1,]$classifier_id)
+    }
+
     message('Querying and merging metadata to wav files')
     # New query for all metadata at a Stationary Acoustic Event
     event_metadata = get_ma_event_metadata(token = token,
