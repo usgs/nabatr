@@ -1927,12 +1927,12 @@ process_uploaded_csv = function(
 #'
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
-#' @param project_id Numeric or String a project id
-#' @param years String or Number This value is a little more confusing since
-#' it gets passed through a JSON and interpreted as an array.  If using a
-#' single year, just do year = 2018.  If using a String, it can be an empty
-#' array or an array with years inside.
+#' @param sp_code Character NABat species code/s from get_species()
 #' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param sample_frame (optional) String 'CONUS' | 'Alaska' | 'Canada' | 'Mexico' |
+#' 'Pureto Rico' | 'Hawaii'
+#' @param project_id Numeric for a project id or multiple project ids
+#' @param years (optional) Numeric for all years to be extracted for this data
 #' @param branch (optional) String that defaults to 'prod' but can also be
 #' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
@@ -1945,9 +1945,11 @@ process_uploaded_csv = function(
 
 get_nightly_data = function(
   token,
-  project_id,
-  years = '[]',
+  sp_code,
   survey_type = 'bulk_sae',
+  sample_frame = NULL,
+  project_id = NULL,
+  years = NULL,
   branch = 'prod',
   url = NULL,
   aws_gql = NULL,
@@ -2035,33 +2037,103 @@ get_nightly_data = function(
   }
   }'
 
+  # Get NABat species dataframe
+  species_df = get_species(token)
+
+  # Check for correct species code
+  if (prod((sp_code %in% species_df$species_code) * 1) == 0){
+    stop(paste0('Species code: ', paste0('[', paste0(sp_code, collapse =','), ']'),
+      ' was not found in species lookup dataframe.  Select a species from this list: ',
+      paste0(species_df$species_code, collapse = ', '),
+      '  (See get_species() function to view full details on NABat species lists.)'))
+  }else if (is.character(sp_code)){
+    sp_code_json = paste0('[', paste0(sp_code, collapse =','), ']')
+    print (paste0('Species selected: ', (sp_code_json)))
+    species_id = subset(species_df, species_df$species_code %in% sp_code)$id
+    species_id_json = paste0('[', paste0(species_id,collapse =','), ']')
+  }else {
+    stop('Species code is not a character/string.  Use one of these for the parameter [sp_code]: ',
+      paste0(species_df$species_code, collapse = ', '))
+  }
+
+  # Check for project ids
+  if (!is.null(project_id)){
+    if (is.numeric(project_id)){
+      project_id_json = paste0('[', paste0(project_id, collapse =','), ']')
+      print (paste0('Project IDs selected: ', (project_id_json)))
+    }
+    else {
+      stop('project_id must be a numeric')
+    }
+  }else {
+    print ('Selecting all NABat project ids since none have been specified in parameter [project_id]')
+    project_id_json = '[]'
+  }
+
+  # Check for years
+  if (!is.null(years)){
+    if (is.numeric(years)){
+      years_json = paste0('[', paste0(years, collapse =','), ']')
+      print (paste0('Years selected: ', (years_json)))
+    }
+    else {
+      stop('years must be a numeric')
+    }
+  }else {
+    print ('Selecting all years since none have been specified in parameter [years]')
+    years_json = '[]'
+  }
+
+
   pr_variables = paste0('{
     "type": ',data_type,',
     "vetted": true,
     "grtsOnly": true,
-    "projectIds": ',project_id,',
-    "years": ',years,',
+    "projectIds": ',project_id_json,',
+    "years": ',years_json,',
     "months": [],
     "days": [],
     "hours": [],
     "minutes": [],
-    "speciesIds": [],
+    "speciesIds": ',species_id_json,',
     "softwareIds": [],
     "eventIds": [],
     "eventGeometryIds": [],
     "grtsIds": []
-}')
+  }')
 
-  pr_pbody = list(query = nightly_query,
-    variables = pr_variables)
-  # operationName = operation_name)
+  pr_pbody = list(query = nightly_query, variables = pr_variables)
   res = httr::POST(url_, headers_, body = pr_pbody, encode='json')
+  if (res$status_code != 200){
+    stop(paste0('Error in API call.  response: ', res))
+  }
+
   content   = httr::content(res, as = 'text')
   content_json = fromJSON(content, flatten = TRUE)
   content_df   = as.data.frame(content_json$data$visualizationData$body, stringsAsFactors = FALSE)
   colnames(content_df) = content_json$data$visualizationData$headers
 
-  return(content_df)
+  if (!is.null(sample_frame)){
+    if (sample_frame == 'CONUS'){
+      content_df_final = subset(content_df, content_df$sample_frame == 'Conus (Continental US) 10x10km Grid')
+    } else if (sample_frame == 'Alaska'){
+      content_df_final = subset(content_df, content_df$sample_frame == 'Alaska 10x10km Grid')
+    } else if (sample_frame =='Canada'){
+      content_df_final = subset(content_df, content_df$sample_frame == 'Canada 10x10km Grid')
+    } else if (sample_frame == 'Mexico'){
+      content_df_final = subset(content_df, content_df$sample_frame == 'Mexico 10x10km Grid')
+    } else if (sample_frame == 'Puerto Rico'){
+      content_df_final = subset(content_df, content_df$sample_frame == 'Puerto Rico 5x5km Grid')
+    } else if (sample_frame =='Hawaii'){
+      content_df_final = subset(content_df, content_df$sample_frame == 'Hawaii 5x5km Grid')
+    } else{
+      stop('Incorrect sample frame. Try one of these: CONUS, Alaska, Canada, Mexico, Pureto Rico, Hawaii.')
+    }
+  } else{
+    content_df_final = content_df
+    print ('Selecting all sample frames since none have been specified in parameter [sample_frame]')
+  }
+  return (content_df_final)
 }
 
 
@@ -2148,7 +2220,7 @@ get_sa_batch = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query {
+  query =paste0('query RRallSaBatches{
     allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 7}}) {
     nodes {
     eventId
@@ -2184,8 +2256,7 @@ get_sa_batch = function(
     }
 }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallSaBatches')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
@@ -2294,7 +2365,7 @@ get_sa_event_metadata = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query MyQuery {
+  query =paste0('query RRallSaEvents {
     allStationaryAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
     nodes {
     id
@@ -2339,8 +2410,7 @@ get_sa_event_metadata = function(
     }
 }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallSaEvents')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
@@ -2557,7 +2627,7 @@ get_ma_batch = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query {
+  query =paste0('query RRallMaBatches{
     allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 8}}) {
     nodes {
     eventId
@@ -2597,8 +2667,7 @@ get_ma_batch = function(
     }
 }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallMaBatches')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
@@ -2754,7 +2823,7 @@ get_ma_event_metadata = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query MyQuery {
+  query =paste0('query RRallSaEvents{
     allMobileAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
       nodes {
         id
@@ -2790,8 +2859,7 @@ get_ma_event_metadata = function(
     }
   }')
   # Create body to send to GQL
-  # pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
-  pbody = list(query = query)
+  pbody = list(query = query, operationName = 'RRallMaEvents')
   # Post to nabat GQL
   res      = httr::POST(url_, headers_, body = pbody, encode='json')
   content  = httr::content(res, as = 'text')
