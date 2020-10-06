@@ -2008,13 +2008,13 @@ get_nightly_data = function(
   $years: [Int]!
   $months: [Int]!
   $days: [Int]!
-  $hours: [Int]!
-  $minutes: [Int]!
   $speciesIds: [Int]!
   $softwareIds: [Int]!
   $eventIds: [Int]!
   $eventGeometryIds: [Int]!
   $grtsIds: [Int]!
+  $publicOnly: Boolean!
+  $organizationIds: [Int]!
   ) {
   visualizationData(
   type: $type
@@ -2024,13 +2024,13 @@ get_nightly_data = function(
   years: $years
   months: $months
   days: $days
-  hours: $hours
-  minutes: $minutes
   speciesIds: $speciesIds
   softwareIds: $softwareIds
   eventIds: $eventIds
   eventGeometryIds: $eventGeometryIds
   grtsIds: $grtsIds
+  publicOnly: $publicOnly
+  organizationIds: $organizationIds
   ) {
   headers
   body
@@ -2089,17 +2089,17 @@ get_nightly_data = function(
     "type": ',data_type,',
     "vetted": true,
     "grtsOnly": true,
+    "publicOnly": false,
     "projectIds": ',project_id_json,',
     "years": ',years_json,',
     "months": [],
     "days": [],
-    "hours": [],
-    "minutes": [],
     "speciesIds": ',species_id_json,',
     "softwareIds": [],
     "eventIds": [],
     "eventGeometryIds": [],
-    "grtsIds": []
+    "grtsIds": [],
+    "organizationIds": []
   }')
 
   pr_pbody = list(query = nightly_query, variables = pr_variables)
