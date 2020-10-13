@@ -6,9 +6,11 @@
 \usage{
 get_nightly_data(
   token,
-  project_id,
-  years = "[]",
+  sp_code,
   survey_type = "bulk_sae",
+  sample_frame = NULL,
+  project_id = NULL,
+  years = NULL,
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
@@ -20,14 +22,16 @@ get_nightly_data(
 \item{token}{List token created from get_nabat_gql_token() or
 get_refresh_token()}
 
-\item{project_id}{Numeric or String a project id}
-
-\item{years}{String or Number This value is a little more confusing since
-it gets passed through a JSON and interpreted as an array.  If using a
-single year, just do year = 2018.  If using a String, it can be an empty
-array or an array with years inside.}
+\item{sp_code}{Character NABat species code/s from get_species()}
 
 \item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'}
+
+\item{sample_frame}{(optional) String 'CONUS' | 'Alaska' | 'Canada' | 'Mexico' |
+'Pureto Rico' | 'Hawaii'}
+
+\item{project_id}{Numeric for a project id or multiple project ids}
+
+\item{years}{(optional) Numeric for all years to be extracted for this data}
 
 \item{branch}{(optional) String that defaults to 'prod' but can also be
 'dev'|'beta'|'local'}

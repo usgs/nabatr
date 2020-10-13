@@ -15,46 +15,46 @@ output:
 
 ```{r}
 library(nabatr)
-username_ = 'nabat_username'
-token_ = get_nabat_gql_token(username = username_)
-token_
+# Enter your NABat username here
+username = 'nabat_username'
+token = get_nabat_gql_token(username = username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
 ```
 
-
-### Extract data from database using GQL query function
+### Pull Nightly Stationary acoustic data for 1 species
 ```{r}
-# refresh login token (if it fails just relogin with first cell)
-token_ = get_refresh_token(token_)
+# Refresh login token
+token = get_refresh_token(token)
 
-#how to pull Stationary acoustic data
-sae_nightly_data = get_nightly_data(token = token_, 
-  project_id = 284, 
-  years = '[]',
+# Use get_nightly_data
+sae_nightly_data = get_nightly_data(token, 
+  sp_code = 'MYLU',
   survey_type = 'bulk_sae')
 
-# how to pull Mobile acoustic data
-mae_nightly_data = get_nightly_data(token = token_, 
-  project_id = 128, 
-  years = '[]',
-  survey_type = 'bulk_mae')
-
-# how to pull Colony Count data
-cc_nightly_data = get_nightly_data(token = token_, 
-  project_id = 128, 
-  years = '[]',
-  survey_type = 'bulk_cc')
-
+# Display data
 sae_nightly_data
-# mae_nightly_data
-# cc_nightly_data
 ```
 
-### Use this if you want to import the data locally
+### Use more variables to get more specific data
 ```{r}
-file_path = '/path/to/your/NABat_Data_Export.csv'
-# Stationary acoustic csv
-sae_nightly_data = read.csv(file_path, stringsAsFactors = FALSE)
+# Refresh login token
+token = get_refresh_token(token)
+
+sae_nightly_data = get_nightly_data(token, 
+  sp_code = c('MYLU', 'ANPA'), 
+  sample_frame = c('CONUS','Alaska'),
+  project_id = c(33,284),
+  years = c(2015,2016,2017),
+  survey_type = 'bulk_sae')
+
+# Display data
+sae_nightly_data
 ```
+
+
 
 
 Right now my workflow is ----

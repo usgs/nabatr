@@ -2,13 +2,14 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_ma_bulk_wavs}
 \alias{get_ma_bulk_wavs}
-\title{Get Acoustic mobile bulk upload template dataframe for a project}
+\title{Get Acoustic Mobile bulk upload template dataframe
+for a project}
 \usage{
 get_ma_bulk_wavs(
   token,
   survey_df,
-  project_id,
   year = NULL,
+  batch = "first",
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
@@ -17,18 +18,17 @@ get_ma_bulk_wavs(
 )
 }
 \arguments{
-\item{token}{List token created from get_nabat_gql_token() or get_refresh_token()}
+\item{token}{List token created from get_nabat_gql_token()
+or get_refresh_token()}
 
-\item{survey_df}{Dataframe a survey dataframe from the output of
-get_acoustic_m_project_summary()}
-
-\item{project_id}{Numeric or String a project id}
+\item{survey_df}{Dataframe a survey dataframe from the output
+of get_ma_project_summary()}
 
 \item{year}{(optional) Numeric year of data to be returned.
 NULL = first year, 'all' = all years, 2018 = only 2018 data}
 
-\item{branch}{(optional) String that defaults to 'prod' but can also be
-'dev'|'beta'|'local'}
+\item{branch}{(optional) String that defaults to 'prod' but
+can also be 'dev'|'beta'|'local'}
 
 \item{url}{(optional) String url to use for GQL}
 
@@ -36,21 +36,12 @@ NULL = first year, 'all' = all years, 2018 = only 2018 data}
 
 \item{aws_alb}{(optional) String url to use in aws}
 
-\item{docker}{(optional) Boolean if being run in docker container or not}
+\item{docker}{(optional) Boolean if being run in docker container
+or not}
+
+\item{project_id}{Numeric or String a project id}
 }
 \description{
-Returns all surveys within a single project (project_id)
+Returns all MA surveys within a single project (project_id)
+that are parsed by year using survey_df
 }
-\examples{
-
-\dontrun{
-acoustic_bulk_df = get_sa_bulk_wavs(token,
-                                          get_acoustic_m_project_summary(),
-                                          project_id)
-}
-
-}
-\keyword{GQL,}
-\keyword{NABat,}
-\keyword{Surveys}
-\keyword{bats,}
