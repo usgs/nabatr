@@ -2823,7 +2823,7 @@ get_ma_event_metadata = function(
 
   event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
 
-  query =paste0('query RRallSaEvents{
+  query =paste0('query RRallMaEvents{
     allMobileAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
       nodes {
         id
