@@ -579,8 +579,6 @@ get_projects = function(
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   proj_json = fromJSON(content, flatten = TRUE)
-  print (rename_project_df(as.data.frame(proj_json,
-    stringsAsFactors = FALSE)))
   proj_df   = rename_project_df(as.data.frame(proj_json,
     stringsAsFactors = FALSE)) %>%
     left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
