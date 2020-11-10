@@ -564,7 +564,7 @@ get_projects = function(
                           projectKey
                           description
                           sampleFrameId
-                          organizationByOwningOrganizationId{
+                          organizationByOrganizationId{
                           name
                           address
                           city
@@ -579,6 +579,8 @@ get_projects = function(
   res       = httr::POST(url_, headers_, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   proj_json = fromJSON(content, flatten = TRUE)
+  print (rename_project_df(as.data.frame(proj_json,
+    stringsAsFactors = FALSE)))
   proj_df   = rename_project_df(as.data.frame(proj_json,
     stringsAsFactors = FALSE)) %>%
     left_join(sample_frame_df, by = c('sample_frame_id' = 'ids'))
@@ -673,7 +675,7 @@ get_project_surveys = function(
                        nodes{
                             id
                             projectId
-                            grtsId
+                            grtsCellId
                           }
                           }
           }')
@@ -874,7 +876,7 @@ get_sa_bulk_wavs_old = function(
       nodes{
       id
       projectId
-      grtsId
+      grtsCellId
       stationaryAcousticEventsBySurveyId {
       nodes{
       id
@@ -1136,7 +1138,7 @@ for (survey in survey_ids){
     nodes{
     id
     projectId
-    grtsId
+    grtsCellId
     mobileAcousticEventsBySurveyId {
     nodes{
     id
@@ -1517,7 +1519,7 @@ get_colony_bulk_counts = function(
       as.numeric(survey),'}}){
         nodes{
           id
-          grtsId
+          grtsCellId
           colonyCountEventsBySurveyId{
             nodes{
               id,
@@ -2373,7 +2375,7 @@ get_sa_event_metadata = function(
     activationEndTime
     activationStartTime
     surveyBySurveyId {
-    grtsId
+    grtsCellId
     projectId
     }
     contactInfo
@@ -2465,8 +2467,7 @@ get_sa_event_metadata = function(
   # Join the events metadata df with the event coordinates df
   event_metadata_df = dplyr::left_join(event_meta_content_df, coordinates_df, by = c('id' = 'event_id')) %>%
     dplyr::select(-c('coordinates')) %>%
-    dplyr::rename('grts_cell_id' = 'grts_id',
-      'survey_start_time' = 'activation_start_time',
+    dplyr::rename('survey_start_time' = 'activation_start_time',
       'survey_end_time' = 'activation_end_time') %>%
     dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))
 
@@ -2485,7 +2486,7 @@ get_sa_event_metadata = function(
 #'  or get_refresh_token()
 #' @param survey_df Dataframe a survey dataframe from the output
 #' of get_sa_project_summary()
-#' @param project_id Numeric or String a project id
+#' @param batch String defaults to 'first' but anything else = 'all'
 #' @param year (optional) Numeric year of data to be returned.
 #' NULL = first year, 'all' = all years, 2018 = only 2018 data
 #' @param branch (optional) String that defaults to 'prod' but
@@ -2831,7 +2832,7 @@ get_ma_event_metadata = function(
         activationEndTime
         activationStartTime
         surveyBySurveyId {
-          grtsId
+          grtsCellId
           projectId
         }
         contactInfo
@@ -2875,8 +2876,7 @@ get_ma_event_metadata = function(
 
   # Join the events metadata df with the event coordinates df
   event_metadata_df = event_meta_content_df %>%
-    dplyr::rename('grts_cell_id' = 'grts_id',
-      'survey_start_time' = 'activation_start_time',
+    dplyr::rename('survey_start_time' = 'activation_start_time',
       'survey_end_time' = 'activation_end_time') %>%
     dplyr::select(-c('coordinates', 'type')) %>%
     dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))

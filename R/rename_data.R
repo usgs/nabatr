@@ -30,19 +30,19 @@ rename_project_df = function(project_df){
   names(project_df)[names(project_df) == 'data.allProjects.nodes.sampleFrameId'] =
     'sample_frame_id'
   names(project_df)[names(project_df) ==
-      'data.allProjects.nodes.organizationByOwningOrganizationId.name'] =
+      'data.allProjects.nodes.organizationByOrganizationId.name'] =
     'organization'
   names(project_df)[names(project_df) ==
-      'data.allProjects.nodes.organizationByOwningOrganizationId.address'] =
+      'data.allProjects.nodes.organizationByOrganizationId.address'] =
     'organization_address'
   names(project_df)[names(project_df) ==
-      'data.allProjects.nodes.organizationByOwningOrganizationId.city'] =
+      'data.allProjects.nodes.organizationByOrganizationId.city'] =
     'organization_city'
   names(project_df)[names(project_df) ==
-      'data.allProjects.nodes.organizationByOwningOrganizationId.stateProvince'] =
+      'data.allProjects.nodes.organizationByOrganizationId.stateProvince'] =
     'organization_state_province'
   names(project_df)[names(project_df) ==
-      'data.allProjects.nodes.organizationByOwningOrganizationId.postalCode'] =
+      'data.allProjects.nodes.organizationByOrganizationId.postalCode'] =
     'organization_postal_code'
 
   row.names(project_df) = c()
