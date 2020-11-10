@@ -27,6 +27,8 @@ of get_sa_project_summary()}
 \item{year}{(optional) Numeric year of data to be returned.
 NULL = first year, 'all' = all years, 2018 = only 2018 data}
 
+\item{batch}{String defaults to 'first' but anything else = 'all'}
+
 \item{branch}{(optional) String that defaults to 'prod' but
 can also be 'dev'|'beta'|'local'}
 
@@ -38,8 +40,6 @@ can also be 'dev'|'beta'|'local'}
 
 \item{docker}{(optional) Boolean if being run in docker container
 or not}
-
-\item{project_id}{Numeric or String a project id}
 }
 \description{
 Returns all surveys within a single project (project_id)
