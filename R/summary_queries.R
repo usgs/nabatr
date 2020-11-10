@@ -177,7 +177,7 @@ get_sa_project_summary = function(
     project_id,'}}){
     nodes{
       projectId
-      grtsId
+      grtsCellId
       surveyId
       eventId
       type
@@ -200,7 +200,6 @@ get_sa_project_summary = function(
   # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
     cont_df$year = as.integer(gsub("^.* ", "", cont_df$event))
-    names(cont_df)[names(cont_df) == 'grts_id']    = 'grts_cell_id'
     row.names(cont_df) = NULL
   }
 
@@ -282,7 +281,7 @@ get_ma_project_summary = function(
   query = paste0('query RRmaSummaries{ allVwMobileAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
     nodes{
     projectId
-    grtsId
+    grtsCellId
     surveyId
     eventId
     type
@@ -306,7 +305,6 @@ get_ma_project_summary = function(
   # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
     cont_df$year = as.integer(gsub("^.* ", "", cont_df$event))
-    names(cont_df)[names(cont_df) == 'grts_id']    = 'grts_cell_id'
     row.names(cont_df) = NULL
   }
 
@@ -396,7 +394,7 @@ get_cc_project_summary = function(
     nodes{
       projectId,
       surveyId,
-      grtsId,
+      grtsCellId,
       eventId,
       eventType,
       date,
@@ -420,7 +418,6 @@ get_cc_project_summary = function(
   # Add a year field that is a string split from the event field
   if (dim(cont_df)[1] > 0){
     cont_df$year = as.integer(gsub("^.* ", "", cont_df$date))
-    names(cont_df)[names(cont_df) == 'grts_id']    = 'grts_cell_id'
     row.names(cont_df) = NULL
   }
 
