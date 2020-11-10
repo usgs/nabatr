@@ -396,7 +396,7 @@ get_cc_project_summary = function(
       surveyId,
       grtsCellId,
       eventId,
-      eventType,
+      surveyTypeId,
       date,
       siteIdentifier,
       siteName,
