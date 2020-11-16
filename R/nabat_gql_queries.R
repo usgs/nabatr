@@ -1928,7 +1928,7 @@ process_uploaded_csv = function(
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
 #' @param sp_code Character NABat species code/s from get_species()
-#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc_hib' | 'bulk_cc_mat'
 #' @param sample_frame (optional) String 'CONUS' | 'Alaska' | 'Canada' | 'Mexico' |
 #' 'Pureto Rico' | 'Hawaii'
 #' @param project_id Numeric for a project id or multiple project ids
@@ -1990,11 +1990,13 @@ get_nightly_data = function(
   }
 
   if (survey_type == 'bulk_sae'){
-    data_type = 1
+    data_type = 7
   }else if(survey_type == 'bulk_mae'){
-    data_type = 2
-  }else if (survey_type == 'bulk_cc'){
-    data_type = 3
+    data_type = 8
+  }else if (survey_type == 'bulk_cc_hib'){
+    data_type = 9
+  }else if (survey_type == 'bulk_cc_mat'){
+    data_type = 10
   }else{
     message('Incorrect survey_type input')
   }
