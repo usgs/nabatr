@@ -2274,6 +2274,13 @@ get_sa_batch = function(
   names(sae_content_df)[names(sae_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
   names(sae_content_df)[names(sae_content_df) =='id'] = 'batch_id'
 
+  if ('speciesByAutoId' %in% names(sae_content_df)){
+    sae_content_df = sae_content_df %>% dplyr::select(-'speciesByAutoId')
+    }
+  if ('speciesByManualId' %in% names(sae_content_df)){
+    sae_content_df = sae_content_df %>% dplyr::select(-'speciesByManualId')
+    }
+
   names(sae_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(sae_content_df), perl = TRUE))
   names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
 
