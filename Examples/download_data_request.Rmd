@@ -1,0 +1,65 @@
+---
+title: "Download Data Request"
+output:
+  html_document: default
+---
+
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+### Set data request ID
+```{r}
+# Data request id
+id = 00
+```
+
+### View approvals 
+```{r}
+# See all of the data request approvals
+token = get_refresh_token(token)
+approvals_df = get_data_request_approvals(token = token, 
+                                          data_request_id = id)
+# Display approvals dataframe
+approvals_df
+```
+
+### See list of downloadable files for data request
+```{r}
+# Get data request list of files available for download
+token = get_refresh_token(token)
+files_df = get_data_request_files(token = token, 
+                                  data_request_id = id)
+# Display files dataframe
+files_df
+```
+
+### Grab newest file from files_Df and save out key
+```{r}
+# Get key (grabs latest key)
+key = files_df[length(files_df$Key),]$Key
+# Display key to use for downloading zip file
+key
+```
+
+### Download the zip file for key stored above
+```{r}
+# Set your output file here ex: '/path/to/your/outputfile.zip'
+output_file = '/path/to/your/outputfile.zip'
+# Downloads the Zip file into the output_file
+token = get_refresh_token(token)
+download_data_request(token = token, 
+                      key = key,
+                      output_file = output_file)
+```
+
+
