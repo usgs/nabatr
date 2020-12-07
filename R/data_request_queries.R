@@ -99,7 +99,7 @@ get_data_request_approvals = function(
   json = fromJSON(content, flatten = TRUE)
   # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
   df   = as.data.frame(json$data$allVwDataRequestApprovals$nodes, stringsAsFactors = FALSE)
-  names(covar_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(covar_df), perl = TRUE))
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
 
   return (df)
 }
@@ -188,7 +188,7 @@ get_data_request_files = function(
   json = fromJSON(content, flatten = TRUE)
   # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
   df   = as.data.frame(json$data$s3FileServiceListFiles$objects, stringsAsFactors = FALSE)
-  names(covar_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(covar_df), perl = TRUE))
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
 
   return (df)
 }
