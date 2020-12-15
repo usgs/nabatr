@@ -19,6 +19,9 @@ token
 
 ### View all of the sample frames in Nabat to use ID for covar data
 ```{r}
+# Refresh token
+token = get_refresh_token(token)
+
 sample_frames_df = get_sample_frames(token = token)
 # View sampe frames dataframe
 sample_frames_df
@@ -26,6 +29,9 @@ sample_frames_df
 
 ### View all covariates available
 ```{r}
+# Refresh token
+token = get_refresh_token(token)
+
 covariates_df = get_covariates(token = token)
 # View covariates dataframe
 covariates_df
@@ -33,12 +39,16 @@ covariates_df
 
 ### View 1 covariate at each grts cell across 1 sample frame
 ```{r}
+# Refresh token
+token = get_refresh_token(token)
 # Set your covariate and sample frame ids.  Use the sample_frames_df and covariate_df to 
 ## select the ids to search by
 covariate_id = 0
 sample_frame_id = 14
 
-grts_covars = get_grts_covariate(token_, branch = branch_, covariate_id = covariate_id, sample_frame_id = sample_frame_id)
+grts_covars = get_grts_covariate(token = token,
+                                covariate_id = covariate_id, 
+                                sample_frame_id = sample_frame_id)
 # View grts covars dataframe
 grts_covars_df
 ```
