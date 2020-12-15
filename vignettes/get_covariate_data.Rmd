@@ -49,7 +49,7 @@ token = get_refresh_token(token)
 covariate_id = 0
 sample_frame_id = 14
 
-grts_covars = get_grts_covariate(token = token,
+grts_covars_df = get_grts_covariate(token = token,
                                 covariate_id = covariate_id, 
                                 sample_frame_id = sample_frame_id)
 # View grts covars dataframe
