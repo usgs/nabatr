@@ -28,18 +28,33 @@ id = 00
 
 ### View approvals 
 ```
-# See all of the data request approvals
+# Refresh token
 token = get_refresh_token(token)
+
+# See all of the data request approvals
 approvals_df = get_data_request_approvals(token = token, 
                                           data_request_id = id)
 # Display approvals dataframe
 approvals_df
 ```
 
+### Add new zip to list by building a data request to be able to download
+```
+# Refresh token
+token = get_refresh_token(token)
+
+# Build data request
+response = build_data_request(token = token, 
+                              data_request_id = id)
+response
+```
+
 ### See list of downloadable files for data request
 ```
-# Get data request list of files available for download
+# Refresh token
 token = get_refresh_token(token)
+
+# Get data request list of files available for download
 files_df = get_data_request_files(token = token, 
                                   data_request_id = id)
 # Display files dataframe
@@ -49,18 +64,21 @@ files_df
 ### Grab newest file from files_Df and save out key
 ```
 # Get key (grabs latest key)
-key = files_df[length(files_df$Key),]$Key
+key = files_df[length(files_df$key),]$key
 # Display key to use for downloading zip file
 key
 ```
 
 ### Download the zip file for key stored above
 ```
+# Refresh token
+token = get_refresh_token(token)
+
 # Set your output file here ex: '/path/to/your/outputfile.zip'
 output_file = '/path/to/your/outputfile.zip'
 # Downloads the Zip file into the output_file
-token = get_refresh_token(token)
 download_data_request(token = token, 
                       key = key,
                       output_file = output_file)
 ```
+

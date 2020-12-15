@@ -13,6 +13,87 @@
 
 
 
+#' @title Submit Build Data Request
+#'
+#' @description
+#' Submits a build data request to Nabat that adds a new Zip file
+#' for this data request id.
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param data_request_id Integer that specifies data request identifier
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#' or not
+#'
+#' @export
+#'
+build_data_request = function(
+  token,
+  data_request_id,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  # Username and password
+  variables = paste0('{"create":{"dataRequestId" : ',as.character(data_request_id),' }}')
+  # Mutation to get token
+  query = 'mutation RRbuildDataRequest($create: buildDataRequestInput!) {
+    buildDataRequest(input: $create) {
+    success
+    }
+  }'
+
+# Finalize json request
+  pbody = list(query = query, variables = variables,
+    operationName = 'RRbuildDataRequest')
+  # POST to url
+  res = POST(url_, headers_, body = pbody, encode="json")
+  content = content(res)
+  return(content)
+}
+
+
+
+
 #' @title Get All Approvals for this Data Request
 #'
 #' @description
