@@ -2966,3 +2966,296 @@ get_ma_bulk_wavs = function(
   }
 }
 
+
+
+
+
+#' @title Get Sample frame information
+#'
+#' @description
+#' Returns a dataframe of all the sample frames in the nabat database
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#' or not
+#'
+#' @export
+#'
+
+get_sample_frames = function(
+  token,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  query = 'query RRallSampleFrames{
+      allSampleFrames {
+        nodes{
+          id
+          shortName
+          description
+        }
+      }
+    }'
+
+  # Create body to send to GQL
+  pbody = list(query = query, operationName = 'RRallSampleFrames')
+  # Post to nabat GQL
+  res      = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  json = fromJSON(content, flatten = TRUE)
+  # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
+  df   = as.data.frame(json$data$allSampleFrames$nodes, stringsAsFactors = FALSE)
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
+
+  return (df)
+}
+
+
+
+#' @title Get Covariates available in NABat Database
+#'
+#' @description
+#' Returns Covariate dataframe for nabat covariates
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#' or not
+#'
+#' @export
+#'
+
+get_covariates = function(
+  token,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  query_covar ='query RRallCovariates {
+      allCovars {
+        nodes {
+          covarId
+          name
+          description
+          units
+          mexico
+          canada
+          alaska
+          continental
+          puerto
+          hawaii
+          active
+          covarSourceByCovarSourceId {
+            description
+            name
+            sourceUrl
+        }
+      }
+    }
+  }'
+  # Create body to send to GQL
+  pbody_covar = list(query = query_covar, operationName = 'RRallCovariates')
+  # Post to nabat GQL
+  res_covar       = httr::POST(url_, headers_, body = pbody_covar, encode='json')
+  content_covar   = httr::content(res_covar, as = 'text')
+  covar_json = fromJSON(content_covar, flatten = TRUE)
+  # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
+  covar_df   = as.data.frame(covar_json$data$allCovars$nodes,stringsAsFactors = FALSE)
+  names(covar_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(covar_df), perl = TRUE))
+  names(covar_df)[names(covar_df) == 'covar_source_by_covar_source_id.name'] = 'covar_source'
+  names(covar_df)[names(covar_df) == 'covar_source_by_covar_source_id.source_url'] = 'covar_source_url'
+  names(covar_df)[names(covar_df) == 'covar_source_by_covar_source_id.description'] = 'covar_source_description'
+
+  return (covar_df)
+  }
+
+
+
+
+#' @title Get Covariate data for all GRTS in a Sample Frame
+#'
+#' @description
+#' Using a covariate and sample frame id, return a dataframe of
+#' each grts and the information coresponding to that covariate.
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param covariate_id Numeric Id for the covariate to query.
+#' This value can be extrapolated from the output of get_covariates()
+#' @param sample_frame_id Numeric Id for the sample frame to query.
+#' This value can be extrapolated from the output of get_sample_frames()
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#' or not
+#'
+#' @export
+#'
+
+get_grts_covariate = function(
+  token,
+  covariate_id,
+  sample_frame_id,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  query = paste0('query RRcovariatesGrts{
+      allCovarGrts(filter: {sampleFrameId: {equalTo: ',sample_frame_id,'}, covarId: {equalTo: ',covariate_id,'}}) {
+        nodes {
+          grtsCellId
+          grtsId
+          sampleFrameId
+          covarId
+          covarByCovarId {
+            name
+            units
+            description
+            covarSourceId
+          }
+          value
+        }
+    }
+  }')
+
+  # Create body to send to GQL
+  pbody = list(query = query, operationName = 'RRcovariatesGrts')
+  # Post to nabat GQL
+  res       = httr::POST(url_, headers_, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  covariates_json = fromJSON(content, flatten = TRUE)
+  # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
+  covariates_df   = as.data.frame(covariates_json$data$allCovarGrts$nodes,stringsAsFactors = FALSE)
+
+  # Renaming fields
+  names(covariates_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(covariates_df), perl = TRUE))
+  names(covariates_df)[names(covariates_df) == 'covar_by_covar_id.name'] = 'name'
+  names(covariates_df)[names(covariates_df) == 'covar_by_covar_id.units'] = 'units'
+  names(covariates_df)[names(covariates_df) == 'covar_by_covar_id.description'] = 'description'
+
+  return (covariates_df)
+  }
+
+
+
+
+
+
+
