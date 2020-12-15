@@ -33,6 +33,13 @@ approvals_df = get_data_request_approvals(token = token,
 approvals_df
 ```
 
+### Add new zip to list by building a data request to be able to download
+```{r}
+response = build_data_request(token = token, 
+                              data_request_id = id)
+response
+```
+
 ### See list of downloadable files for data request
 ```{r}
 # Get data request list of files available for download
@@ -46,7 +53,7 @@ files_df
 ### Grab newest file from files_Df and save out key
 ```{r}
 # Get key (grabs latest key)
-key = files_df[length(files_df$Key),]$Key
+key = files_df[length(files_df$key),]$key
 # Display key to use for downloading zip file
 key
 ```
