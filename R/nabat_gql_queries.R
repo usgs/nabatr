@@ -2532,10 +2532,12 @@ get_sa_bulk_wavs = function(
   }else{
 
     if (batch == 'first'){
-      unique_batches = acc_events %>% dplyr::select(software_id, classifier_id) %>% dplyr::distinct()
-      acc_events = subset(acc_events,
-        acc_events$software_id == unique_batches[1,]$software_id &
-        acc_events$classifier_id == unique_batches[1,]$classifier_id)
+      # unique_batches = acc_events %>% dplyr::select(software_id, classifier_id) %>% dplyr::distinct()
+      # acc_events = subset(acc_events,
+      #   acc_events$software_id == unique_batches[1,]$software_id &
+      #   acc_events$classifier_id == unique_batches[1,]$classifier_id)
+      unique_software = unique(acc_events$software_id)
+      acc_events = subset(acc_events, acc_events$software_id == unique_software[1])
     }
 
     # New query for all metadata at a Stationary Acoustic Event
@@ -2944,10 +2946,12 @@ get_ma_bulk_wavs = function(
   }else{
 
     if (batch == 'first'){
-      unique_batches = acc_events %>% dplyr::select(software_id, classifier_id) %>% dplyr::distinct()
-      acc_events = subset(acc_events,
-        acc_events$software_id == unique_batches[1,]$software_id &
-        acc_events$classifier_id == unique_batches[1,]$classifier_id)
+      # unique_batches = acc_events %>% dplyr::select(software_id, classifier_id) %>% dplyr::distinct()
+      # acc_events = subset(acc_events,
+      #   acc_events$software_id == unique_batches[1,]$software_id &
+      #   acc_events$classifier_id == unique_batches[1,]$classifier_id)
+      unique_software = unique(acc_events$software_id)
+      acc_events = subset(acc_events, acc_events$software_id == unique_software[1])
     }
 
     message('Querying and merging metadata to wav files')
