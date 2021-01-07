@@ -568,7 +568,7 @@ build_ma_doc = function(
   ma_table_3 = build_ma_table_3(ma_bulk_df, nightly_observed_list,
     species_df, year)
 
-  message ('build figure 1')
+  message ('build figure 1 (map)')
   # Build figure 1
   ma_figure_1 = build_ma_figure_1(ma_bulk_df, project_id,
     project_df, year)
