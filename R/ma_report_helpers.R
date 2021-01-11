@@ -439,7 +439,7 @@ build_ma_table_3 = function(
 }
 
 
-#' @title Build Mobile Acoustic Report Figure 1
+#' @title Build Mobile Acoustic Report Figure 1 (Map)
 #'
 #' @description Creates a leaflet Map for mobile acoustic data
 #'
@@ -512,35 +512,17 @@ build_ma_figure_1 = function(
     labels = c('NABat GRTS Cell', 'Mobile Transect'),
     colors = c('#198a00', 'blue'), opacity =1)
 
-  # Add the lines from the acoustic_mobile events
-  mobile_ids = unique(ma_bulk_df$mobile_acoustic_values_id)
+  # Create and Add points for MA wav files
+  geoms_df = ma_bulk_df %>% dplyr::select(c(longitude, latitude)) %>% na.omit()
+  lats = geoms_df$latitude
+  lons = geoms_df$longitude
 
-  for (mobile_id in mobile_ids){
-    mobile_df = subset(ma_bulk_df, ma_bulk_df$mobile_acoustic_values_id == mobile_id)
-    transect_geom = TRUE
-    if(length(unique(mobile_df$latitude)) == 1 & is.na(unique(mobile_df$latitude)[1])){
-      transect_geom = FALSE
-    }else{
-      lats = mobile_df$latitude
-      lons = mobile_df$longitude
-    }
+  ps = matrix(as.numeric(unlist(data.frame(lons = lons, lats = lats))),
+    nrow=nrow(data.frame(lats = lats, lons = lons)))
+  p = SpatialPoints(ps, proj4string=CRS(as.character(NA)))
+  m = m %>% addCircleMarkers(data = p, color = 'blue', weight = 1, radius = .1,
+    fillOpacity = 1)
 
-    if(transect_geom){
-      # Create polyline
-      l = cbind(lons, lats)
-      li = Line(l)
-      lin = Lines(list(li), ID = "a")
-      line = SpatialLines(list(lin))
-
-      ps = matrix(as.numeric(unlist(data.frame(lons = lons, lats = lats, id = mobile_id))),
-        nrow=nrow(data.frame(lats = lats, lons = lons, id=mobile_id)))
-      p = SpatialPoints(ps, proj4string=CRS(as.character(NA)))
-
-
-      m = m %>% addCircleMarkers(data = p, color = 'blue', weight = 1, radius = .1,
-        fillOpacity = 1, label = mobile_id)
-    }
-  }
   return (list(map = m, description = ma_descr_fig1))
 }
 

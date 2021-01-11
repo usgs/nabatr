@@ -2205,88 +2205,112 @@ get_sa_batch = function(
       token$access_token))
   }
 
-  # Extract all survey ids from survey_df
+  # Extract all survey_event_ids from survey_df
   if (is.null(year)){
     year_ = as.integer(unique(survey_df$year)[1])
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   } else if (year == 'all'){
-    survey_ids = unique(survey_df$survey_id)
-    event_ids = unique(survey_df$event_id)
     year_ = NULL
+    survey_event_ids = unique(survey_df$survey_event_id)
   } else{
     year_ = as.integer(year)
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   }
 
-  event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
+  event_ids_list = paste0('[', paste0(survey_event_ids, collapse=','), ']')
 
-  query =paste0('query RRallSaBatches{
-    allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 7}}) {
-    nodes {
-    eventId
-    softwareId
-    softwareBySoftwareId {
-    name
-    versionNumber
-    }
-    classifierId
-    classifierByClassifierId {
-    name
-    description
-    }
-    id
-    acousticFileBatchesByBatchId {
-    nodes {
-    recordingNight
-    autoId
-    speciesByAutoId {
-    speciesCode
-    }
-    manualId
-    speciesByManualId {
-    speciesCode
-    }
-    acousticFileByFileId {
-    fileName
-    recordingTime
-    }
-    }
-    }
-    }
-    }
-}')
-  # Create body to send to GQL
-  pbody = list(query = query, operationName = 'RRallSaBatches')
-  # Post to nabat GQL
-  res      = httr::POST(url_, headers_, body = pbody, encode='json')
-  content  = httr::content(res, as = 'text')
-  content_json = fromJSON(content, flatten = TRUE)
+  sae_content_df = data.frame()
+  for (id in survey_event_ids){
+    # Refresh token if it expires
+    token = get_refresh_token(token, url = url_)
+    # This Query has more metadata
+    extended_query= paste0('query RRallSaBatches{
+        allAcousticBatches(filter: {surveyEventId: { equalTo: ', id ,' }, surveyTypeId: {equalTo: 7}}) {
+        nodes {
+        surveyEventId
+        softwareId
+        softwareBySoftwareId {
+        name
+        versionNumber
+        }
+        classifierId
+        classifierByClassifierId {
+        name
+        description
+        }
+        id
+        acousticFileBatchesByBatchId {
+        nodes {
+        recordingNight
+        autoId
+        speciesByAutoId {
+        speciesCode
+        }
+        manualId
+        speciesByManualId {
+        speciesCode
+        }
+        acousticFileByFileId {
+        fileName
+        recordingTime
+        }
+        }
+        }
+        }
+        }
+    }')
 
-  sae_content_df = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
-    tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+    query =paste0('query RRallSaBatches{
+      allAcousticBatches(filter: {surveyEventId: { equalTo: ', id ,' }, surveyTypeId: {equalTo: 7}}) {
+      nodes {
+      acousticFileBatchesByBatchId {
+      nodes {
+      recordingNight
+      autoId
+      manualId
+      acousticFileByFileId {
+      fileName
+      recordingTime
+      }
+      }
+      }
+      surveyEventId
+      softwareId
+      classifierId
+      id
+      }
+      }
+      }')
 
-  names(sae_content_df)[names(sae_content_df) =='classifierByClassifierId.name'] = 'species_list_name'
-  names(sae_content_df)[names(sae_content_df) =='classifierByClassifierId.description'] = 'species_list_description'
-  names(sae_content_df)[names(sae_content_df) =='softwareBySoftwareId.name'] = 'software_name'
-  names(sae_content_df)[names(sae_content_df) =='speciesByAutoId.speciesCode'] = 'auto_name'
-  names(sae_content_df)[names(sae_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
-  names(sae_content_df)[names(sae_content_df) =='id'] = 'batch_id'
+    # Create body to send to GQL
+    pbody = list(query = query, operationName = 'RRallSaBatches')
+    # Post to nabat GQL
+    res      = httr::POST(url_, headers_, body = pbody, encode='json')
+    content  = httr::content(res, as = 'text')
+    content_json = fromJSON(content, flatten = TRUE)
 
-  if ('speciesByAutoId' %in% names(sae_content_df)){
-    sae_content_df = sae_content_df %>% dplyr::select(-'speciesByAutoId')
+    sae_content_df_int = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
+      tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+
+    if (dim(sae_content_df)[1] < 1){
+      sae_content_df = sae_content_df_int
+    }else {
+      sae_content_df = rbind(sae_content_df, sae_content_df_int)
     }
-  if ('speciesByManualId' %in% names(sae_content_df)){
-    sae_content_df = sae_content_df %>% dplyr::select(-'speciesByManualId')
-    }
+  }
 
-  names(sae_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(sae_content_df), perl = TRUE))
-  names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
+  if (dim(sae_content_df)[1] == 0){
+    message('This survey has no data')
+    return (NULL)
+  }else{
+    names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.fileName'] = 'file_name'
+    names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.recordingTime'] = 'recording_time'
 
-  names(sae_content_df)[names(sae_content_df) =='file_name'] = 'audio_recording_name'
+    names(sae_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(sae_content_df), perl = TRUE))
+    names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
 
-  return (as.data.frame(sae_content_df))
+    return (as.data.frame(sae_content_df))
+  }
   }
 
 
@@ -2357,67 +2381,64 @@ get_sa_event_metadata = function(
       token$access_token))
   }
 
-  # Extract all survey ids from survey_df
+  # Extract all survey_event_ids from survey_df
   if (is.null(year)){
     year_ = as.integer(unique(survey_df$year)[1])
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   } else if (year == 'all'){
-    survey_ids = unique(survey_df$survey_id)
-    event_ids = unique(survey_df$event_id)
     year_ = NULL
+    survey_event_ids = unique(survey_df$survey_event_id)
   } else{
     year_ = as.integer(year)
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   }
 
-  event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
+  event_ids_list = paste0('["', paste0(survey_event_ids, collapse='","'), '"]')
 
   query =paste0('query RRallSaEvents {
-    allStationaryAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
-    nodes {
-    id
-    surveyId
-    activationEndTime
-    activationStartTime
-    surveyBySurveyId {
-    grtsCellId
-    projectId
-    }
-    contactInfo
-    createdBy
-    createdDate
-    clutterPercent
-    clutterTypeId
-    comments
-    deviceId
-    distanceToClutterMeters
-    distanceToWater
-    eventGeometryId
-    habitatTypeId
-    landUnitCode
-    lastModifiedBy
-    lastModifiedDate
-    microphoneHeight
-    microphoneHousingTypeId
-    microphoneId
-    microphoneOrientationId
-    percentClutterMethod
-    timeZone
-    unusualOccurrences
-    waterType
-    weatherProofing
-    eventGeometryByEventGeometryId {
-    name
-    description
-    geom {
-    geojson
-    }
-    }
-    }
-    }
-}')
+      allSurveyEvents(filter: {id: {in: ', event_ids_list,'}}) {
+      nodes {
+      id
+      eventGeometryId
+      endTime
+      startTime
+      stationaryAcousticEventById {
+      contactInfo
+      createdBy
+      createdDate
+      clutterPercent
+      clutterTypeId
+      comments
+      distanceToClutterMeters
+      distanceToWater
+      habitatTypeId
+      landUnitCode
+      microphoneHeight
+      percentClutterMethod
+      timeZone
+      unusualOccurrences
+      waterType
+      weatherProofing
+      detectorTypeId
+      detectorSerialNumber
+      microphoneSerialNumber
+      microphoneTypeId
+      }
+      surveyId
+      surveyBySurveyId {
+      grtsCellId
+      projectId
+      }
+      eventGeometryByEventGeometryId {
+      name
+      geom {
+      geojson
+      }
+      description
+      }
+      }
+      }
+  }')
   # Create body to send to GQL
   pbody = list(query = query, operationName = 'RRallSaEvents')
   # Post to nabat GQL
@@ -2425,7 +2446,7 @@ get_sa_event_metadata = function(
   content  = httr::content(res, as = 'text')
   content_json = fromJSON(content, flatten = TRUE)
 
-  event_meta_content_df = as_tibble(content_json$data$allStationaryAcousticEvents$nodes)
+  event_meta_content_df = as_tibble(content_json$data$allSurveyEvents$nodes)
 
   names(event_meta_content_df)[names(event_meta_content_df) =='eventGeometryByEventGeometryId.name'] = 'location_name'
   names(event_meta_content_df)[names(event_meta_content_df) =='eventGeometryByEventGeometryId.description'] = 'location_description'
@@ -2446,9 +2467,9 @@ get_sa_event_metadata = function(
         do.call(rbind, coordinates_points$coordinates),
         coordinates_points$type,
         stringsAsFactors = F), stringsAsFactors = F) %>%
-      dplyr::rename('longitude' = 'V2', 'latitude' = 'V3', 'event_id' = 'V1', 'type' = 'V4') %>%
+      dplyr::rename('longitude' = 'V2', 'latitude' = 'V3', 'survey_event_id' = 'V1', 'type' = 'V4') %>%
       dplyr:: select(-c('stringsAsFactors', 'type'))
-    coordinates_points_df$event_id = as.integer(coordinates_points_df$event_id)
+    coordinates_points_df$survey_event_id = as.integer(coordinates_points_df$survey_event_id)
     coordinates_points_df$longitude = as.numeric(coordinates_points_df$longitude)
     coordinates_points_df$latitude = as.numeric(coordinates_points_df$latitude)
   } else{
@@ -2460,9 +2481,9 @@ get_sa_event_metadata = function(
     coordinates_polygons_df = coordinates_polygons %>% dplyr::select(-coordinates) %>%
       dplyr::mutate(longitude = NA) %>%
       dplyr::mutate(latitude = NA) %>%
-      dplyr::rename('event_id' = 'id') %>%
+      dplyr::rename('survey_event_id' = 'id') %>%
       dplyr::select(-c('type'))
-    coordinates_polygons_df$event_id = as.integer(coordinates_polygons_df$event_id)
+    coordinates_polygons_df$survey_event_id = as.integer(coordinates_polygons_df$survey_event_id)
   }else{
     coordinates_polygons_df = data.frame()
   }
@@ -2471,11 +2492,13 @@ get_sa_event_metadata = function(
   ##  If you want the geometry for the polygons use GRTS CELL ID and sample frame to lookup geoms
   coordinates_df = rbind(coordinates_points_df, coordinates_polygons_df)
 
+  event_meta_content_df$id = as.integer(event_meta_content_df$id)
+
   # Join the events metadata df with the event coordinates df
-  event_metadata_df = dplyr::left_join(event_meta_content_df, coordinates_df, by = c('id' = 'event_id')) %>%
+  event_metadata_df = dplyr::left_join(event_meta_content_df, coordinates_df, by = c('id' = 'survey_event_id')) %>%
     dplyr::select(-c('coordinates')) %>%
-    dplyr::rename('survey_start_time' = 'activation_start_time',
-      'survey_end_time' = 'activation_end_time') %>%
+    dplyr::rename('survey_start_time' = 'start_time',
+      'survey_end_time' = 'end_time') %>%
     dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))
 
   return (as.data.frame(event_metadata_df))
@@ -2550,7 +2573,7 @@ get_sa_bulk_wavs = function(
       aws_alb = aws_alb,
       docker = docker)
 
-    sa_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('event_id' = 'id'))
+    sa_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('survey_event_id' = 'id'))
     return (as.data.frame(sa_bulk_wav_df))
   }
 }
@@ -2620,27 +2643,24 @@ get_ma_batch = function(
       token$access_token))
   }
 
-  # Extract all survey ids from survey_df
+  # Extract all survey_event_ids from survey_df
   if (is.null(year)){
     year_ = as.integer(unique(survey_df$year)[1])
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   } else if (year == 'all'){
-    survey_ids = unique(survey_df$survey_id)
-    event_ids = unique(survey_df$event_id)
     year_ = NULL
+    survey_event_ids = unique(survey_df$survey_event_id)
   } else{
     year_ = as.integer(year)
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   }
 
-  event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
+  event_ids_list = paste0('[', paste0(survey_event_ids, collapse=','), ']')
 
   query =paste0('query RRallMaBatches{
-    allAcousticBatches(filter: {eventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 8}}) {
+    allAcousticBatches(filter: {surveyEventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 8}}) {
     nodes {
-    eventId
+    surveyEventId
     softwareId
     softwareBySoftwareId {
     name
@@ -2663,8 +2683,8 @@ get_ma_batch = function(
     speciesByManualId {
     speciesCode
     }
+    fileId
     acousticFileByFileId {
-    id
     fileName
     recordingTime
     recordingLocation{
@@ -2676,6 +2696,7 @@ get_ma_batch = function(
     }
     }
 }')
+
   # Create body to send to GQL
   pbody = list(query = query, operationName = 'RRallMaBatches')
   # Post to nabat GQL
@@ -2698,12 +2719,19 @@ get_ma_batch = function(
     names(ma_content_df)[names(ma_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
     names(ma_content_df)[names(ma_content_df) =='id'] = 'batch_id'
 
+    if ('speciesByAutoId' %in% names(ma_content_df)){
+      ma_content_df = ma_content_df %>% dplyr::select(-'speciesByAutoId')
+    }
+    if ('speciesByManualId' %in% names(ma_content_df)){
+      ma_content_df = ma_content_df %>% dplyr::select(-'speciesByManualId')
+    }
+
     names(ma_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(ma_content_df), perl = TRUE))
     names(ma_content_df) = sub('.*\\.', '', names(ma_content_df))
 
     names(ma_content_df)[names(ma_content_df) =='file_name'] = 'audio_recording_name'
 
-    coordinates = as.data.frame(ma_content_df, stringsAsFactors = FALSE) %>% dplyr::select(c('id','coordinates', 'type'))
+    coordinates = as.data.frame(ma_content_df, stringsAsFactors = FALSE) %>% dplyr::select(c('file_id','coordinates', 'type'))
 
     coordinates_polygons = dplyr::filter(coordinates, type == 'Polygon')
     coordinates_points   = dplyr::filter(coordinates, type == 'Point')
@@ -2712,7 +2740,7 @@ get_ma_batch = function(
     if (dim(coordinates_points)[1] > 0){
       coordinates_points_df = as.data.frame(
         cbind(
-          coordinates_points$id,
+          coordinates_points$file_id,
           do.call(rbind, coordinates_points$coordinates),
           coordinates_points$type,
           stringsAsFactors = F), stringsAsFactors = F) %>%
@@ -2741,9 +2769,9 @@ get_ma_batch = function(
     ##  If you want the geometry for the polygons use GRTS CELL ID and sample frame to lookup geoms
     coordinates_df = rbind(coordinates_points_df, coordinates_polygons_df)
     # Set correct type to id field to join the two dfs together
-    ma_content_df$id = as.integer(ma_content_df$id)
+    ma_content_df$file_id = as.integer(ma_content_df$file_id)
     # Join the events metadata df with the event coordinates df
-    ma_batch_df = dplyr::left_join(ma_content_df, coordinates_df, by = c('id' = 'wav_id')) %>%
+    ma_batch_df = dplyr::left_join(ma_content_df, coordinates_df, by = c('file_id' = 'wav_id')) %>%
       dplyr::select(-c('coordinates'))
 
     return (as.data.frame(ma_batch_df))
@@ -2816,57 +2844,53 @@ get_ma_event_metadata = function(
       token$access_token))
   }
 
-  # Extract all survey ids from survey_df
+  # Extract all survey_event_ids from survey_df
   if (is.null(year)){
     year_ = as.integer(unique(survey_df$year)[1])
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   } else if (year == 'all'){
-    survey_ids = unique(survey_df$survey_id)
-    event_ids = unique(survey_df$event_id)
     year_ = NULL
+    survey_event_ids = unique(survey_df$survey_event_id)
   } else{
     year_ = as.integer(year)
-    survey_ids = unique(subset(survey_df, survey_df$year == year_)$survey_id)
-    event_ids = unique(subset(survey_df, survey_df$year == year_)$event_id)
+    survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   }
 
-  event_ids_list = paste0('[', paste0(event_ids, collapse=','), ']')
+  event_ids_list = paste0('["', paste0(survey_event_ids, collapse='","'), '"]')
 
-  query =paste0('query RRallMaEvents{
-    allMobileAcousticEvents(filter: {id: {in: ', event_ids_list,'}}) {
+  query = paste0('query RRallMaEvents{
+      allSurveyEvents(filter: {id: {in: ', event_ids_list,'}}) {
       nodes {
-        id
-        surveyId
-        activationEndTime
-        activationStartTime
-        surveyBySurveyId {
-          grtsCellId
-          projectId
-        }
-        contactInfo
-        createdBy
-        createdDate
-        comments
-        deviceId
-        eventGeometryId
-        habitatTypeId
-        lastModifiedBy
-        lastModifiedDate
-        microphonePlacement
-        microphoneHousingTypeId
-        microphoneId
-        timeZone
-        unusualOccurrences
-        eventGeometryByEventGeometryId {
-          name
-          description
-          geom {
-            geojson
-          }
-        }
+      id
+      eventGeometryId
+      endTime
+      startTime
+      mobileAcousticEventById{
+      contactInfo
+      createdBy
+      createdDate
+      comments
+      timeZone
+      unusualOccurrences
+      detectorTypeId
+      detectorSerialNumber
+      microphoneSerialNumber
+      microphoneTypeId
       }
-    }
+      surveyId
+      surveyBySurveyId {
+      grtsCellId
+      projectId
+      }
+      eventGeometryByEventGeometryId {
+      name
+      geom {
+      geojson
+      }
+      description
+      }
+      }
+      }
   }')
   # Create body to send to GQL
   pbody = list(query = query, operationName = 'RRallMaEvents')
@@ -2875,7 +2899,7 @@ get_ma_event_metadata = function(
   content  = httr::content(res, as = 'text')
   content_json = fromJSON(content, flatten = TRUE)
 
-  event_meta_content_df = as_tibble(content_json$data$allMobileAcousticEvents$nodes)
+  event_meta_content_df = as_tibble(content_json$data$allSurveyEvents$nodes)
 
   names(event_meta_content_df)[names(event_meta_content_df) =='eventGeometryByEventGeometryId.name'] = 'location_name'
   names(event_meta_content_df)[names(event_meta_content_df) =='eventGeometryByEventGeometryId.description'] = 'location_description'
@@ -2883,10 +2907,13 @@ get_ma_event_metadata = function(
   names(event_meta_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(event_meta_content_df), perl = TRUE))
   names(event_meta_content_df) = sub('.*\\.', '', names(event_meta_content_df))
 
+  # set the id field to int
+  event_meta_content_df$id = as.integer(event_meta_content_df$id)
+
   # Join the events metadata df with the event coordinates df
   event_metadata_df = event_meta_content_df %>%
-    dplyr::rename('survey_start_time' = 'activation_start_time',
-      'survey_end_time' = 'activation_end_time') %>%
+    dplyr::rename('survey_start_time' = 'start_time',
+      'survey_end_time' = 'end_time') %>%
     dplyr::select(-c('coordinates', 'type')) %>%
     dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))
 
@@ -2965,7 +2992,7 @@ get_ma_bulk_wavs = function(
       aws_alb = aws_alb,
       docker = docker)
 
-    ma_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('event_id' = 'id'))
+    ma_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('survey_event_id' = 'id'))
     return (as.data.frame(ma_bulk_wav_df))
   }
 }

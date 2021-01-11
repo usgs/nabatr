@@ -172,21 +172,38 @@ get_sa_project_summary = function(
 
   # print (paste0('Project ID: ', project_id))
   # Set Query
-  query = paste0('query RRsaSummaries{
-    allVwStationaryAcousticSummaries (filter :{projectId:{equalTo:',
-    project_id,'}}){
-    nodes{
+  # query = paste0('query RRsaSummaries{
+  #   allVwAcousticSummaries (filter :{projectId:{equalTo:',
+  #   project_id,'}}){
+  #   nodes{
+  #     projectId
+  #     grtsCellId
+  #     surveyId
+  #     surveyEventId
+  #     surveyTypeId
+  #     event
+  #     verified
+  #     missing
+  #     }
+  #   }
+  #   }')
+
+  query = paste0('query RRsaSummaries {
+    allVwAcousticSummaries(
+      filter: {projectId: {equalTo: ', project_id ,'}, surveyTypeId: {equalTo: 7}}
+    ) {
+      nodes {
       projectId
       grtsCellId
       surveyId
-      eventId
-      type
+      surveyEventId
+      surveyTypeId
       event
       verified
       missing
       }
     }
-    }')
+  }')
   pbody = list(query = query, operationName = 'RRsaSummaries')
 
   # Post to nabat GQL
@@ -194,7 +211,7 @@ get_sa_project_summary = function(
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwStationaryAcousticSummaries$nodes,
+  cont_df   = as.data.frame(cont_json$data$allVwAcousticSummaries$nodes,
     stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
   # Add a year field that is a string split from the event field
@@ -278,18 +295,21 @@ get_ma_project_summary = function(
   }
 
   # Set Query
-  query = paste0('query RRmaSummaries{ allVwMobileAcousticSummaries (filter :{projectId:{equalTo:',project_id,'}}){
-    nodes{
-    projectId
-    grtsCellId
-    surveyId
-    eventId
-    type
-    event
-    verified
-    missing
+  query = paste0('query RRmaSummaries {
+      allVwAcousticSummaries(
+      filter: {projectId: {equalTo: ', project_id ,'}, surveyTypeId: {equalTo: 8}}
+    ) {
+      nodes {
+      projectId
+      grtsCellId
+      surveyId
+      surveyEventId
+      surveyTypeId
+      event
+      verified
+      missing
+      }
     }
-  }
   }')
   pbody = list(query = query, operationName = 'RRmaSummaries')
 
@@ -298,7 +318,7 @@ get_ma_project_summary = function(
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwMobileAcousticSummaries$nodes,
+  cont_df   = as.data.frame(cont_json$data$allVwAcousticSummaries$nodes,
     stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df),
     perl = TRUE))
