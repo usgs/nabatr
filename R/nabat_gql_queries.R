@@ -2219,76 +2219,98 @@ get_sa_batch = function(
 
   event_ids_list = paste0('[', paste0(survey_event_ids, collapse=','), ']')
 
-  query =paste0('query RRallSaBatches{
-      allAcousticBatches(filter: {surveyEventId: {in: ',event_ids_list,'}, surveyTypeId: {equalTo: 7}}) {
+  sae_content_df = data.frame()
+  for (id in survey_event_ids){
+    # Refresh token if it expires
+    token = get_refresh_token(token, url = url_)
+    # This Query has more metadata
+    extended_query= paste0('query RRallSaBatches{
+        allAcousticBatches(filter: {surveyEventId: { equalTo: ', id ,' }, surveyTypeId: {equalTo: 7}}) {
+        nodes {
+        surveyEventId
+        softwareId
+        softwareBySoftwareId {
+        name
+        versionNumber
+        }
+        classifierId
+        classifierByClassifierId {
+        name
+        description
+        }
+        id
+        acousticFileBatchesByBatchId {
+        nodes {
+        recordingNight
+        autoId
+        speciesByAutoId {
+        speciesCode
+        }
+        manualId
+        speciesByManualId {
+        speciesCode
+        }
+        acousticFileByFileId {
+        fileName
+        recordingTime
+        }
+        }
+        }
+        }
+        }
+    }')
+
+    query =paste0('query RRallSaBatches{
+      allAcousticBatches(filter: {surveyEventId: { equalTo: ', id ,' }, surveyTypeId: {equalTo: 7}}) {
       nodes {
-      surveyEventId
-      softwareId
-      softwareBySoftwareId {
-      name
-      versionNumber
-      }
-      classifierId
-      classifierByClassifierId {
-      name
-      description
-      }
-      id
       acousticFileBatchesByBatchId {
       nodes {
       recordingNight
       autoId
-      speciesByAutoId {
-      speciesCode
-      }
       manualId
-      speciesByManualId {
-      speciesCode
-      }
       acousticFileByFileId {
       fileName
       recordingTime
       }
       }
       }
+      surveyEventId
+      softwareId
+      classifierId
+      id
       }
       }
-  }')
-  # Create body to send to GQL
-  pbody = list(query = query, operationName = 'RRallSaBatches')
-  # Post to nabat GQL
-  res      = httr::POST(url_, headers_, body = pbody, encode='json')
-  content  = httr::content(res, as = 'text')
-  content_json = fromJSON(content, flatten = TRUE)
+      }')
 
-  sae_content_df = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
-    tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+    # Create body to send to GQL
+    pbody = list(query = query, operationName = 'RRallSaBatches')
+    # Post to nabat GQL
+    res      = httr::POST(url_, headers_, body = pbody, encode='json')
+    content  = httr::content(res, as = 'text')
+    content_json = fromJSON(content, flatten = TRUE)
+
+    sae_content_df_int = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
+      tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+
+    if (dim(sae_content_df)[1] < 1){
+      sae_content_df = sae_content_df_int
+    }else {
+      sae_content_df = rbind(sae_content_df, sae_content_df_int)
+    }
+  }
 
   if (dim(sae_content_df)[1] == 0){
     message('This survey has no data')
     return (NULL)
   }else{
-    names(sae_content_df)[names(sae_content_df) =='classifierByClassifierId.name'] = 'species_list_name'
-    names(sae_content_df)[names(sae_content_df) =='classifierByClassifierId.description'] = 'species_list_description'
-    names(sae_content_df)[names(sae_content_df) =='softwareBySoftwareId.name'] = 'software_name'
-    names(sae_content_df)[names(sae_content_df) =='speciesByAutoId.speciesCode'] = 'auto_name'
-    names(sae_content_df)[names(sae_content_df) =='speciesByManualId.speciesCode'] = 'manual_name'
-    names(sae_content_df)[names(sae_content_df) =='id'] = 'batch_id'
-
-    if ('speciesByAutoId' %in% names(sae_content_df)){
-      sae_content_df = sae_content_df %>% dplyr::select(-'speciesByAutoId')
-    }
-    if ('speciesByManualId' %in% names(sae_content_df)){
-      sae_content_df = sae_content_df %>% dplyr::select(-'speciesByManualId')
-    }
+    names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.fileName'] = 'file_name'
+    names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.recordingTime'] = 'recording_time'
 
     names(sae_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(sae_content_df), perl = TRUE))
     names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
 
-    names(sae_content_df)[names(sae_content_df) =='file_name'] = 'audio_recording_name'
-
     return (as.data.frame(sae_content_df))
-    }
+  }
   }
 
 
