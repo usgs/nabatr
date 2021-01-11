@@ -2303,11 +2303,13 @@ get_sa_batch = function(
     message('This survey has no data')
     return (NULL)
   }else{
-    names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.fileName'] = 'file_name'
+    names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.fileName'] = 'audio_recording_name'
     names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.recordingTime'] = 'recording_time'
 
     names(sae_content_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(sae_content_df), perl = TRUE))
     names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
+
+    names(sae_content_df)[names(sae_content_df) =='id'] = 'batch_id'
 
     return (as.data.frame(sae_content_df))
   }

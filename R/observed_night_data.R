@@ -35,7 +35,7 @@ get_observed_nights = function(acoustic_bulk_df){
 
   species_df  = pkg.env$bats_df
   species     = species_df$species_code
-  surveys_    = unique(acoustic_bulk_df$survey_id)
+  surveys_    = unique(acoustic_bulk_df$survey_event_id)
   project_id  = unique(acoustic_bulk_df$project_id)
 
   auto_project_data = data.frame()
@@ -49,9 +49,9 @@ get_observed_nights = function(acoustic_bulk_df){
 
   for (survey_ in surveys_){
     ex_grts_df = subset(acoustic_bulk_df,
-      acoustic_bulk_df$survey_id == survey_)
+      acoustic_bulk_df$survey_event_id == survey_)
     ex_grts_df[,c("grts_cell_id", "survey_start_time", "recording_time",
-                  "survey_end_time", "survey_id", "location_name",
+                  "survey_end_time", "survey_event_id", "location_name",
                   "audio_recording_name", "auto_id", "manual_id")]
 
     GRTS_id = unique(ex_grts_df$grts_cell_id)
