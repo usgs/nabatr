@@ -1470,15 +1470,15 @@ get_colony_bulk_counts = function(
   }
 
   sites_query = paste0('
-      query RRsites {allSites{
-        nodes{
-          id,
-          siteIdentifier,
-          siteTypeBySiteTypeId{
-            type
-          }
-        }
-      }
+    query RRsites {allSites{
+    nodes{
+    id,
+    siteIdentifier,
+    siteTypeBySiteTypeId{
+    type
+    }
+    }
+    }
     }')
     pbody = list(query = sites_query)
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
@@ -1486,76 +1486,81 @@ get_colony_bulk_counts = function(
     site_json = fromJSON(content, flatten = TRUE)
     site_type_df = as_tibble(site_json$data$allSites$nodes) %>%
       dplyr::rename('site_id' = id,
-        'site_type' = siteTypeBySiteTypeId.type) %>%
+        'site_type' = siteTypeBySiteTypeId.type,
+        'site_name' = siteIdentifier) %>%
       as.data.frame(stringsAsFactors = FALSE)
 
-  # Define package environmental varioables
-  if (is.null(pkg.env$bats_df)){
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
-      aws_alb = aws_alb, docker = docker)
-    assign('bats_df', species_df, pkg.env)
-  }
+    # Define package environmental varioables
+    if (is.null(pkg.env$bats_df)){
+      species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      assign('bats_df', species_df, pkg.env)
+    }
 
-  # Extract all survey ids from survey_df
-  survey_ids = unique(survey_df$survey_id)
+    # Extract all survey ids from survey_df
+    survey_ids = unique(survey_df$survey_id)
 
-  # Set empty dataframe to build acoustic stationary bulk template data in
-  all_colony_count = data.frame()
+    # Set empty dataframe to build acoustic stationary bulk template data in
+    all_colony_count = data.frame()
 
-  # Query each survey through GQL to extract and build a dataframe with all
-  #   acoustic stationary records for these acoustic survey ids
-  for (survey in survey_ids){
-    token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-      aws_alb = aws_alb, docker = docker)
-    message(paste0('Getting colony count data for survey: ', survey))
+    # Query each survey through GQL to extract and build a dataframe with all
+    #   acoustic stationary records for these acoustic survey ids
+    for (survey in survey_ids){
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      message(paste0('Getting colony count data for survey: ', survey))
 
-
-
-    # Set Query
-    query = paste0('
-      query RRccSurveys {allSurveys (filter:{id:{equalTo:',
-      as.numeric(survey),'}}){
-        nodes{
-          id
-          grtsCellId
-          colonyCountEventsBySurveyId{
-            nodes{
-              id,
-              surveyId,
-              dateTimeStart,
-              dateTimeEnd,
-              siteId,
-              winterYearPdPresumed,
-              winterYearWnsPresumed,
-              siteBySiteId{siteName}
-              colonyCountValuesByEventId{
-                nodes{
-                  id,
-                  eventId,
-                  speciesId,
-                  speciesBySpeciesId{species}
-                  countValue
-                  countDead
+      # Set Query
+      query = paste0('query RRccSurveys {
+                allSurveyEvents(
+                  filter: { surveyTypeId: { in: [9, 10] },
+                            surveyId: { equalTo: ', as.numeric(survey),' } }
+                ) {
+                  nodes {
+                    id
+                    startTime
+                    endTime
+                    surveyId
+                    colonyCountEventById {
+                      siteId
+                      winterYearPdPresumed
+                      winterYearWnsPresumed
+                      siteBySiteId {
+                        grtsId
+                      }
+                      colonyCountValuesByEventId {
+                        nodes {
+                          id
+                          speciesId
+                          speciesBySpeciesId {
+                            species
+                          }
+                          countValue
+                          countDead
+                        }
+                      }
+                    }
+                  }
                 }
-              }
-            }
-          }
-        }
-      }
-    }')
+              }')
+
+
     pbody = list(query = query, operationName = 'RRccSurveys')
 
     res       = httr::POST(url_, headers_, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
     count_json = fromJSON(content, flatten = TRUE)
-    count_df = as_tibble(count_json$data$allSurveys$nodes) %>%
+    count_df = as_tibble(count_json$data$allSurveyEvents$nodes) %>%
       dplyr::select(- id) %>%
-      tidyr::unnest(cols = c(colonyCountEventsBySurveyId.nodes)) %>%
-      dplyr::select(- id) %>%
-      tidyr::unnest(cols = c(colonyCountValuesByEventId.nodes)) %>%
+      tidyr::unnest(cols = c(colonyCountEventById.colonyCountValuesByEventId.nodes)) %>%
       dplyr::rename('ccId' = id,
-        'siteName' = siteBySiteId.siteName,
-        'species' = speciesBySpeciesId.species) %>%
+        'species' = speciesBySpeciesId.species,
+        'grtsId' = colonyCountEventById.siteBySiteId.grtsId,
+        'winterYearPdPresumed' = colonyCountEventById.winterYearPdPresumed,
+        'winterYearWnsPresumed' = colonyCountEventById.winterYearWnsPresumed,
+        'siteId' = colonyCountEventById.siteId,
+        'survey_start_time' = startTime,
+        'survey_end_time' = endTime) %>%
       as.data.frame(stringsAsFactors = FALSE) %>%
       dplyr::left_join(site_type_df, by= c('siteId' = 'site_id'))
 
@@ -1566,8 +1571,6 @@ get_colony_bulk_counts = function(
   }
 
   all_colony_count_final =   all_colony_count %>%
-    dplyr::rename('survey_start_time' = date_time_start,
-      'survey_end_time' = date_time_end) %>%
     mutate(survey_start_time =
         ifelse(nchar(survey_start_time) > 19, NA, survey_start_time)) %>%
     mutate(survey_end_time =
