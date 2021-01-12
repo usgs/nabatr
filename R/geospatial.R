@@ -224,7 +224,16 @@ get_spdf_from_polys_df = function(
 #' Takes a latitude and longitude in EPSG 4326 (WGS 84)
 #' and returns a
 #'
-#' @param grts_shp_df Dataframe
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param latitude Numeric latitude in EPSG 4326 (WGS 84)
+#' @param longitude Numeric latitude in EPSG 4326 (WGS 84)
+#' @param branch (optional) String that defaults to 'prod' but can also be
+#' 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
 #'
 #' @export
 get_grts_from_ll = function(
