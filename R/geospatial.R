@@ -217,3 +217,108 @@ get_spdf_from_polys_df = function(
   return (all_polys_spdf)
 }
 
+
+#' @title Get GRTS information from Lat / Lon
+#'
+#' @description
+#' Takes a latitude and longitude in EPSG 4326 (WGS 84)
+#' and returns a
+#'
+#' @param grts_shp_df Dataframe
+#'
+#' @export
+get_grts_from_ll = function(
+  token,
+  latitude,
+  longitude,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # When url is not passed in use these two gql urls, otherwise use
+  ## the url passed through as a variable.
+  if (is.null(url)){
+    # Prod URL for NABat GQL
+    if (branch == 'prod'){
+      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+    }
+  }else {
+    url_ = url
+  }
+
+  if (docker){
+    if(!is.null(aws_gql)){
+      url_ = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers_ = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+    }else {
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+  } else{
+    # If Local, use this headers_
+    token = get_refresh_token(token, url = url_)
+    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+
+  # Set Query
+  query =paste0('
+    query RRgrtsSelectionSearchQuery($geometry: JSON!) {
+    grtsSelectionSearch(geom: $geometry) {
+    nodes {
+    grtsId
+    grtsCellId
+    geom4326 {
+    geojson
+    }
+    location1Name
+    subLocation1Name
+    sampleFrameId
+    priorityState
+    priorityFrame
+    otherSelections
+    effort
+    }
+    }
+    }')
+
+  final_df = data.frame()
+  if (length(latitude) == length(longitude)){
+    for (pos in 1:length(latitude)){
+      lat = latitude[pos]
+      lon = longitude[pos]
+
+      pr_variables = paste0('{"geometry":
+        {"type":"Point","crs":
+        {"type":"name",
+        "properties":{"name":"EPSG:4326"}},
+        "coordinates":[',paste0(lon, ',' ,lat),']}}')
+
+      # Create body to send to GQL
+      pbody = list(query = query, operationName = 'RRgrtsSelectionSearchQuery', variables = pr_variables)
+      # Post to nabat GQL
+      res      = httr::POST(url_, headers_, body = pbody, encode='json')
+      content   = httr::content(res, as = 'text')
+      json = fromJSON(content, flatten = TRUE)
+      # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
+      df   = as.data.frame(json$data$grtsSelectionSearch$nodes, stringsAsFactors = FALSE)
+      names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
+      if (dim(final_df)[1]==0){
+        final_df = df
+      }else {
+        final_df = rbind(final_df, df)
+      }
+  }
+    }else{
+      stop('latitude and longitude need to be same lengths.')
+    }
+  return(final_df)
+}
