@@ -1,0 +1,56 @@
+---
+title: "Get GRTS from lat/lon"
+output:
+  html_document: default
+---
+
+# Get GRTS information from latitude/longitude
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+### Extract the GRTS information under a point using latitude and longitude
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+
+# Set coordinates  (these points are 40.6/-105.1 and 40.2/-105.1)
+lat = c(40.6, 40.2) # Can also be one value like lat = 40.6
+lon = c(-105.1, -105.1) # Can also just be one value like lon = -105.1
+
+grts_df = get_grts_from_ll(token, 
+                           latitude = lat, 
+                           longitude = lon)
+# Display dataframe
+grts_df
+```
+
+### View lat longs in leaflet map
+```{r}
+library(leaflet)
+
+# Create an interactive map wth your selected lat/lon values + grts cells they are found within
+m = leaflet() %>% addTiles()
+
+# Loop through grts cells and add polygons to map
+for (grts in grts_df$grts_id){
+  grts_row = subset(grts_df, grts_id == grts)
+  grts_lat = unlist(grts_row$geom4326.geojson.coordinates)[10:18]
+  grts_lon = unlist(grts_df$geom4326.geojson.coordinates)[1:9]
+  m = m %>% addPolygons(lat = grts_lat, lng = grts_lon, label = grts_row$grts_cell_id)
+}
+# Add lat/lon values to map
+m = m %>% addCircleMarkers(lat = lat, lng = lon, color = 'darkred', radius = 3, opacity = 1, fillOpacity = 1)
+
+# View map
+m
+```

@@ -2224,6 +2224,7 @@ get_sa_batch = function(
 
   sae_content_df = data.frame()
   for (id in survey_event_ids){
+    message(paste0('Querying survey event id: ', id))
     # Refresh token if it expires
     token = get_refresh_token(token, url = url_)
     # This Query has more metadata

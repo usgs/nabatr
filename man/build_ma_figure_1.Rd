@@ -2,7 +2,7 @@
 % Please edit documentation in R/ma_report_helpers.R
 \name{build_ma_figure_1}
 \alias{build_ma_figure_1}
-\title{Build Mobile Acoustic Report Figure 1}
+\title{Build Mobile Acoustic Report Figure 1 (Map)}
 \usage{
 build_ma_figure_1(ma_bulk_df, project_id, project_df, year = NULL)
 }
