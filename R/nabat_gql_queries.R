@@ -1617,7 +1617,7 @@ get_upload_file_preview = function(
   file_path,
   token,
   survey_type = 'bulk_sae',
-  branch = 'beta',
+  branch = 'prod',
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
@@ -1733,7 +1733,7 @@ get_upload_file_preview = function(
 get_presigned_data = function(
   project_id,
   token,
-  branch = 'beta',
+  branch = 'prod',
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
@@ -1835,7 +1835,7 @@ process_uploaded_csv = function(
   file_name,
   token,
   survey_type = 'bulk_sae',
-  branch = 'beta',
+  branch = 'prod',
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
@@ -1911,7 +1911,7 @@ process_uploaded_csv = function(
     "type" : "',survey_type,'",
     "template" : ',template_json,' ,
     "subType" : null,
-    "requiredFields" : "[]" }')
+    "requiredFields" : "{}" }')
 
   pro_pbody = list(query = process_query, variables = proc_variables,
     operationName = operation_name)

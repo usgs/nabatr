@@ -12,7 +12,7 @@ process_uploaded_csv(
   file_name,
   token,
   survey_type = "bulk_sae",
-  branch = "beta",
+  branch = "prod",
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
