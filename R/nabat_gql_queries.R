@@ -2226,7 +2226,24 @@ get_sa_batch = function(
   for (id in survey_event_ids){
     message(paste0('Querying survey event id: ', id))
     # Refresh token if it expires
-    token = get_refresh_token(token, url = url_)
+    if (docker){
+      if(!is.null(aws_gql)){
+        url_ = paste0(aws_alb, '/graphql')
+        token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
+          aws_alb = aws_alb, docker = docker)
+        headers_ = httr::add_headers(host = aws_gql,
+          Authorization = paste0("Bearer ", token$access_token))
+      }else {
+        token = get_refresh_token(token, url = url_)
+        headers_ = httr::add_headers(Authorization = paste0("Bearer ",
+          token$access_token))
+      }
+    } else{
+      # If Local, use this headers_
+      token = get_refresh_token(token, url = url_)
+      headers_ = httr::add_headers(Authorization = paste0('Bearer ',
+        token$access_token))
+    }
     # This Query has more metadata
     extended_query= paste0('query RRallSaBatches{
         allAcousticBatches(filter: {surveyEventId: { equalTo: ', id ,' }, surveyTypeId: {equalTo: 7}}) {
