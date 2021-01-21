@@ -8,7 +8,7 @@ get_upload_file_preview(
   file_path,
   token,
   survey_type = "bulk_sae",
-  branch = "beta",
+  branch = "prod",
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,

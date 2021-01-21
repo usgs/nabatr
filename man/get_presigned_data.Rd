@@ -7,7 +7,7 @@
 get_presigned_data(
   project_id,
   token,
-  branch = "beta",
+  branch = "prod",
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
