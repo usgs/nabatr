@@ -7,6 +7,12 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+### Navigate to https://sciencebase.usgs.gov/nabat in your browser and login.  
+### Once you are logged in, go to the EXPLORE tab and then to the NABat Data
+### Requests tab.  Here you can view your data requests and there is a link
+### to create a new data requests. The 'Explore Public Data' tab also allows
+### you to create a new data request.
+
 
 ### Get a token for NABat Database
 ```
@@ -22,7 +28,7 @@ token
 
 ### Set data request ID
 ```
-# Data request id
+# Data request id - Can be found at the top of your data request
 id = 00
 ```
 
