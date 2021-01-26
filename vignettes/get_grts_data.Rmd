@@ -18,6 +18,8 @@ library(sp)
 
 ```
 colorado = get_grts_data('conus', query="state_n_1='Colorado'")
+# To grab all of conus, you can run this command (might take a while)
+# conus_all = get_grts_data('conus', query="state_n_1='Colorado'")
 ```
 
 ```
