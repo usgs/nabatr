@@ -1,4 +1,30 @@
-
+#############################################################################
+#     _   _____    ____        __  ____
+#    / | / /   |  / __ )____ _/ /_/ __ \
+#   /  |/ / /| | / __  / __ `/ __/ /_/ /
+#  / /|  / ___ |/ /_/ / /_/ / /_/ _, _/
+# /_/ |_/_/  |_/_____/\__,_/\__/_/ |_|
+#
+# R Tools for accessing and manipulating North American Bat Monitoring data
+#
+# Written by: Kyle Enns
+#
+# USGS DISCLAIMER:  This software is in the public domain because it contains
+# materials that originally came from the U.S. Geological Survey, an agency
+# of the United States Department of Interior. For more information, see the
+# [official USGS copyright policy]
+# (https://www.usgs.gov/visual-id/credit_usgs.html#copyright/
+# "official USGS # copyright policy")
+#
+# Although this software program has been used by the U.S. Geological Survey
+# (USGS), no warranty, expressed or implied, is made by the USGS or the U.S.
+# Government as to the accuracy and functioning of the program and related
+# program material nor shall the fact of distribution constitute any such
+# warranty, and no responsibility is assumed by the USGS in connection
+# therewith.
+#
+# This software is provided "AS IS."
+#############################################################################
 
 #' @title Clean Acoustic NABat time fields
 #'
@@ -121,7 +147,6 @@ add_start_end_nights = function(df){
 #' Moves one column with field name x to the location of different
 #' field name y
 #'
-
 move_col = function(data, cols, ref, side = c("before","after")){
   if(! requireNamespace("dplyr")) stop("Make sure package 'dplyr' is installed to use function 'move'")
   side = match.arg(side)
@@ -152,7 +177,6 @@ myLetters = function(length.out) {
 #'
 #' @export
 #'
-
 ll_to_county_state = function(points_df) {
   # type = 'state' | 'county'
   # Prepare SpatialPolygons object with one SpatialPolygon
@@ -174,6 +198,7 @@ ll_to_county_state = function(points_df) {
   return (stateNames[indices])
 }
 
+
 #' @title Simple Cap
 #'
 #' @description Helper function for capitlization of County/states
@@ -187,6 +212,45 @@ ll_to_county_state = function(points_df) {
 }
 
 
+#' @title Get Token Headers
+#'
+#' @description
+#' Create and return correct headers for querying NABat
+#' API. This function also refreshes your NABat GQL token
+#'
+#' @export
+#'
+get_token_headers = function(
+  token,
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+
+  # If running in docker
+  if (docker){
+    # If in AWS
+    if(!is.null(aws_gql)){
+      url = paste0(aws_alb, '/graphql')
+      token = get_refresh_token(token, url = url, aws_gql = aws_gql,
+        aws_alb = aws_alb, docker = docker)
+      headers = httr::add_headers(host = aws_gql,
+        Authorization = paste0("Bearer ", token$access_token))
+      # If not in AWS
+    }else {
+      token = get_refresh_token(token, url = url)
+      headers = httr::add_headers(Authorization = paste0("Bearer ",
+        token$access_token))
+    }
+    # If not running in docker
+  } else{
+    token = get_refresh_token(token, url = url)
+    headers = httr::add_headers(Authorization = paste0('Bearer ',
+      token$access_token))
+  }
+  return (list(token = token, headers = headers))
+}
+
 
 #' @title Get GQL url
 #'
@@ -197,13 +261,14 @@ ll_to_county_state = function(points_df) {
 #'
 get_gql_url =  function(
   branch = 'prod'){
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  return(url_)
+  if (branch == 'prod'){
+    url = 'https://api.sciencebase.gov/nabat-graphql/graphql'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    url = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
+  }
+  return(url)
 }
+
 
 #' @title Get Project file bucket for AWS
 #'

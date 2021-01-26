@@ -8,7 +8,22 @@
 # R Tools for accessing and manipulating North American Bat Monitoring data
 #
 # Written by: Kyle Enns
-# Created: 2020-11-18
+#
+# USGS DISCLAIMER:  This software is in the public domain because it contains
+# materials that originally came from the U.S. Geological Survey, an agency
+# of the United States Department of Interior. For more information, see the
+# [official USGS copyright policy]
+# (https://www.usgs.gov/visual-id/credit_usgs.html#copyright/
+# "official USGS # copyright policy")
+#
+# Although this software program has been used by the U.S. Geological Survey
+# (USGS), no warranty, expressed or implied, is made by the USGS or the U.S.
+# Government as to the accuracy and functioning of the program and related
+# program material nor shall the fact of distribution constitute any such
+# warranty, and no responsibility is assumed by the USGS in connection
+# therewith.
+#
+# This software is provided "AS IS."
 #############################################################################
 
 
@@ -41,37 +56,16 @@ build_data_request = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  # Set URL based on branch
+  if (is.null(url)) url = get_gql_url(branch)
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
+  # Refresh token
+  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
+
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
 
   # Username and password
   variables = paste0('{"create":{"dataRequestId" : ',as.character(data_request_id),' }}')
@@ -82,11 +76,11 @@ build_data_request = function(
     }
   }'
 
-# Finalize json request
+  # Finalize json request
   pbody = list(query = query, variables = variables,
     operationName = 'RRbuildDataRequest')
   # POST to url
-  res = POST(url_, headers_, body = pbody, encode="json")
+  res = POST(url, headers, body = pbody, encode="json")
   content = content(res)
   return(content)
 }
@@ -122,37 +116,16 @@ get_data_request_approvals = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  # Set URL based on branch
+  if (is.null(url)) url = get_gql_url(branch)
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
+  # Refresh token
+  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
+
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
 
   query =paste0('
     query RRAllVwDataRequestApprovals{
@@ -175,7 +148,7 @@ get_data_request_approvals = function(
   # Create body to send to GQL
   pbody = list(query = query, operationName = 'RRAllVwDataRequestApprovals')
   # Post to nabat GQL
-  res      = httr::POST(url_, headers_, body = pbody, encode='json')
+  res      = httr::POST(url, headers, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   json = fromJSON(content, flatten = TRUE)
   # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
@@ -214,39 +187,16 @@ get_data_request_files = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-      bucket = 'nabat-prod-project-files'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-      bucket = 'nabat-beta-project-files'
-    }
-  }else {
-    url_ = url
-  }
+  # Set URL based on branch
+  if (is.null(url)) url = get_gql_url(branch)
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
+  # Refresh token
+  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
+
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
 
   query =paste0('
     query RRs3FileServiceListFiles{
@@ -264,7 +214,7 @@ get_data_request_files = function(
   # Create body to send to GQL
   pbody = list(query = query, operationName = 'RRs3FileServiceListFiles')
   # Post to nabat GQL
-  res      = httr::POST(url_, headers_, body = pbody, encode='json')
+  res      = httr::POST(url, headers, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   json = fromJSON(content, flatten = TRUE)
   # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
@@ -273,9 +223,6 @@ get_data_request_files = function(
 
   return (df)
 }
-
-
-
 
 
 #' @title Download Data Request
@@ -308,39 +255,16 @@ download_data_request = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-      bucket = 'nabat-prod-project-files'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-      bucket = 'nabat-beta-project-files'
-    }
-  }else {
-    url_ = url
-  }
+  # Set URL based on branch
+  if (is.null(url)) url = get_gql_url(branch)
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
+  # Refresh token
+  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
+
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
 
   key = "data-request/12/NABat__2020-11-18_21-58-56__v5_3_15.zip"
 
@@ -356,7 +280,7 @@ download_data_request = function(
 # Create body to send to GQL
   pbody = list(query = query, operationName = 'RRs3FileServiceDownloadFile')
   # Post to nabat GQL
-  res      = httr::POST(url_, headers_, body = pbody, encode='json')
+  res      = httr::POST(url, headers, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   json = fromJSON(content, flatten = TRUE)
   # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
