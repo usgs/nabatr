@@ -6,6 +6,11 @@
 \usage{
 upload_csv(presigned_url, file_path)
 }
+\arguments{
+\item{presigned_url}{String Output from get_presigned_data()}
+
+\item{file_path}{String File path of csv to upload to NABat}
+}
 \description{
 Upload a csv to a presigned url
 }

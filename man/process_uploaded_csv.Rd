@@ -19,6 +19,33 @@ process_uploaded_csv(
   docker = FALSE
 )
 }
+\arguments{
+\item{user_id}{Numeric NABat user Id - from get_user_id_by_email()}
+
+\item{project_id}{Numeric or String a project id}
+
+\item{asUUid}{String asUUid - from get_presigned_data()}
+
+\item{template}{Dataframe - from get_upload_file_preview()}
+
+\item{file_name}{String Name of file to be uploaded into NABat website}
+
+\item{token}{List token created from get_nabat_gql_token() or
+get_refresh_token()}
+
+\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae'}
+
+\item{branch}{(optional) String that defaults to 'prod' but can also be
+'dev'|'beta'|'local'}
+
+\item{url}{(optional) String url to use for GQL}
+
+\item{aws_gql}{(optional) String url to use in aws}
+
+\item{aws_alb}{(optional) String url to use in aws}
+
+\item{docker}{(optional) Boolean if being run in docker container or not}
+}
 \description{
-Upload a csv to a presigned url
+Process a csv and upload to your NABat Project
 }
