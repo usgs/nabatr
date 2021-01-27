@@ -65,43 +65,34 @@ get_all_project_types = function(
   token   = tkn_hdr$token
 
   # GQL Query
-  query = paste0('query RRsurveySummaries{ allVwSurveySummaries {
+  query = paste0('query {
+    allSurveys{
       nodes{
-      id,
-      projectName,
-      owningOrg,
-      grtsCell,
-      surveyid,
-      numberCcEvents,
-      numberSaEvents,
-      numberMaEvents
-      }
+        projectId
+        surveyEventsBySurveyId{
+          nodes{
+            surveyTypeId
+          }
+        }
+  		}
     }
   }')
-  pbody = list(query = query, operationName = 'RRsurveySummaries')
 
-  # Post to nabat GQL
-  res = httr::POST(url, headers, body = pbody, encode='json')
-  content = httr::content(res, as = 'text')
-  cont_json = jsonlite::fromJSON(content, flatten = TRUE)
-  # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwSurveySummaries$nodes, stringsAsFactors = FALSE)
-  names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
-  # Add a year field that is a string split from the event field
-  if (dim(cont_df)[1] > 0){
-    names(cont_df)[names(cont_df) == 'grts_cell']    = 'grts_cell_id'
-    row.names(cont_df) = NULL
-  }
-
-  # Define package environmental variables
-  if (is.null(pkg.env$bats_df)){
-    # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-    assign('bats_df', species_df, pkg.env)
-  }
+  # Create body to send to GQL
+  pbody = list(query = query)
+  # Query GQL API
+  res      = httr::POST(url, headers, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  json = fromJSON(content, flatten = TRUE)
+  # Convert to dataframe from json
+  df   = as.data.frame(json$data$allSurveys$nodes, stringsAsFactors = FALSE) %>%
+    tidyr::unnest('surveyEventsBySurveyId.nodes') %>%
+    dplyr::distinct()
+  # Rename fields
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
 
   # Return dataframe of projects
-  return (cont_df)
+  return (df)
   }
 
 
