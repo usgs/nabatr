@@ -235,7 +235,7 @@ get_nabat_gql_token = function(
     # Finalize json request
     pbody = list(query = query, variables = variables,
       operationName = 'RRlogin')
-    # POST to url
+    # Query GQL API
     res = POST(url, headers, body = pbody, encode="json")
     # Remove variables with Password
     rm(password, variables, pbody)
@@ -334,7 +334,7 @@ get_refresh_token = function(
       }'
       # Finalize json request0
       pbody = list(query = query, variables = variables, operationName = 'RRlogin')
-      # POST to url
+      # Query GQL API
       res = httr::POST(url, headers, body = pbody, encode="json")
 
       # Extract token
@@ -704,7 +704,7 @@ get_sa_bulk_wavs_old = function(
     }
   }'
   pbody = list(query = query, operationName = 'RReventGeometries')
-
+  # Query GQL API
   res = httr::POST(url, headers, body = pbody, encode='json')
   content = httr::content(res, as = 'text')
   geom_json = fromJSON(content, flatten = TRUE)
@@ -935,7 +935,7 @@ get_ma_bulk_wavs_old = function(
     }
   }'
   pbody = list(query = query, operationName = 'RReventGeometries')
-
+  # Query GQL API
   res = httr::POST(url, headers, body = pbody, encode='json')
   content = httr::content(res, as = 'text')
   geom_json = fromJSON(content, flatten = TRUE)
@@ -1278,9 +1278,11 @@ get_colony_bulk_counts = function(
     }
     }')
     pbody = list(query = sites_query)
+    # Query GQL API
     res       = httr::POST(url, headers, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
     site_json = fromJSON(content, flatten = TRUE)
+    # Extract Dataframe form json returned from API
     site_type_df = as_tibble(site_json$data$allSites$nodes) %>%
       dplyr::rename('site_id' = id,
         'site_type' = siteTypeBySiteTypeId.type,
@@ -1346,10 +1348,11 @@ get_colony_bulk_counts = function(
 
 
     pbody = list(query = query, operationName = 'RRccSurveys')
-
+    # Query GQL API
     res       = httr::POST(url, headers, body = pbody, encode='json')
     content   = httr::content(res, as = 'text')
     count_json = fromJSON(content, flatten = TRUE)
+    # Extract Dataframe form json returned from API
     count_df = as_tibble(count_json$data$allSurveyEvents$nodes) %>%
       dplyr::select(- id) %>%
       tidyr::unnest(cols = c(colonyCountEventById.colonyCountValuesByEventId.nodes)) %>%
@@ -1364,13 +1367,15 @@ get_colony_bulk_counts = function(
       as.data.frame(stringsAsFactors = FALSE) %>%
       dplyr::left_join(site_type_df, by= c('siteId' = 'site_id'))
 
+    # Rename fields
     names(count_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_",
       names(count_df), perl = TRUE))
 
     all_colony_count = rbind(all_colony_count, count_df)
   }
 
-  all_colony_count_final =   all_colony_count %>%
+  # Massage colony count dataframe
+  all_colony_count_final = all_colony_count %>%
     mutate(survey_start_time =
         ifelse(nchar(survey_start_time) > 19, NA, survey_start_time)) %>%
     mutate(survey_end_time =
@@ -1482,6 +1487,7 @@ get_upload_file_preview = function(
   pr_pbody = list(query = preview_query,
                   variables = pr_variables,
                   operationName = operation_name)
+  # Query GQL API
   pr_res = httr::POST(url, headers, body = pr_pbody, encode='json')
   pr_content   = httr::content(pr_res, as = 'text')
   pr_content_json = fromJSON(pr_content, flatten = TRUE)
@@ -1547,6 +1553,7 @@ get_presigned_data = function(
   }'
   pbody = list(query = query, variables = variables,
     operationName = 'RRs3FileServiceUploadFile')
+  # Query GQL API
   res = httr::POST(url, headers, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   pre_content_json = fromJSON(content, flatten = TRUE)
@@ -1670,7 +1677,7 @@ process_uploaded_csv = function(
 
   pro_pbody = list(query = process_query, variables = proc_variables,
     operationName = operation_name)
-
+  # Query GQL API
   pro_res = httr::POST(url, headers, body = pro_pbody, encode='json')
   pro_content = httr::content(pro_res, as = 'text')
   content_json = fromJSON(pro_content, flatten = TRUE)
@@ -1841,6 +1848,7 @@ get_nightly_data = function(
   }')
 
   pr_pbody = list(query = nightly_query, variables = pr_variables)
+  # Query GQL API
   res = httr::POST(url, headers, body = pr_pbody, encode='json')
   if (res$status_code != 200){
     stop(paste0('Error in API call.  response: ', res))
@@ -2834,9 +2842,6 @@ get_grts_covariate = function(
 
   return (covariates_df)
 }
-
-
-
 
 
 
