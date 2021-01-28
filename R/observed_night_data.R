@@ -74,7 +74,7 @@ get_observed_nights = function(acoustic_bulk_df){
 
     GRTS_id = unique(ex_grts_df$grts_cell_id)
 
-    message (paste0('GRTS id: ', GRTS_id, ' and survey id: ', survey_))
+    message (paste0('GRTS id: ', GRTS_id, ' and survey event id: ', survey_))
 
     # Add columns auto_species and manual_species
     species_df_ = species_df[, c("id", "species_code")]
