@@ -12,7 +12,8 @@ get_ma_project_summary(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE
+  docker = FALSE,
+  return_t = FALSE
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ get_refresh_token()}
 \item{aws_alb}{(optional) String url to use in aws}
 
 \item{docker}{(optional) Boolean if being run in docker container or not}
+
+\item{return_t}{(optional) Boolean Changes the Returned value to a list
+and adds a token as one of the returned values (if set to TRUE)}
 }
 \description{
 Returns a dataframe with all of a project's acoustic
