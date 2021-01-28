@@ -9,6 +9,9 @@
 #
 # Written by: Kyle Enns
 #
+# FILE DESCRIPTION:  This file contains functions to help build the Colony
+# Count report build_col_doc()
+#
 # USGS DISCLAIMER:  This software is in the public domain because it contains
 # materials that originally came from the U.S. Geological Survey, an agency
 # of the United States Department of Interior. For more information, see the
@@ -280,7 +283,7 @@ build_cc_figure_1 = function(
   figure_number = '1'
   fig_files = c()
   descriptions = c()
-  figures = list()
+  # figures = list()
   limit = 8
 
   if (num_sites > limit){
@@ -327,17 +330,17 @@ build_cc_figure_1 = function(
 
       descriptions = c(descriptions, cc_descr_fig1)
 
-      figures[paste0('figure_',fig_name)] = cc_figure1$data
+      # figures[paste0('figure_',fig_name)] = cc_figure1$data
 
       if(save_bool){
         cc_fig1_f = paste0(out_dir, "/temps/fig", fig_name,".png")
         fig_files = c(fig_files, cc_fig1_f)
-        ggsave(cc_figure1, filename = cc_fig1_f)
+        ggsave(cc_figure1, filename = cc_fig1_f, width = 7, height = 7)
       }else{
         cc_fig1_f = NULL
       }
     }
-    return(list(figure = figures, description = descriptions, file = fig_files))
+    return(list(description = descriptions, file = fig_files))
   }else{
 
     figure_data = cc_bulk_df %>%
@@ -368,11 +371,11 @@ build_cc_figure_1 = function(
 
     if(save_bool){
       cc_fig1_f = paste0(out_dir, "/temps/fig1.png")
-      ggsave(cc_figure1, filename = cc_fig1_f)
+      ggsave(cc_figure1, filename = cc_fig1_f, width = 7, height = 7)
     }else{
       cc_fig1_f = NULL
     }
-    return (list(figure = cc_figure1, description = cc_descr_fig1, file = cc_fig1_f))
+    return (list(description = cc_descr_fig1, file = cc_fig1_f))
   }
 }
 
