@@ -1923,6 +1923,7 @@ get_sa_batch = function(
     content  = httr::content(res, as = 'text')
     # Catch 502 error and try again
     if (content == "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n</body>\r\n</html>\r\n"){
+      headers = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)$headers
       message (paste0('Query timed out, trying again for survey event id (502 Bad Gateway): ', id))
       res      = httr::POST(url, headers, body = pbody, encode='json')
       content  = httr::content(res, as = 'text')
@@ -1936,6 +1937,7 @@ get_sa_batch = function(
     # Catch statement timeout and try again
     if (!is.null(content_json$errors) && !is.null(content_json$errors$message) && content_json$errors$message == "canceling statement due to statement timeout"){
       message (paste0('Query timed out, trying again for survey event id: ', id))
+      headers = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)$headers
       res      = httr::POST(url, headers, body = pbody, encode='json')
       content  = httr::content(res, as = 'text')
       content_json = fromJSON(content, flatten = TRUE)
