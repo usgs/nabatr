@@ -2260,7 +2260,7 @@ get_sa_bulk_wavs = function(
   return_t = FALSE){
 
   # New query against all batches in the event
-  message('Querying SA wav files')
+  message(paste0('Querying SA wav files in', branch))
   sa_batch_r = get_sa_batch(token = token,
     survey_df = survey_df,
     year = year,
@@ -2674,7 +2674,7 @@ get_ma_bulk_wavs = function(
   return_t = FALSE){
 
   # New query against all batches in the event
-  message('Querying MA wav files')
+  message(paste0('Querying MA wav files in ', branch))
   acc_events_r = get_ma_batch(token = token,
     survey_df = survey_df,
     year = year,
