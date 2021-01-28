@@ -7,11 +7,11 @@
 #
 # R Tools for accessing and manipulating North American Bat Monitoring data
 #
-# Github: https://github.com/talbertc-usgs/NABatR
 # Written by: Colin B Talbert
-# Created: 2018-10-31
 # Based on wfs access code from sbtools:
 # https://github.com/USGS-R/sbtools/blob/869282738eeea73225c8cc388ca4d189aa987899/R/item_get_wfs.R
+#
+# FILE DESCRIPTION:  This file contains functions return GRTS cell information
 #
 # USGS DISCLAIMER:  This software is in the public domain because it contains
 # materials that originally came from the U.S. Geological Survey, an agency

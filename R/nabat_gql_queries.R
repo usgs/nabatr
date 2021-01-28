@@ -10,7 +10,7 @@
 # Written by: Kyle Enns
 #
 # DESCRIPTION:  This file provides functions that query the NABat database
-# using the NABat GQL API.
+# using the NABat GQL API
 #
 # USGS DISCLAIMER:  This software is in the public domain because it contains
 # materials that originally came from the U.S. Geological Survey, an agency
@@ -278,6 +278,7 @@ get_nabat_gql_token = function(
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container
 #' or not
+#'
 #' @keywords bats, NABat, GQL
 #' @examples
 #'
@@ -1903,6 +1904,8 @@ get_nightly_data = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -1914,7 +1917,8 @@ get_sa_batch = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -1939,6 +1943,8 @@ get_sa_batch = function(
     survey_event_ids = unique(subset(survey_df, survey_df$year == year_)$survey_event_id)
   }
 
+
+  # Format for the in filter for GQL
   event_ids_list = paste0('[', paste0(survey_event_ids, collapse=','), ']')
 
   sae_content_df = data.frame()
@@ -1977,11 +1983,34 @@ get_sa_batch = function(
     # Post to nabat GQL
     res      = httr::POST(url, headers, body = pbody, encode='json')
     content  = httr::content(res, as = 'text')
-    content_json = fromJSON(content, flatten = TRUE)
+    # Catch 502 error and try again
+    if (content == "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n</body>\r\n</html>\r\n"){
+      message (paste0('Query timed out, trying again for survey event id (502 Bad Gateway): ', id))
+      res      = httr::POST(url, headers, body = pbody, encode='json')
+      content  = httr::content(res, as = 'text')
+      if (content == "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n</body>\r\n</html>\r\n"){
+        stop('Query timed out (502 Bad Gateway), stopping function. API is running slow, try again later.')
+      }
+    } else{
+      content_json = fromJSON(content, flatten = TRUE)
+    }
 
-    sae_content_df_int = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
-      tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+    # Catch statement timeout and try again
+    if (!is.null(content_json$errors) && !is.null(content_json$errors$message) && content_json$errors$message == "canceling statement due to statement timeout"){
+      message (paste0('Query timed out, trying again for survey event id: ', id))
+      res      = httr::POST(url, headers, body = pbody, encode='json')
+      content  = httr::content(res, as = 'text')
+      content_json = fromJSON(content, flatten = TRUE)
+      if (!is.null(content_json$errors) && !is.null(content_json$errors$message) && content_json$errors$message == "canceling statement due to statement timeout"){
+        stop('Query timed out, stopping function. API is running slow, try again later.')
+      }
+    # Create sae content dataframe intermediate if neither of the above issues come up
+    }else{
+      sae_content_df_int = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
+        tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+    }
 
+    # Add data to sae content dataframe for each loop
     if (dim(sae_content_df)[1] < 1){
       sae_content_df = sae_content_df_int
     }else {
@@ -1993,6 +2022,7 @@ get_sa_batch = function(
     message('This survey has no data')
     return (NULL)
   }else{
+    # Rename field headers
     names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.fileName'] = 'audio_recording_name'
     names(sae_content_df)[names(sae_content_df) =='acousticFileByFileId.recordingTime'] = 'recording_time'
 
@@ -2000,8 +2030,15 @@ get_sa_batch = function(
     names(sae_content_df) = sub('.*\\.', '', names(sae_content_df))
 
     names(sae_content_df)[names(sae_content_df) =='id'] = 'batch_id'
+    sae_content_df = as.data.frame(sae_content_df)
 
-    return (as.data.frame(sae_content_df))
+    # If return_t is TRUE, return token as well
+    if (return_t){
+      return (list(df = sae_content_df, token = token))
+    }else{
+      # Return dataframe of projects
+      return (sae_content_df)
+    }
   }
 }
 
@@ -2024,6 +2061,8 @@ get_sa_batch = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -2035,7 +2074,8 @@ get_sa_event_metadata = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -2169,7 +2209,15 @@ get_sa_event_metadata = function(
       'survey_end_time' = 'end_time') %>%
     dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))
 
-  return (as.data.frame(event_metadata_df))
+  event_metadata_df = as.data.frame(event_metadata_df)
+
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = event_metadata_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (event_metadata_df)
+  }
 }
 
 
@@ -2194,6 +2242,8 @@ get_sa_event_metadata = function(
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container
 #'  or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -2206,16 +2256,22 @@ get_sa_bulk_wavs = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE){
+  docker = FALSE,
+  return_t = FALSE){
+
   # New query against all batches in the event
-  acc_events = get_sa_batch(token = token,
+  message('Querying SA wav files')
+  sa_batch_r = get_sa_batch(token = token,
     survey_df = survey_df,
     year = year,
     branch = branch,
     url = url,
     aws_gql = aws_gql,
     aws_alb = aws_alb,
-    docker = docker)
+    docker = docker,
+    return_t = TRUE)
+  acc_events = sa_batch_r$df
+  token = sa_batch_r$token
 
   if (is.null(acc_events)){
     message('Will not merge with metadata since no data exists')
@@ -2228,17 +2284,29 @@ get_sa_bulk_wavs = function(
     }
 
     # New query for all metadata at a Stationary Acoustic Event
-    event_metadata = get_sa_event_metadata(token = token,
+    event_metadata_r = get_sa_event_metadata(token = token,
       survey_df = survey_df,
       year = year,
       branch = branch,
       url = url,
       aws_gql = aws_gql,
       aws_alb = aws_alb,
-      docker = docker)
+      docker = docker,
+      return_t = TRUE)
+    event_metadata = event_metadata_r$df
+    token = event_metadata_r$token
 
     sa_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('survey_event_id' = 'id'))
-    return (as.data.frame(sa_bulk_wav_df))
+    sa_bulk_wav_df = as.data.frame(sa_bulk_wav_df)
+
+    # If return_t is TRUE, return token as well
+    if (return_t){
+      return (list(df = sa_bulk_wav_df, token = token))
+    }else{
+      # Return dataframe of projects
+      return (sa_bulk_wav_df)
+    }
+
   }
 }
 
@@ -2262,6 +2330,8 @@ get_sa_bulk_wavs = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -2273,7 +2343,8 @@ get_ma_batch = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -2418,7 +2489,15 @@ get_ma_batch = function(
     ma_batch_df = dplyr::left_join(ma_content_df, coordinates_df, by = c('file_id' = 'wav_id')) %>%
       dplyr::select(-c('coordinates'))
 
-    return (as.data.frame(ma_batch_df))
+    ma_batch_df = as.data.frame(ma_batch_df)
+
+    # If return_t is TRUE, return token as well
+    if (return_t){
+      return (list(df = ma_batch_df, token = token))
+    }else{
+      # Return dataframe of projects
+      return (ma_batch_df)
+    }
   }
 }
 
@@ -2443,6 +2522,8 @@ get_ma_batch = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -2454,7 +2535,8 @@ get_ma_event_metadata = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -2540,7 +2622,15 @@ get_ma_event_metadata = function(
     dplyr::select(-c('coordinates', 'type')) %>%
     dplyr::mutate(site_name = paste0(grts_cell_id, '_', location_name))
 
-  return (as.data.frame(event_metadata_df))
+  event_metadata_df = as.data.frame(event_metadata_df)
+
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = event_metadata_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (event_metadata_df)
+  }
 }
 
 
@@ -2566,6 +2656,8 @@ get_ma_event_metadata = function(
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container
 #'  or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -2578,17 +2670,22 @@ get_ma_bulk_wavs = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE){
+  docker = FALSE,
+  return_t = FALSE){
+
   # New query against all batches in the event
   message('Querying MA wav files')
-  acc_events = get_ma_batch(token = token,
+  acc_events_r = get_ma_batch(token = token,
     survey_df = survey_df,
     year = year,
     branch = branch,
     url = url,
     aws_gql = aws_gql,
     aws_alb = aws_alb,
-    docker = docker)
+    docker = docker,
+    return_t = TRUE)
+  acc_events = acc_events_r$df
+  token = acc_events_r$token
 
   if (is.null(acc_events)){
     message('Will not merge with metadata since no data exists')
@@ -2602,17 +2699,28 @@ get_ma_bulk_wavs = function(
 
     message('Querying and merging metadata to wav files')
     # New query for all metadata at a Stationary Acoustic Event
-    event_metadata = get_ma_event_metadata(token = token,
+    event_metadata_r = get_ma_event_metadata(token = token,
       survey_df = survey_df,
       year = year,
       branch = branch,
       url = url,
       aws_gql = aws_gql,
       aws_alb = aws_alb,
-      docker = docker)
+      docker = docker,
+      return_t = TRUE)
+    event_metadata = event_metadata_r$df
+    token = event_metadata_r$token
 
     ma_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('survey_event_id' = 'id'))
-    return (as.data.frame(ma_bulk_wav_df))
+    ma_bulk_wav_df = as.data.frame(ma_bulk_wav_df)
+
+    # If return_t is TRUE, return token as well
+    if (return_t){
+      return (list(df = ma_bulk_wav_df, token = token))
+    }else{
+      # Return dataframe of projects
+      return (ma_bulk_wav_df)
+    }
   }
 }
 
