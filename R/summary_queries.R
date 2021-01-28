@@ -9,6 +9,9 @@
 #
 # Written by: Kyle Enns
 #
+# FILE DESCRIPTION:  This file contains functions that query the NABat
+# GQL API for summary information on the different data types
+#
 # USGS DISCLAIMER:  This software is in the public domain because it contains
 # materials that originally came from the U.S. Geological Survey, an agency
 # of the United States Department of Interior. For more information, see the
@@ -51,7 +54,7 @@ get_all_project_types = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -114,6 +117,8 @@ get_all_project_types = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -125,7 +130,8 @@ get_sa_project_summary = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -183,8 +189,13 @@ get_sa_project_summary = function(
     assign('bats_df', species_df, pkg.env)
   }
 
-  # Return dataframe of projects
-  return (cont_df)
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = cont_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (cont_df)
+  }
 }
 
 
@@ -204,6 +215,8 @@ get_sa_project_summary = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -215,7 +228,8 @@ get_ma_project_summary = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -274,8 +288,13 @@ get_ma_project_summary = function(
     assign('bats_df', species_df, pkg.env)
   }
 
-  # Return dataframe of projects
-  return (cont_df)
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = cont_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (cont_df)
+  }
 }
 
 
@@ -296,6 +315,8 @@ get_ma_project_summary = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -307,7 +328,8 @@ get_cc_project_summary = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
   # Set URL based on branch
   if (is.null(url)) url = get_gql_url(branch)
@@ -366,6 +388,11 @@ get_cc_project_summary = function(
     assign('bats_df', species_df, pkg.env)
   }
 
-  # Return dataframe of projects
-  return (cont_df)
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = cont_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (cont_df)
   }
+}
