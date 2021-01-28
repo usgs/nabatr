@@ -225,10 +225,14 @@ ll_to_county_state = function(points_df) {
 #'
 get_token_headers = function(
   token,
+  branch = 'prod',
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
   docker = FALSE){
+
+  # Set URL based on branch if url is
+  if (is.null(url)) url = get_gql_url(branch)
 
   # If running in docker
   if (docker){
@@ -251,7 +255,7 @@ get_token_headers = function(
     headers = httr::add_headers(Authorization = paste0('Bearer ',
       token$access_token))
   }
-  return (list(token = token, headers = headers))
+  return (list(token = token, headers = headers, url = url))
 }
 
 

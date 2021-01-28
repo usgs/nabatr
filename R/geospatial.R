@@ -264,16 +264,11 @@ get_grts_from_ll = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Set Query
   query =paste0('

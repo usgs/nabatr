@@ -56,16 +56,11 @@ get_all_project_types = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = paste0('query {
@@ -133,16 +128,11 @@ get_sa_project_summary = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = paste0('query RRsaSummaries {
@@ -231,16 +221,11 @@ get_ma_project_summary = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = paste0('query RRmaSummaries {
@@ -331,16 +316,11 @@ get_cc_project_summary = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = paste0('query RRccSummaries{

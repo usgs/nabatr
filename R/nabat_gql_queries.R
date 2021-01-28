@@ -108,16 +108,11 @@ get_species = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query =   'query RRspecies{ allSpecies{
@@ -402,17 +397,11 @@ get_user_id_by_email = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
-
+  url     = tkn_hdr$url
   # GQL Query
   query =   'query RRuserByEmailQuery ($email: String!) {
     userByEmail (email: $email) {
@@ -463,16 +452,11 @@ get_projects = function(
   aws_alb = NULL,
   docker=FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Sample frame lookup
   sample_frame_df = data.frame(ids = c(12,14,15,19,20,21),
@@ -561,16 +545,11 @@ get_project_surveys = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = paste0('query RRallSurveys{allSurveys (filter :
@@ -682,16 +661,11 @@ get_sa_bulk_wavs_old = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query ='query RReventGeometries{allEventGeometries {
@@ -732,9 +706,10 @@ get_sa_bulk_wavs_old = function(
   for (survey in survey_ids){
 
     # Get headers for token
-    tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+    tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
     headers = tkn_hdr$headers
     token   = tkn_hdr$token
+    url     = tkn_hdr$url
 
     # GQL Query
     query = paste0('query RRsaSurveys{allSurveys (filter :
@@ -913,16 +888,11 @@ get_ma_bulk_wavs_old = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query ='query RReventGeometries {allEventGeometries {
@@ -961,9 +931,10 @@ get_ma_bulk_wavs_old = function(
   #   acoustic mobile records for these acoustic survey ids
   for (survey in survey_ids){
     # Refresh token every loop
-    tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+    tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
     headers = tkn_hdr$headers
     token   = tkn_hdr$token
+    url     = tkn_hdr$url
 
     # GQL Query
     query = paste0('query RRmaSurveys{ allSurveys (filter :{id:{equalTo:',
@@ -1141,16 +1112,11 @@ get_nabat_banding_by_states = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   final_df = data.frame()
   states_check = c('Alabama','Alaska','Arizona','Arkansas','California','Colorado',
@@ -1164,9 +1130,10 @@ get_nabat_banding_by_states = function(
   for (state in states){
     if (state %in% states_check){
       # Refresh token for every state
-      tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+      tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
       headers = tkn_hdr$headers
       token   = tkn_hdr$token
+      url     = tkn_hdr$url
 
       # GQL Query
       query = paste0('query RRbatBanding{ allBatbandings (filter :{state:{equalTo:"',
@@ -1255,16 +1222,11 @@ get_colony_bulk_counts = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   sites_query = paste0('
@@ -1307,10 +1269,10 @@ get_colony_bulk_counts = function(
     #   acoustic stationary records for these acoustic survey ids
     for (survey in survey_ids){
       # Refresh token for each survey
-      tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+      tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
       headers = tkn_hdr$headers
       token   = tkn_hdr$token
-
+      url     = tkn_hdr$url
       message(paste0('Getting colony count data for survey: ', survey))
 
       # GQL Query
@@ -1429,16 +1391,11 @@ get_upload_file_preview = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   data_type = 'full'
   operation_name = paste0('RR',survey_type,'Preview')
@@ -1525,16 +1482,11 @@ get_presigned_data = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   content_type = 'text/plain'
   key = paste0(project_id, '/bulk-uploads')
@@ -1625,16 +1577,11 @@ process_uploaded_csv = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   operation_name = paste0('RR',survey_type,'CsvProcess')
   # GQL Query
@@ -1722,16 +1669,11 @@ get_nightly_data = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   if (survey_type == 'bulk_sae'){
     data_type = 7
@@ -1920,16 +1862,11 @@ get_sa_batch = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Extract all survey_event_ids from survey_df
   if (is.null(year)){
@@ -1951,9 +1888,10 @@ get_sa_batch = function(
   for (id in survey_event_ids){
     message(paste0('Querying survey event id: ', id))
     # Refresh token if it expires
-    tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+    tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
     headers = tkn_hdr$headers
     token   = tkn_hdr$token
+    url     = tkn_hdr$url
 
     # GQL query
     query = paste0('query RRallSaBatches{
@@ -2077,16 +2015,11 @@ get_sa_event_metadata = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Extract all survey_event_ids from survey_df
   if (is.null(year)){
@@ -2346,16 +2279,11 @@ get_ma_batch = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Extract all survey_event_ids from survey_df
   if (is.null(year)){
@@ -2538,16 +2466,11 @@ get_ma_event_metadata = function(
   docker = FALSE,
   return_t = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Extract all survey_event_ids from survey_df
   if (is.null(year)){
@@ -2754,16 +2677,11 @@ get_sample_frames = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = 'query RRallSampleFrames{
@@ -2817,16 +2735,11 @@ get_covariates = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query_covar ='query RRallCovariates {
@@ -2903,16 +2816,11 @@ get_grts_covariate = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # GQL Query
   query = paste0('query RRcovariatesGrts{

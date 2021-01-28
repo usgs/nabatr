@@ -59,16 +59,11 @@ build_data_request = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Username and password
   variables = paste0('{"create":{"dataRequestId" : ',as.character(data_request_id),' }}')
@@ -119,16 +114,11 @@ get_data_request_approvals = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   query =paste0('
     query RRAllVwDataRequestApprovals{
@@ -190,16 +180,11 @@ get_data_request_files = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   query =paste0('
     query RRs3FileServiceListFiles{
@@ -258,16 +243,11 @@ download_data_request = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # Set URL based on branch
-  if (is.null(url)) url = get_gql_url(branch)
-
-  # Refresh token
-  token = get_refresh_token(token, branch, url, aws_gql, aws_alb, docker)
-
   # Get headers for token
-  tkn_hdr = get_token_headers(token, url, aws_gql, aws_alb, docker)
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   key = "data-request/12/NABat__2020-11-18_21-58-56__v5_3_15.zip"
 
