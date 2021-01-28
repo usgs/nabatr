@@ -3,20 +3,33 @@
 ##   This test will build all possible CC reports across all
 ##     NABat projects in the database
 
-## CHANGE THESE VALUES####################################
-branch_   = 'prod'
+# TEST all Colony Count projects in database by building reports
+
+####### CHANGE THESE VALUES ####### ####### #######
 username_ = 'nabat_username'
 dir_ = '/path/to/output/reports'
-##########################################################
+####### ####### ####### ####### ####### ####### ###
+branch_   = 'prod'
 
+# Login and get NABat GQL token
 token_ = get_nabat_gql_token(username = username_, branch = branch_)
-poject_types_df = get_all_project_types(token_)
+poject_types_df = get_all_project_types(token_, branch = branch_)
+# 9 and 10 are the surveyType ID in the database for hib and mat colony counts
+all_cc_projects = sort(unique(subset(poject_types_df,
+  poject_types_df$survey_type_id == 9 | poject_types_df$survey_type_id == 10)$project_id))
 
-all_cc_projects = unique(subset(poject_types_df, poject_types_df$number_cc_events > 0)$id)
+####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
+####### ####### If you want to run just some and not all you can use this code instead (first ten) ####### ####
+# all_cc_projects = sort(unique(subset(poject_types_df,
+#   poject_types_df$survey_type_id == 9 | poject_types_df$survey_type_id == 10)$project_id))[1:10]
+####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 
+# Set completed projects to empty
 completed_cc_projects = c()
+# Set failed projects to empty
 failed_cc_projects = list()
 
+# Loop through all projects that have CC data and build reports
 for (project_id_ in all_cc_projects){
   my_var = tryCatch(
     {
@@ -37,13 +50,14 @@ for (project_id_ in all_cc_projects){
                                               project_df = project_df_,
                                               branch     = branch_)
 
-      # Get stationary acoustic bulk upload format dataframe
+      # Get colony count bulk upload format dataframe
       token_ = get_refresh_token(token_, branch = branch_)
       cc_bulk_df_ = get_colony_bulk_counts(token_,
                                           cc_survey_df_,
                                           project_id_,
                                           species_df_)
 
+      # Build Report
       token_ = get_refresh_token(token_, branch = branch_)
       cc_doc = build_col_doc(out_dir = dir_,
         file_name =  paste0('cc_report_',project_id_,'_',Sys.Date(),'.docx'),
@@ -51,9 +65,11 @@ for (project_id_ in all_cc_projects){
         project_id = project_id_,
         cc_bulk_df = cc_bulk_df_)
 
+      # Save out report
       print(cc_doc, target = paste0(dir_, '/', paste0('cc_report_',project_id_,'_',format(Sys.time(), '%Y_%m_%d_%H%M%S'),'.docx')))
       completed_cc_projects = c(completed_cc_projects, project_id_)
     },
+    # Catch errors
     error=function(cond) {
       message(paste("Project seems to Fail:", project_id_))
       message(cond)
@@ -65,7 +81,10 @@ for (project_id_ in all_cc_projects){
     }
   )
   if (!is.integer(my_var)){
+    # Put failed project and the error message into the failed project list
     failed_cc_projects[[as.character(project_id_)]] = my_var
   }
-
 }
+
+print (paste0('Completed Colony Count Project Reports: ', completed_cc_projects))
+print (paste0('Failed Colony Count Reports and their errors: ', failed_cc_projects))
