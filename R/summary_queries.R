@@ -8,7 +8,25 @@
 # R Tools for accessing and manipulating North American Bat Monitoring data
 #
 # Written by: Kyle Enns
-# Created: 2020-4-1
+#
+# FILE DESCRIPTION:  This file contains functions that query the NABat
+# GQL API for summary information on the different data types
+#
+# USGS DISCLAIMER:  This software is in the public domain because it contains
+# materials that originally came from the U.S. Geological Survey, an agency
+# of the United States Department of Interior. For more information, see the
+# [official USGS copyright policy]
+# (https://www.usgs.gov/visual-id/credit_usgs.html#copyright/
+# "official USGS # copyright policy")
+#
+# Although this software program has been used by the U.S. Geological Survey
+# (USGS), no warranty, expressed or implied, is made by the USGS or the U.S.
+# Government as to the accuracy and functioning of the program and related
+# program material nor shall the fact of distribution constitute any such
+# warranty, and no responsibility is assumed by the USGS in connection
+# therewith.
+#
+# This software is provided "AS IS."
 #############################################################################
 
 
@@ -36,74 +54,43 @@ get_all_project_types = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
-  }
-
-  # Set Query
-  query = paste0('query RRsurveySummaries{ allVwSurveySummaries {
+  # GQL Query
+  query = paste0('query {
+    allSurveys{
       nodes{
-      id,
-      projectName,
-      owningOrg,
-      grtsCell,
-      surveyid,
-      numberCcEvents,
-      numberSaEvents,
-      numberMaEvents
-      }
+        projectId
+        surveyEventsBySurveyId{
+          nodes{
+            surveyTypeId
+          }
+        }
+  		}
     }
   }')
-  pbody = list(query = query, operationName = 'RRsurveySummaries')
 
-  # Post to nabat GQL
-  res = httr::POST(url_, headers_, body = pbody, encode='json')
-  content = httr::content(res, as = 'text')
-  cont_json = jsonlite::fromJSON(content, flatten = TRUE)
-  # Rename field names to snake case instead of camel case
-  cont_df   = as.data.frame(cont_json$data$allVwSurveySummaries$nodes, stringsAsFactors = FALSE)
-  names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
-  # Add a year field that is a string split from the event field
-  if (dim(cont_df)[1] > 0){
-    names(cont_df)[names(cont_df) == 'grts_cell']    = 'grts_cell_id'
-    row.names(cont_df) = NULL
-  }
-
-  # Define package environmental variables
-  if (is.null(pkg.env$bats_df)){
-    # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-    assign('bats_df', species_df, pkg.env)
-  }
+  # Create body to send to GQL
+  pbody = list(query = query)
+  # Query GQL API
+  res      = httr::POST(url, headers, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  json = fromJSON(content, flatten = TRUE)
+  # Convert to dataframe from json
+  df   = as.data.frame(json$data$allSurveys$nodes, stringsAsFactors = FALSE) %>%
+    tidyr::unnest('surveyEventsBySurveyId.nodes') %>%
+    dplyr::distinct()
+  # Rename fields
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
 
   # Return dataframe of projects
-  return (cont_df)
+  return (df)
   }
 
 
@@ -125,6 +112,8 @@ get_all_project_types = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -136,58 +125,16 @@ get_sa_project_summary = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
-
-  # print (paste0('Project ID: ', project_id))
-  # Set Query
-  # query = paste0('query RRsaSummaries{
-  #   allVwAcousticSummaries (filter :{projectId:{equalTo:',
-  #   project_id,'}}){
-  #   nodes{
-  #     projectId
-  #     grtsCellId
-  #     surveyId
-  #     surveyEventId
-  #     surveyTypeId
-  #     event
-  #     verified
-  #     missing
-  #     }
-  #   }
-  #   }')
-
+  # GQL Query
   query = paste0('query RRsaSummaries {
     allVwAcousticSummaries(
       filter: {projectId: {equalTo: ', project_id ,'}, surveyTypeId: {equalTo: 7}}
@@ -207,7 +154,7 @@ get_sa_project_summary = function(
   pbody = list(query = query, operationName = 'RRsaSummaries')
 
   # Post to nabat GQL
-  res = httr::POST(url_, headers_, body = pbody, encode='json')
+  res = httr::POST(url, headers, body = pbody, encode='json')
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
@@ -227,13 +174,18 @@ get_sa_project_summary = function(
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql,
       aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
-  # Return dataframe of projects
-  return (cont_df)
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = cont_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (cont_df)
+  }
 }
 
 
@@ -253,6 +205,8 @@ get_sa_project_summary = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -264,37 +218,16 @@ get_ma_project_summary = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql, aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql, Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ", token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ', token$access_token))
-  }
-
-  # Set Query
+  # GQL Query
   query = paste0('query RRmaSummaries {
       allVwAcousticSummaries(
       filter: {projectId: {equalTo: ', project_id ,'}, surveyTypeId: {equalTo: 8}}
@@ -314,7 +247,7 @@ get_ma_project_summary = function(
   pbody = list(query = query, operationName = 'RRmaSummaries')
 
   # Post to nabat GQL
-  res = httr::POST(url_, headers_, body = pbody, encode='json')
+  res = httr::POST(url, headers, body = pbody, encode='json')
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
@@ -335,13 +268,18 @@ get_ma_project_summary = function(
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql,
       aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
-  # Return dataframe of projects
-  return (cont_df)
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = cont_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (cont_df)
+  }
 }
 
 
@@ -362,6 +300,8 @@ get_ma_project_summary = function(
 #' @param aws_gql (optional) String url to use in aws
 #' @param aws_alb (optional) String url to use in aws
 #' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
 #'
 #' @export
 #'
@@ -373,41 +313,16 @@ get_cc_project_summary = function(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker=FALSE){
+  docker = FALSE,
+  return_t = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
-
-  # Set Query
+  # GQL Query
   query = paste0('query RRccSummaries{
     allVwColonyCountSummaries (filter :{projectId:{equalTo:',
     project_id,'}}){
@@ -428,7 +343,7 @@ get_cc_project_summary = function(
   pbody = list(query = query)
 
   # Post to nabat GQL
-  res = httr::POST(url_, headers_, body = pbody, encode='json')
+  res = httr::POST(url, headers, body = pbody, encode='json')
   content = httr::content(res, as = 'text')
   cont_json = jsonlite::fromJSON(content, flatten = TRUE)
   # Rename field names to snake case instead of camel case
@@ -448,11 +363,16 @@ get_cc_project_summary = function(
   # Define package environmental variables
   if (is.null(pkg.env$bats_df)){
     # print ('Setting species_df environmental variable')
-    species_df = get_species(token = token, url = url_, aws_gql = aws_gql,
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql,
       aws_alb = aws_alb, docker = docker)
     assign('bats_df', species_df, pkg.env)
   }
 
-  # Return dataframe of projects
-  return (cont_df)
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = cont_df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (cont_df)
   }
+}

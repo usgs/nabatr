@@ -7,11 +7,27 @@
 #
 # R Tools for accessing and manipulating North American Bat Monitoring data
 #
-# Github: https://github.com/talbertc-usgs/NABatR
 # Written by: Colin B Talbert
-# Created: 2018-10-31
 # Based on wfs access code from sbtools:
 # https://github.com/USGS-R/sbtools/blob/869282738eeea73225c8cc388ca4d189aa987899/R/item_get_wfs.R
+#
+# FILE DESCRIPTION:  This file contains functions return GRTS cell information
+#
+# USGS DISCLAIMER:  This software is in the public domain because it contains
+# materials that originally came from the U.S. Geological Survey, an agency
+# of the United States Department of Interior. For more information, see the
+# [official USGS copyright policy]
+# (https://www.usgs.gov/visual-id/credit_usgs.html#copyright/
+# "official USGS # copyright policy")
+#
+# Although this software program has been used by the U.S. Geological Survey
+# (USGS), no warranty, expressed or implied, is made by the USGS or the U.S.
+# Government as to the accuracy and functioning of the program and related
+# program material nor shall the fact of distribution constitute any such
+# warranty, and no responsibility is assumed by the USGS in connection
+# therewith.
+#
+# This software is provided "AS IS."
 #############################################################################
 
 HASH_DICT = list(Alaska = '5b7b54efe4b0f5d578846149',

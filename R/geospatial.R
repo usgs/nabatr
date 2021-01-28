@@ -8,7 +8,25 @@
 # R Tools for accessing and manipulating North American Bat Monitoring data
 #
 # Written by: Kyle Enns
-# Created: 2019-10-2
+#
+# FILE DESCRIPTION:  This file contains functions that incorporate
+# geospatial components
+#
+# USGS DISCLAIMER:  This software is in the public domain because it contains
+# materials that originally came from the U.S. Geological Survey, an agency
+# of the United States Department of Interior. For more information, see the
+# [official USGS copyright policy]
+# (https://www.usgs.gov/visual-id/credit_usgs.html#copyright/
+# "official USGS # copyright policy")
+#
+# Although this software program has been used by the U.S. Geological Survey
+# (USGS), no warranty, expressed or implied, is made by the USGS or the U.S.
+# Government as to the accuracy and functioning of the program and related
+# program material nor shall the fact of distribution constitute any such
+# warranty, and no responsibility is assumed by the USGS in connection
+# therewith.
+#
+# This software is provided "AS IS."
 #############################################################################
 
 
@@ -246,37 +264,11 @@ get_grts_from_ll = function(
   aws_alb = NULL,
   docker = FALSE){
 
-  # When url is not passed in use these two gql urls, otherwise use
-  ## the url passed through as a variable.
-  if (is.null(url)){
-    # Prod URL for NABat GQL
-    if (branch == 'prod'){
-      url_ = 'https://api.sciencebase.gov/nabat-graphql/graphql'
-    } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
-      url_ = 'https://nabat-graphql.staging.sciencebase.gov/graphql'
-    }
-  }else {
-    url_ = url
-  }
-
-  if (docker){
-    if(!is.null(aws_gql)){
-      url_ = paste0(aws_alb, '/graphql')
-      token = get_refresh_token(token, url = url_, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      headers_ = httr::add_headers(host = aws_gql,
-        Authorization = paste0("Bearer ", token$access_token))
-    }else {
-      token = get_refresh_token(token, url = url_)
-      headers_ = httr::add_headers(Authorization = paste0("Bearer ",
-        token$access_token))
-    }
-  } else{
-    # If Local, use this headers_
-    token = get_refresh_token(token, url = url_)
-    headers_ = httr::add_headers(Authorization = paste0('Bearer ',
-      token$access_token))
-  }
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
 
   # Set Query
   query =paste0('
@@ -299,12 +291,14 @@ get_grts_from_ll = function(
     }
     }')
 
+  # Loop through Lat/Lon values
   final_df = data.frame()
   if (length(latitude) == length(longitude)){
     for (pos in 1:length(latitude)){
       lat = latitude[pos]
       lon = longitude[pos]
 
+      # Add Lat/Lon as variables to query API
       pr_variables = paste0('{"geometry":
         {"type":"Point","crs":
         {"type":"name",
@@ -314,12 +308,15 @@ get_grts_from_ll = function(
       # Create body to send to GQL
       pbody = list(query = query, operationName = 'RRgrtsSelectionSearchQuery', variables = pr_variables)
       # Post to nabat GQL
-      res      = httr::POST(url_, headers_, body = pbody, encode='json')
+      res      = httr::POST(url, headers, body = pbody, encode='json')
       content   = httr::content(res, as = 'text')
       json = fromJSON(content, flatten = TRUE)
-      # This will change based on your query: admin_json$data$allCovarGrts$nodes (see below)
+      # Convert GQL output JSON into dataframe
       df   = as.data.frame(json$data$grtsSelectionSearch$nodes, stringsAsFactors = FALSE)
+      # Rename headers
       names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
+
+      # Bind data into dataframe
       if (dim(final_df)[1]==0){
         final_df = df
       }else {

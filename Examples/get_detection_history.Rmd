@@ -1,0 +1,36 @@
+---
+title: "Get Detection History"
+output:
+  html_document: default
+---
+
+
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username = username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+### Use more variables to get more specific data
+```{r}
+# Refresh login token
+token = get_refresh_token(token)
+
+# Get a dataframe for detection history
+sae_nightly_data = get_nightly_data(token, 
+  sp_code = c('MYLU', 'ANPA'), 
+  sample_frame = c('CONUS','Alaska'),
+  project_id = c(33,284),
+  years = c(2015,2016,2017),
+  survey_type = 'bulk_sae')
+
+# Display data
+sae_nightly_data
+```
+
+

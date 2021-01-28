@@ -61,6 +61,13 @@ sure to download phantomjs.  See below
 webshot::install_phantomjs()
 ```
 
+## Notes
+The Examples and Vignettes directories are essentially mirrors of each other.  One is formatted into code blocks without {r} and the other
+is formatted with {r}.  ex:  ```{r} code that runs in R (examples directory)``` and ``` code that does not run in R (vignettes directory) ``` 
+
+If ever running any of the functions in branch = 'beta', be sure you are logged onto a USGS machine and on the VPN otherwise the code won't work.  
+Use branch = 'beta' in the login and refresh token methods in order to use any get functions with branch = 'beta'.  
+
 
 ## Disclaimer
 This software is in the public domain because it contains materials that originally came from the U.S. Geological Survey, an agency of the United States Department of Interior. For more information, see the [official USGS copyright policy](https://www.usgs.gov/visual-id/credit_usgs.html#copyright/ "official USGS copyright policy")

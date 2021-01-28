@@ -12,7 +12,8 @@ get_ma_event_metadata(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE
+  docker = FALSE,
+  return_t = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ Defaults to NULL which grabs first year available from survey_df.}
 \item{aws_alb}{(optional) String url to use in aws}
 
 \item{docker}{(optional) Boolean if being run in docker container or not}
+
+\item{return_t}{(optional) Boolean Changes the Returned value to a list
+and adds a token as one of the returned values (if set to TRUE)}
 }
 \description{
 Returns a dataframe with metadata that is linked

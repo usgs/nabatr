@@ -14,7 +14,8 @@ get_ma_bulk_wavs(
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
-  docker = FALSE
+  docker = FALSE,
+  return_t = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,9 @@ can also be 'dev'|'beta'|'local'}
 
 \item{docker}{(optional) Boolean if being run in docker container
 or not}
+
+\item{return_t}{(optional) Boolean Changes the Returned value to a list
+and adds a token as one of the returned values (if set to TRUE)}
 
 \item{project_id}{Numeric or String a project id}
 }

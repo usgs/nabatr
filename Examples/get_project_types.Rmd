@@ -31,12 +31,21 @@ poject_types_df
 
 ### Print out of all project types found in your projects
 ```{r}
-colony_count_projs = unique(subset(poject_types_df, poject_types_df$number_cc_events > 0)$id)
-mobile_acoustic_projs = unique(subset(poject_types_df, poject_types_df$number_ma_events > 0)$id)
-stationary_acoustic_projs = unique(subset(poject_types_df, poject_types_df$number_sa_events > 0)$id)
+# Store projets for each variable (summer hibernaculum, winter maternity, roost/emergence count, 
+## mobile acoustic, stationary acoustic)
+colony_hib_projs = sort(unique(subset(poject_types_df, poject_types_df$survey_type_id == 9)$project_id))
+colony_mat_projs = sort(unique(subset(poject_types_df, poject_types_df$survey_type_id == 10)$project_id))
+roost_count_projs = sort(unique(subset(poject_types_df, poject_types_df$survey_type_id == 12)$project_id))
+mobile_acoustic_projs = sort(unique(subset(poject_types_df, poject_types_df$survey_type_id == 8)$project_id))
+stationary_acoustic_projs = sort(unique(subset(poject_types_df, poject_types_df$survey_type_id == 7)$project_id))
 
-print (paste0('Number of colony count projects: ', length(colony_count_projs)))
-print (colony_count_projs)
+# Print out the results
+print (paste0('Number of winter hibernaculum colony count projects: ', length(colony_hib_projs)))
+print (colony_hib_projs)
+print (paste0('Number of summmer maternity colony count projects: ', length(colony_mat_projs)))
+print (colony_mat_projs)
+print (paste0('Number of emergence count projects: ', length(roost_count_projs)))
+print (roost_count_projs)
 print (paste0('Number of mobile acoustic projects: ', length(mobile_acoustic_projs)))
 print (mobile_acoustic_projs)
 print (paste0('Number of stationary acoustic projects: ', length(stationary_acoustic_projs)))
