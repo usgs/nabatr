@@ -25,7 +25,7 @@ token = get_refresh_token(token)
 
 # Set coordinates  (these points are 40.6/-105.1 and 40.2/-105.1)
 lat = c(40.6, 40.2) # Can also be one value like lat = 40.6
-lon = c(-105.1, -105.1) # Can also just be one value like lon = -105.1
+lon = c(-105.1, -105.05) # Can also just be one value like lon = -105.1
 
 grts_df = get_grts_from_ll(token, 
                            latitude = lat, 
