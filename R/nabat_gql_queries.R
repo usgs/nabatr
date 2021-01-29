@@ -2628,7 +2628,16 @@ get_ma_bulk_wavs = function(
 
     if (batch == 'first'){
       unique_software = unique(acc_events$software_id)
-      acc_events = subset(acc_events, acc_events$software_id == unique_software[1])
+      # Grab only NA records or first Software ID records
+      if (NA %in% unique_software){
+        # If NA exists as unique software, only use NA records
+        message(paste0('Only using records with NA values for software_id.  All software IDs include: ', unique_software))
+        acc_events_ = subset(acc_events, is.na(acc_events$software_id))
+      }else{
+        # Else use the first unique software in the unique software list
+        message(paste0('Only using records with ', unique_software[1] , ' software id. All software IDs include: ', unique_software))
+        acc_events_ = subset(acc_events, acc_events$software_id == unique_software[1])
+      }
     }
 
     message('Querying and merging metadata to wav files')
