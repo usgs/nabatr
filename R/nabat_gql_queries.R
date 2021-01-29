@@ -2195,7 +2195,7 @@ get_sa_bulk_wavs = function(
   return_t = FALSE){
 
   # New query against all batches in the event
-  message(paste0('Querying SA wav files in', branch))
+  message(paste0('Querying SA wav files in ', branch))
   sa_batch_r = get_sa_batch(token = token,
     survey_df = survey_df,
     year = year,
@@ -2215,7 +2215,16 @@ get_sa_bulk_wavs = function(
 
     if (batch == 'first'){
       unique_software = unique(acc_events$software_id)
-      acc_events = subset(acc_events, acc_events$software_id == unique_software[1])
+      # Grab only NA records or first Software ID records
+      if (NA %in% unique_software){
+        # If NA exists as unique software, only use NA records
+        message(paste0('Only using records with NA values for software_id.  All software IDs include: ', unique_software))
+        acc_events_ = subset(acc_events, is.na(acc_events$software_id))
+      }else{
+        # Else use the first unique software in the unique software list
+        message(paste0('Only using records with ', unique_software[1] , ' software id. All software IDs include: ', unique_software))
+        acc_events_ = subset(acc_events, acc_events$software_id == unique_software[1])
+      }
     }
 
     # New query for all metadata at a Stationary Acoustic Event
@@ -2231,7 +2240,7 @@ get_sa_bulk_wavs = function(
     event_metadata = event_metadata_r$df
     token = event_metadata_r$token
 
-    sa_bulk_wav_df = dplyr::left_join(acc_events, event_metadata, by = c('survey_event_id' = 'id'))
+    sa_bulk_wav_df = dplyr::left_join(acc_events_, event_metadata, by = c('survey_event_id' = 'id'))
     sa_bulk_wav_df = as.data.frame(sa_bulk_wav_df)
 
     # If return_t is TRUE, return token as well
