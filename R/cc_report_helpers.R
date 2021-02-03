@@ -83,18 +83,18 @@ get_cc_examples = function(){
   cc_description = "[EXAMPLE]:  "
   # Methods
   cc_methods = "[EXAMPLE]: Survey sites were chosen based on previous knowledge of winter hibernacula
-  in the region, historical monitoring efforts, and suitability criteria outlined in Loeb et al. (2015).
-  Because detection probability of hibernating bats is highly variable within seasons, surveys were
-  conducted between late January and early March to maximize detection (Loeb et al. 2015). Abundance was
-  estimated using visual counts and accompanying digital photographs. Multiple observers conducted counts
-  in each section of the hibernacula to facilitate the estimation of detection probability and to validate
-  species identifications."
+ in the region, historical monitoring efforts, and suitability criteria outlined in Loeb et al. (2015).
+ Because detection probability of hibernating bats is highly variable within seasons, surveys were
+ conducted between late January and early March to maximize detection (Loeb et al. 2015). Abundance was
+ estimated using visual counts and accompanying digital photographs. Multiple observers conducted counts
+ in each section of the hibernacula to facilitate the estimation of detection probability and to validate
+ species identifications."
   # Lit Cited
   cc_lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard, K.M. Irvine,
-  T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley,
-  and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical
-  Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research
-  Station. 112 p."
+ T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M. Francis, M.L. Bayless, T.R. Stanley,
+ and D.H. Johnson. 2015. A plan for the North American Bat Monitoring Program (NABat). General Technical
+ Reports SRS-208. Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research
+ Station. 112 p."
 
   return(list(description = cc_description,
               methods_1 = cc_methods,
@@ -166,7 +166,7 @@ build_cc_table_1 = function(
     dplyr::rename(`Winter Year` = wyear)
 
   cc_descr_table1 = paste0("Table 1. Summary of winter colony count surveys.
-    Number of sites surveyed for species by winter year")
+ Number of sites surveyed for species by winter year")
 
   big_border = fp_border(color="grey", width = 2)
 
