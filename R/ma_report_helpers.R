@@ -113,74 +113,74 @@ get_ma_results = function(
 get_ma_examples = function(){
   # description  = project_row_df$project_description
   ma_ex_description = "[EXAMPLE]: PURPOSE: Bat occupancy and abundance data in Colorado is
-  less comprehensive than most other groups of mammals in the state. The purpose of a Bureau
-  of Land Management-Royal Gorge Field Office (RGFO) acoustic monitoring project is to
-  produce a statistically sound dataset that will provide a baseline for bat occupancy
-  monitoring that may be utilized as a decision making tool for effective conservation.
-  In addition, the project will participate in the continent-wide effort to create a
-  coordinated bat population monitoring program at a regional and range wide scale
-  that is able to provide inferences regarding changes in distribution and abundance
-  of bat populations. OBJECTIVES: Establish a long-term monitoring program for bats
-  across the RGFO; Utilize a monitoring protocol that will determine a baseline occupancy
-  of bat species across the RGFO and may be used as an index to determine changes of
-  occupancy in the future; Incorporate local data into the continent wide NABat dataset."
+ less comprehensive than most other groups of mammals in the state. The purpose of a Bureau
+ of Land Management-Royal Gorge Field Office (RGFO) acoustic monitoring project is to
+ produce a statistically sound dataset that will provide a baseline for bat occupancy
+ monitoring that may be utilized as a decision making tool for effective conservation.
+ In addition, the project will participate in the continent-wide effort to create a
+ coordinated bat population monitoring program at a regional and range wide scale
+ that is able to provide inferences regarding changes in distribution and abundance
+ of bat populations. OBJECTIVES: Establish a long-term monitoring program for bats
+ across the RGFO; Utilize a monitoring protocol that will determine a baseline occupancy
+ of bat species across the RGFO and may be used as an index to determine changes of
+ occupancy in the future; Incorporate local data into the continent wide NABat dataset."
   # Set Methods in 3 sections
   ma_methods_1 = "Survey units were selected using the NABat master sampling frame, a
-  grid-based system consisting of 10 x 10 km (100 km2) cells spanning Canada, the United
-  States, and Mexico. The NABat master sample frame provides an ordered list of cells
-  that's both spatially balanced and randomized by utilizing the generalized
-  random-tessellation stratified (GRTS) survey design algorithm. Using NABat's online
-  cell selection tool, a subset of the master sampling frame was selected by defining
-  the overall geographic scope of this project. Individual cells were then selected for
-  survey based on their GRTS order. These 100 km2 cells serve as the focal analytical
-  unit for NABat analyses and are a biologically appropriate grain size given the nightly
-  range of most bat species."
+ grid-based system consisting of 10 x 10 km (100 km2) cells spanning Canada, the United
+ States, and Mexico. The NABat master sample frame provides an ordered list of cells
+ that's both spatially balanced and randomized by utilizing the generalized
+ random-tessellation stratified (GRTS) survey design algorithm. Using NABat's online
+ cell selection tool, a subset of the master sampling frame was selected by defining
+ the overall geographic scope of this project. Individual cells were then selected for
+ survey based on their GRTS order. These 100 km2 cells serve as the focal analytical
+ unit for NABat analyses and are a biologically appropriate grain size given the nightly
+ range of most bat species."
   ma_methods_2 = "Surveys were conducted on mobile transect routes 25-48 km in length
-  using audio recording devices capable of detecting high-frequency bat echolocation calls.
-  Routes were chosen based on guidance presented in Loeb et al. (2015). Factors considered
-  when selecting routes included safety, road surface, habitat heterogeneity, and ability
-  to travel continuously without stops. Directional microphones capable of recording
-  high-frequency echolocation calls were mounted on the roof of the survey vehicle and
-  oriented straight up. During the survey, vehicles traveled continuously at ~ 32 km/h
-  and remained at least 100 m from previously traveled roadways in order to avoid
-  recording the same bat twice, facilitating the estimation of abundance from transect
-  data. GPS units were used to georeference each bat call file, and transect routes
-  were also recorded. Routes were surveyed during the summer maternity season when
-  bats are most active and mostly likely to be detected if present. Surveys were
-  conducted twice each season, during the same week when possible, in order to estimate
-  detection probability."
+ using audio recording devices capable of detecting high-frequency bat echolocation calls.
+ Routes were chosen based on guidance presented in Loeb et al. (2015). Factors considered
+ when selecting routes included safety, road surface, habitat heterogeneity, and ability
+ to travel continuously without stops. Directional microphones capable of recording
+ high-frequency echolocation calls were mounted on the roof of the survey vehicle and
+ oriented straight up. During the survey, vehicles traveled continuously at ~ 32 km/h
+ and remained at least 100 m from previously traveled roadways in order to avoid
+ recording the same bat twice, facilitating the estimation of abundance from transect
+ data. GPS units were used to georeference each bat call file, and transect routes
+ were also recorded. Routes were surveyed during the summer maternity season when
+ bats are most active and mostly likely to be detected if present. Surveys were
+ conducted twice each season, during the same week when possible, in order to estimate
+ detection probability."
   ma_methods_3 = "Calls files were processed using commercially-available automated
-  identification software. Prior to species identification, non-bat files were
-  scrubbed using a noise filter. Next, the remaining files were identified to species
-  using a regional classifier that only considers the species whose ranges intersect
-  the defined region. Calls that could not be identified to species were labeled either
-  NO ID or with a general category (LowF, HighF, 25k, 40k, etc.). Due to overlap
-  in the characteristics of some bat species' calls and the uncertainty associated
-  with automated ID software, a subset of calls was manually vetted in accordance
-  with Loeb et al. (2015). All call files identified as rare species were manually
-  vetted, as were all calls from species not known to occur in the survey area. For
-  non-rare species known to occur in the survey area, at least one call was manually
-  vetted per point per night to confirm species presence within the survey cell and
-  to estimate detection probability."
+ identification software. Prior to species identification, non-bat files were
+ scrubbed using a noise filter. Next, the remaining files were identified to species
+ using a regional classifier that only considers the species whose ranges intersect
+ the defined region. Calls that could not be identified to species were labeled either
+ NO ID or with a general category (LowF, HighF, 25k, 40k, etc.). Due to overlap
+ in the characteristics of some bat species' calls and the uncertainty associated
+ with automated ID software, a subset of calls was manually vetted in accordance
+ with Loeb et al. (2015). All call files identified as rare species were manually
+ vetted, as were all calls from species not known to occur in the survey area. For
+ non-rare species known to occur in the survey area, at least one call was manually
+ vetted per point per night to confirm species presence within the survey cell and
+ to estimate detection probability."
   # Set Summary in 2 sections
   ma_summary_1 = "[EXAMPLE]: Survey results will be reported to relevant state
-  biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to
-  include 15 new cells and collaborative efforts with Colorado Parks and Wildlife,
-  USFWS, and Bat Conservation International."
+ biologists, USFWS Region 4, and NABat. In 2019, survey efforts were expanded to
+ include 15 new cells and collaborative efforts with Colorado Parks and Wildlife,
+ USFWS, and Bat Conservation International."
   ma_summary_2 = "No statistically significant changes in species richness were
-  detected between 2018 and 2019, however, there was a significant decrease in
-  overall activity rate between the two years. Moving forward, these data will
-  help land managers determine priority areas for bat mitigation efforts and provide
-  baseline data to examine habitat associations that may be important for protecting
-  species of federal and state conservation concern"
+ detected between 2018 and 2019, however, there was a significant decrease in
+ overall activity rate between the two years. Moving forward, these data will
+ help land managers determine priority areas for bat mitigation efforts and provide
+ baseline data to examine habitat associations that may be important for protecting
+ species of federal and state conservation concern"
 
   # Lit Cited
   ma_lit_cited = "Loeb, S.C., T.J. Rodhouse, L.E. Ellison, C.L. Lausen, J.D. Reichard,
-  K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M.
-  Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North
-  American Bat Monitoring Program (NABat). General Technical Reports SRS-208.
-  Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research
-  Station. 112 p."
+ K.M. Irvine, T.E. Ingersoll, J.T.H. Coleman, W.E. Thogmartin, J.R. Sauer, C.M.
+ Francis, M.L. Bayless, T.R. Stanley, and D.H. Johnson. 2015. A plan for the North
+ American Bat Monitoring Program (NABat). General Technical Reports SRS-208.
+ Asheville, NC: U.S. Department of Agriculture Forest Service, Southern Research
+ Station. 112 p."
 
   return(list(ma_ex_description = ma_ex_description,
     ma_methods_1 = ma_methods_1,
@@ -219,7 +219,7 @@ build_ma_table_1 = function(
   ma_descr_tbl_1 = paste0("Table 1. NABat GRTS cells surveyed in ",
     year,
     ". Number of unique mobile transect routes, detector nights, and species
-    detected are also shown for each cell.")
+ detected are also shown for each cell.")
 
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
   manual_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$manual_id))$manual_id
@@ -337,7 +337,7 @@ build_ma_table_2 = function(
   ma_descr_tbl_2 = paste0("Table 2. Bat species detected in ",
     year,
     ". Common name, geographic range, and number of transect
-    routes with detections are displayed for all species.")
+ routes with detections are displayed for all species.")
 
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
   manual_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$manual_id))$manual_id
@@ -407,9 +407,9 @@ build_ma_table_3 = function(
 
   # Create descriptions for the 2 tables
   ma_descr_tbl_3b = paste0("Table 3b. Number of manual calls from each detected
-    species in all GRTS cells surveyed by mobile transect in ",year,".")
+ species in all GRTS cells surveyed by mobile transect in ",year,".")
   ma_descr_tbl_3a = paste0("Table 3a. Number of automatic calls from each detected
-    species in all GRTS cells surveyed by mobile transect in ",year,".")
+ species in all GRTS cells surveyed by mobile transect in ",year,".")
 
   # nightly_observed_list = get_observed_nights(ma_bulk_df)
   auto_nights_df = nightly_observed_list$auto_nightly_df
@@ -565,15 +565,15 @@ build_ma_figure_2 = function(
   # Build descriptions
   ma_descr_fig2a = paste0("Figure 2a. ",year,
     " bat activity rate (average number of bat passes per night) by species. Species
-    with at least one manual identification per site are shown in blue. Species
-    identified only by automated identification software are shown in orange and
-    species identified only by manual identification software are shown in green.")
+ with at least one manual identification per site are shown in orange, species
+ identified only by automated identification software are shown in blue, and
+ species identified only by manual identification software are shown in green.")
   ma_descr_fig2b = paste0("Figure 2b. ",year,
     " bat activity rate (average number of bat passes per night using a logarithmic
-    scale) by species. Species with at least one manual identification per site are
-    shown in blue. Species identified only by automated identification software are
-    shown in orange and species identified only by manual identification software are
-    shown in green.")
+ scale) by species. Species with at least one manual identification per site are
+ shown in orange, species identified only by automated identification software are
+ shown in blue and species identified only by manual identification software are
+ shown in green.")
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
   manual_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$manual_id))$manual_id
 
@@ -721,7 +721,7 @@ build_ma_figure_3 = function(
   ma_descr_fig3 = paste0("Figure 3. ",
     year,
     " bat activity rate (average number of bat passes per survey)
-    recorded in each NABat GRTS cell.")
+ recorded in each NABat GRTS cell.")
 
   auto_ids = subset(ma_bulk_df, !is.na(ma_bulk_df$auto_id))$auto_id
 
