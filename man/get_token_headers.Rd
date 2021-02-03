@@ -6,6 +6,7 @@
 \usage{
 get_token_headers(
   token,
+  branch = "prod",
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
