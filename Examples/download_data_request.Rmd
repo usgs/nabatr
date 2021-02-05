@@ -85,4 +85,19 @@ download_data_request(token = token,
                       output_file = output_file)
 ```
 
+### Extract files from zip
+```{r}
+# Set a folder to unzip the zip file into ex: '/path/to/unzip/contents/into'
+unzip_folder = '/path/to/unzip/contents/into'
+unzip(output_file, exdir = unzip_folder)
+```
+
+### Read in csv data from data request
+```{r}
+# Read in the csv from the data request that is unzipped in the unzip folder
+data_request_df = readr::read_csv(paste0(unzip_folder, '/data.csv'))
+# Display Data
+data_request_df
+```
+
 
