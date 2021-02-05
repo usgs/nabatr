@@ -281,7 +281,7 @@ download_data_request = function(
   if (file.exists(output_file)){
     stop('Error - output file already exists.  Please delete file or change output_file name.')
   }
-  download.file(download_zip_url, destfile = output_file)
+  download.file(download_zip_url, destfile = output_file, mode = 'wb')
 }
 
 
