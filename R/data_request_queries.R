@@ -186,9 +186,15 @@ get_data_request_files = function(
   token   = tkn_hdr$token
   url     = tkn_hdr$url
 
+  if (branch == 'prod'){
+    branch_str = 'prod'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    branch_str = 'beta'
+  }
+
   query =paste0('
     query RRs3FileServiceListFiles{
-    s3FileServiceListFiles(bucket:"nabat-beta-project-files",
+    s3FileServiceListFiles(bucket:"nabat-', branch_str ,'-project-files",
     keyPrefix:"data-request/',as.character(data_request_id),'/"){
     objects{
     Key
@@ -249,11 +255,15 @@ download_data_request = function(
   token   = tkn_hdr$token
   url     = tkn_hdr$url
 
-  key = "data-request/12/NABat__2020-11-18_21-58-56__v5_3_15.zip"
+  if (branch == 'prod'){
+    branch_str = 'prod'
+  } else if (branch == 'dev' | branch == 'beta' | branch == 'local'){
+    branch_str = 'beta'
+  }
 
   query =paste0('
     query RRs3FileServiceDownloadFile{
-    s3FileServiceDownloadFile(bucket: "nabat-beta-project-files",
+    s3FileServiceDownloadFile(bucket: "nabat-', branch_str,'-project-files",
     key: "',key ,'") {
     s3PresignedUrl
     success
