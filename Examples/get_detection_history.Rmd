@@ -1,14 +1,22 @@
 ---
-title: "Get Detection History"
+title: "Get Nightly Data"
 output:
   html_document: default
 ---
+
+## Extract Nightly data from NABat Project and convert to 'detection history' format
+
+### Note: if you can't get nabatr to load on your computer, you can download this
+###  data from the website by going to your projects, selecting a project, going
+###  to the 'expore project data' button in the top right, selecting 'Frequency by
+###  Time' tab at the top right and then clicking the 'Export NABat Data' button.
+###  Skip to line 51
 
 
 ```{r}
 library(nabatr)
 # Enter your NABat username here
-username = 'NABat_Username'
+username = 'nabat_username'
 token = get_nabat_gql_token(username = username)
 token
 
@@ -16,12 +24,26 @@ token
 #   it will prompt you for a username and then a password
 ```
 
+### Pull Nightly Stationary acoustic data for 1 species
+```{r}
+# Refresh login token
+token = get_refresh_token(token)
+
+# Use get_nightly_data with minimum parameters
+sae_nightly_data = get_nightly_data(token, 
+  sp_code = 'MYLU',
+  survey_type = 'bulk_sae') # Or bulk_mae or bulk_cc
+
+# Display data
+sae_nightly_data
+```
+
 ### Use more variables to get more specific data
 ```{r}
 # Refresh login token
 token = get_refresh_token(token)
 
-# Get a dataframe for detection history
+# Use get_nightly_data with all parameters
 sae_nightly_data = get_nightly_data(token, 
   sp_code = c('MYLU', 'ANPA'), 
   sample_frame = c('CONUS','Alaska'),
@@ -32,5 +54,3 @@ sae_nightly_data = get_nightly_data(token,
 # Display data
 sae_nightly_data
 ```
-
-
