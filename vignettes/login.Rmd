@@ -1,0 +1,32 @@
+---
+title: "Login to NABat and return a token"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Login to NABat and return a token}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+### Load nabatr package
+```
+library(nabatr)
+```
+
+### Get a token for NABat Database
+```
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username = username)
+token
+
+# Note: Run function with no parameters (will prompt for username/password)
+# token = get_nabat_gql_token(),
+```
+
+### Refresh NABat token
+NABat uses authentication via Keycloak which needs to be refreshed before 15 minutes otherwise
+the user gets logged out.  This function is used to refresh your token to prevent you from
+logging in every 15 minutes with username / password
+```
+token = get_refresh_token(token)
+```

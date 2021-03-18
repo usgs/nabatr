@@ -1,0 +1,83 @@
+---
+title: "Build Colony Count Report"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Build Colony Count Report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Extract Colony Count NABat Data and Build a Report
+
+
+### Get a token for NABat Database
+```
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+
+### Get Project dataframe which contains all of your NABat projects in the NABat Database
+```
+# Refresh token
+token = get_refresh_token(token)
+# Get your projects lookup table
+project_df = get_projects(token)
+# Display your projects lookup table
+project_df
+```
+
+
+### Get all Colony Count Surveys within a single Project set with project_id
+```
+# Refresh token
+token = get_refresh_token(token)
+# Fill in project id using the project_df lookup table
+project_id = 000 # Set equal to one of your project ids
+
+# Get survey dataframe 
+cc_survey_df = get_cc_project_summary(token,
+                                      project_df,
+                                      project_id)
+# Display survey dataframe
+cc_survey_df
+```
+
+
+### Get all Colony Count data within a single Project set with project_id
+```
+# Refresh token
+token = get_refresh_token(token)
+# Get species dataframe
+species_df = get_species(token = token)
+# Get Colony Count bulk dataframe
+cc_bulk_df = get_colony_bulk_counts(token,
+                                    cc_survey_df,
+                                    project_id,
+                                    species_df)
+
+# Display Colony Count dataframe
+cc_bulk_df
+```
+
+
+### Build a Colony Count Report
+```
+# Edit these two variables below to your local system (file_name, out_dir)
+file_name = 'name_of_ma_report.docx'  
+out_dir   = '/directory/to/download/report' # Make sure this ends without a '/'
+
+cc_doc = build_col_doc(out_dir = out_dir,
+                         project_df = project_df,
+                         project_id = project_id,
+                         cc_bulk_df = cc_bulk_df)
+
+# Save out your report
+print(cc_doc, target = paste0(out_dir, '/', file_name))
+```

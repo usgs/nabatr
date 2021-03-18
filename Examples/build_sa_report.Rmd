@@ -1,0 +1,97 @@
+---
+title: "Build Stationary Acoustic Report"
+output:
+  html_document: default
+---
+
+## Extract Stationary Acoustic Data and Build a Report
+
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+
+### Get Project dataframe which contains all of your NABat projects in the NABat Database
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+# Get your projects lookup table
+project_df = get_projects(token)
+# Display your projects lookup table
+project_df
+```
+
+
+### Get all Stationary Acoustic Surveys within a single Project set with project_id
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+# Fill in project id using the project_df lookup table
+project_id = 000 # Set equal to one of your project ids
+
+# Get survey dataframe 
+sa_survey_df = get_sa_project_summary(token, 
+                                      project_df, 
+                                      project_id)
+                                          
+sa_proj_dates = unique(sa_survey_df$year)
+# Display survey dataframe
+sa_survey_df
+```
+
+
+### Get all Stationary Acoustic Survey wav file data.  Format: Stationary Acoustic Bulk Upload Template
+```{r}
+# Select Year for project (defaults to 1st available year)
+year = sa_proj_dates[1]
+
+# Refresh token
+token = get_refresh_token(token)
+# Get stationary acoustic bulk upload format dataframe
+sa_bulk_df = get_sa_bulk_wavs(token, 
+                               sa_survey_df,
+                               year)
+# Display stationary acoustic bulk upload format dataframe
+sa_bulk_df
+```
+
+
+### Get Stationary Acoustic dataframe broken up into nightly observed data and get species_df
+```{r}
+token = get_refresh_token(token)
+species_df = get_species(token)
+# Get Acoustic stationary acoustic bulk dataframe
+nightly_observed_list = get_observed_nights(sa_bulk_df)
+```
+
+
+### Build a Stationary Acoustic Report
+```{r}
+# Edit these two variables below to your local system (file_name, out_dir)
+file_name = 'name_of_sa_report.docx'  
+out_dir   = '/directory/to/download/report' # Make sure this ends without a '/'
+
+sa_doc = build_sa_doc(out_dir = out_dir,
+            project_df = project_df,
+            project_id = project_id,
+            sa_bulk_df = sa_bulk_df,
+            sa_survey_df = sa_survey_df,
+            species_df = species_df,
+            selected_year = year,
+            nightly_observed_list = nightly_observed_list,
+            range_maps = TRUE)
+
+# Save out your report
+print(sa_doc, target = paste0(out_dir, '/', file_name))
+```
+
+

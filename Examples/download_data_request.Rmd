@@ -1,0 +1,103 @@
+---
+title: "Download Data Request"
+output:
+  html_document: default
+---
+
+
+### Navigate to https://sciencebase.usgs.gov/nabat in your browser and login.  
+### Once you are logged in, go to the EXPLORE tab and then to the NABat Data
+### Requests tab.  Here you can view your data requests and there is a link
+### to create a new data requests. The 'Explore Public Data' tab also allows
+### you to create a new data request.
+
+### Get a token for NABat Database
+```{r}
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+### Set data request ID
+```{r}
+# Data request id - Can be found at the top of your data request
+id = 00
+```
+
+### View approvals 
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+
+# See all of the data request approvals
+approvals_df = get_data_request_approvals(token = token, 
+                                          data_request_id = id)
+# Display approvals dataframe
+approvals_df
+```
+
+### Add new zip to list by building a data request to be able to download
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+
+# Build data request
+response = build_data_request(token = token, 
+                              data_request_id = id)
+response
+```
+
+### See list of downloadable files for data request
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+
+# Get data request list of files available for download
+files_df = get_data_request_files(token = token, 
+                                  data_request_id = id)
+# Display files dataframe
+files_df
+```
+
+### Grab newest file from files_Df and save out key
+```{r}
+# Get key (grabs latest key)
+key = files_df[length(files_df$key),]$key
+# Display key to use for downloading zip file
+key
+```
+
+### Download the zip file for key stored above
+```{r}
+# Refresh token
+token = get_refresh_token(token)
+
+# Set your output file here ex: '/path/to/your/outputfile.zip'
+output_file = '/path/to/your/outputfile.zip'
+# Downloads the Zip file into the output_file
+download_data_request(token = token, 
+                      key = key,
+                      output_file = output_file)
+```
+
+### Extract files from zip
+```{r}
+# Set a folder to unzip the zip file into ex: '/path/to/unzip/contents/into'
+unzip_folder = '/path/to/unzip/contents/into'
+unzip(output_file, exdir = unzip_folder)
+```
+
+### Read in csv data from data request
+```{r}
+# Read in the csv from the data request that is unzipped in the unzip folder
+data_request_df = readr::read_csv(paste0(unzip_folder, '/data.csv'))
+# Display Data
+data_request_df
+```
+
+

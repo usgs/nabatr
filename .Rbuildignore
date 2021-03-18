@@ -1,0 +1,15 @@
+.travis.yml
+.latex.yml
+.gitignore
+^.*\.Rproj$
+^\.Rproj\.user$
+man-roxygen
+manuscript
+^doc$
+^Meta$
+test
+Reviews
+notes
+Examples_sink
+docker
+
