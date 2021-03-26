@@ -21,7 +21,7 @@ get_upload_file_preview(
 \item{token}{List token created from get_nabat_gql_token() or
 get_refresh_token()}
 
-\item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'}
+\item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'}
 
 \item{branch}{(optional) String that defaults to 'prod' but can also be
 'dev'|'beta'|'local'}

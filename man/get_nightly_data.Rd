@@ -24,7 +24,7 @@ get_refresh_token()}
 
 \item{sp_code}{Character NABat species code/s from get_species()}
 
-\item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc_hib' | 'bulk_cc_mat'}
+\item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'}
 
 \item{sample_frame}{(optional) String 'CONUS' | 'Alaska' | 'Canada' | 'Mexico' |
 'Pureto Rico' | 'Hawaii'}

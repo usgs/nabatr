@@ -33,7 +33,8 @@ process_uploaded_csv(
 \item{token}{List token created from get_nabat_gql_token() or
 get_refresh_token()}
 
-\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae'}
+\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae' 
+| 'bulk_hib' | 'bulk_mat' | 'bulk_ee'}
 
 \item{branch}{(optional) String that defaults to 'prod' but can also be
 'dev'|'beta'|'local'}

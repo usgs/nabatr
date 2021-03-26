@@ -31,7 +31,7 @@ get_refresh_token()}
 
 \item{file_path}{String full path to CSV file for preview}
 
-\item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'}
+\item{survey_type}{(optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'}
 }
 \description{
 Returns a uuid and presigned url to upload a csv into the AWS bucket

@@ -1370,7 +1370,7 @@ get_colony_bulk_counts = function(
 #' @param file_path String full path to CSV file for preview
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
-#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'
 #' @param branch (optional) String that defaults to 'prod' but can also be
 #' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
@@ -1396,8 +1396,10 @@ get_upload_file_preview = function(
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
+  
+  if (survey_type == 'bulk_hib' || survey_type == 'bulk_mat') survey_type = 'bulk_cc'
 
-  data_type = 'full'
+  data_type_ = 'full'
   operation_name = paste0('RR',survey_type,'Preview')
   # GQL Query
   preview_query = paste0('query ',operation_name,'(
@@ -1424,7 +1426,7 @@ get_upload_file_preview = function(
   }')
 
   # parse file and only upload headers, so that preview takes less time
-  tmp_df = read.csv(file_path, stringsAsFactors = FALSE)[1,]
+  tmp_df = read.csv(file_path, stringsAsFactors = FALSE)[1,][-1,]
   tmp_file = tempfile()
   write.csv(tmp_df, tmp_file, row.names = FALSE)
 
@@ -1439,7 +1441,7 @@ get_upload_file_preview = function(
   file.remove(tmp_file)
 
   pr_variables = paste0('{"data" : "',upload_data,'", "dataType" : "',
-    data_type,'", "requiredFields" : [], "surveyType" : "',survey_type,
+    data_type_,'", "requiredFields" : [], "surveyType" : "',survey_type,
     '", "transactionUuid" : "", "template" : "" }')
 
   pr_pbody = list(query = preview_query,
@@ -1462,7 +1464,7 @@ get_upload_file_preview = function(
 #' @param file_path String full path to CSV file for preview
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
-#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc'
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'
 #' @param branch (optional) String that defaults to 'prod' but can also be
 #' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
@@ -1487,7 +1489,9 @@ get_presigned_data = function(
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
-
+  bucket = get_project_file_bucket(branch = branch)
+  
+  if (survey_type == 'bulk_hib' || survey_type == 'bulk_mat') survey_type = 'bulk_cc'
   content_type = 'text/plain'
   key = paste0(project_id, '/bulk-uploads')
 
@@ -1553,7 +1557,8 @@ upload_csv = function(
 #' @param file_name String Name of file to be uploaded into NABat website
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
-#' @param survey_type String Type of data to process: 'bulk_sae' | 'bulk_mae'
+#' @param survey_type String Type of data to process: 'bulk_sae' | 'bulk_mae' 
+#' | 'bulk_hib' | 'bulk_mat' | 'bulk_ee'
 #' @param branch (optional) String that defaults to 'prod' but can also be
 #' 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
@@ -1582,7 +1587,17 @@ process_uploaded_csv = function(
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
-
+  
+  # Set subtype
+  sub_type = 'null'
+  if (survey_type == 'bulk_hib'){
+    sub_type = 9
+    survey_type = 'bulk_cc'
+  } else if (survey_type == 'bulk_mat'){
+    sub_type = 10
+    survey_type = 'bulk_cc'
+  }
+  
   operation_name = paste0('RR',survey_type,'CsvProcess')
   # GQL Query
   process_query = paste0('query ',operation_name,' (
@@ -1608,9 +1623,10 @@ process_uploaded_csv = function(
     success
     }
   }')
-
+  
   template_df = template %>% dplyr::select(-c(options)) %>%
-    subset(key != 'skip') %>% dplyr::select(key, name)
+    dplyr::select(key, name, meta, type, required) %>% 
+    dplyr::mutate(missing = FALSE)
   template_json = jsonlite::toJSON(template_df)
 
   short_name = file_name
@@ -1620,7 +1636,7 @@ process_uploaded_csv = function(
     "fileName" : "',short_name,'",
     "type" : "',survey_type,'",
     "template" : ',template_json,' ,
-    "subType" : null,
+    "subType" : ',sub_type,',
     "requiredFields" : "{}" }')
 
   pro_pbody = list(query = process_query, variables = proc_variables,
@@ -1641,7 +1657,7 @@ process_uploaded_csv = function(
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
 #' @param sp_code Character NABat species code/s from get_species()
-#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_cc_hib' | 'bulk_cc_mat'
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'
 #' @param sample_frame (optional) String 'CONUS' | 'Alaska' | 'Canada' | 'Mexico' |
 #' 'Pureto Rico' | 'Hawaii'
 #' @param project_id Numeric for a project id or multiple project ids
@@ -1679,9 +1695,9 @@ get_nightly_data = function(
     data_type = 7
   }else if(survey_type == 'bulk_mae'){
     data_type = 8
-  }else if (survey_type == 'bulk_cc_hib'){
+  }else if (survey_type == 'bulk_hib'){
     data_type = 9
-  }else if (survey_type == 'bulk_cc_mat'){
+  }else if (survey_type == 'bulk_mat'){
     data_type = 10
   }else{
     message('Incorrect survey_type input')
