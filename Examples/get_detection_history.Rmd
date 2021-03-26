@@ -30,9 +30,10 @@ token
 token = get_refresh_token(token)
 
 # Use get_nightly_data with minimum parameters
+# survey_type options = 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'
 sae_nightly_data = get_nightly_data(token, 
   sp_code = 'MYLU',
-  survey_type = 'bulk_sae') # Or bulk_mae or bulk_cc
+  survey_type = 'bulk_sae')
 
 # Display data
 sae_nightly_data
@@ -53,4 +54,12 @@ sae_nightly_data = get_nightly_data(token,
 
 # Display data
 sae_nightly_data
+```
+
+### See species options
+```{r}
+# Get your species lookup table
+species_df = get_species(token = token)
+# Display your species lookup table
+species_df$species_code
 ```
