@@ -1491,7 +1491,6 @@ get_presigned_data = function(
   url     = tkn_hdr$url
   bucket = get_project_file_bucket(branch = branch)
   
-  if (survey_type == 'bulk_hib' || survey_type == 'bulk_mat') survey_type = 'bulk_cc'
   content_type = 'text/plain'
   key = paste0(project_id, '/bulk-uploads')
 
