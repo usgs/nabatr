@@ -23,7 +23,7 @@ unavailable through nabatr.  Go to Website to upload.)
 
 
 ### Get a token for NABat Database
-```{r}
+```
 library(nabatr)
 # Enter your NABat username here
 username = 'NABat_Username'
@@ -36,7 +36,7 @@ token
 
 
 ### Get Project dataframe which contains all of your NABat projects in the NABat Database
-```{r}
+```
 # Refresh token
 token = get_refresh_token(token)
 # Get your projects lookup table
@@ -46,18 +46,18 @@ project_df
 ```
 
 ### Select a project id from project_df above
-```{r}
+```
 ### Change this value to the project ID you want to upload data to
 project_id = 000
 ```
 
 ### Get User ID
-```{r}
+```
 user_id = get_user_id_by_email(username, token)
 ```
 
 ### Set data_type, file_name, and file_path
-```{r}
+```
 # Type of data to be uploading ex:
 ## 'bulk_sae' = Stationary Acoustic data
 ## 'bulk_mae' = Mobile Acoustic Data
@@ -75,13 +75,13 @@ file_path = '/users/johndoe/downloads/example.csv'
 
 
 ### Get a Preview File to use as a template
-```{r}
+```
 # Generates a template/preview of the file_path csv
 template = get_upload_file_preview(file_path, token, data_type)
 ```
 
 ### Get presigned URL to upload data to
-```{r}
+```
 # Get the presigned information
 presigned_data = get_presigned_data(project_id, token)
 # Extract values needed to upload and process file
@@ -90,7 +90,7 @@ asUUid = presigned_data$asUUid
 ```
 
 ### Upload file to presigned URL
-```{r}
+```
 # Pushes file into an s3 bucket in AWS
 upload_res = upload_csv(presigned_url, file_path)
 # Status code of 200 = Success
@@ -98,7 +98,7 @@ upload_res$status_code
 ```
 
 ### Process the file into the NABat database
-```{r}
+```
 # Process file into the Database and uploads it into 
 ## the Website User interface under Bulk Upload Status
 ## and Acoustic Data
