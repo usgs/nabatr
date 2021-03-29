@@ -5,7 +5,7 @@ Tools for interfacing R with NABat data services.
 
 ## Package Description
 
-This package provides an interface to North American Bat Monitoring (NABat) data service's.  For full access to NABatR, be sure to go to the link below and setup an account with NABat!
+This package provides an interface to North American Bat Monitoring (NABat) data services.  For full access to NABatR, be sure to go to the link below and setup an account with NABat!
 
 [NABat](https://nabatmonitoring.org/#/home)
 
