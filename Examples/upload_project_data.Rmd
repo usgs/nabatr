@@ -5,17 +5,17 @@ output:
 ---
 
 ### After running all the below code:
-Go to https://www.nabatmonitoring.org/ and click partner portal.  Login to your account
+Go to https://www.nabatmonitoring.org/ and click partner portal.Login to your account
 and proceed to the project that matches project_id (projects tab). Click on your project 
-and navigate there.  Once inside the project page, click the 'Bulk Upload Status' tab
+and navigate there. Once inside the project page, click the 'Bulk Upload Status' tab
 and view the data that this script just processed. If there are errors, make changes and
 try again with either this R code or the Website.
 
 ### Note:
 All of uploads through nabatr use the 'Full Metadata' option. To view more information,
 go to your project, select the 'Upload Survey Data' button at the top, and click any of
-the types to popup a box with more information.  (Capture records are currently 
-unavailable through nabatr.  Go to Website to upload.)
+the types to popup a box with more information. (Capture records are currently 
+unavailable through nabatr. Go to Website to upload.)
 
 
 ### Get a token for NABat Database
@@ -52,7 +52,7 @@ project_id = 000
 user_id = get_user_id_by_email(username, token)
 ```
 
-### Set data_type, file_name, and file_path
+### Set survey_type, file_name, and file_path
 ```{r}
 # Type of data to be uploading ex:
 ## 'bulk_sae' = Stationary Acoustic data
@@ -60,51 +60,27 @@ user_id = get_user_id_by_email(username, token)
 ## 'bulk_hib' = Hibernacula Colony Count Data
 ## 'bulk_mat' = Maternity Colony Count Data
 ## 'bulk_ee' = Emergence Count Data
-data_type = 'bulk_sae'
-# Name of file to be uploaded into NABat website
-file_name = 'name_of_csv.csv'
+survey_type = 'bulk_sae'
+
 # Location of file to be uploaded and processed into NABat Database/Website
 ## Don't end in "/"
-## valid Ex: /users/johndoe/downloads/example.csv
+## valid Ex: (mac) /users/johndoe/downloads/example.csv or (windows) C:/path/to/example.csv
+## * Windows users * - Be sure to switch backward slashes '\' to forward slashes '/'
 file_path = '/users/johndoe/downloads/example.csv' 
 ```
 
 
-### Get a Preview File to use as a template
+### Upload to NABat
 ```{r}
-# Generates a template/preview of the file_path csv
-template = get_upload_file_preview(file_path, token, data_type)
-```
-
-### Get presigned URL to upload data to
-```{r}
-# Get the presigned information
-presigned_data = get_presigned_data(project_id, token)
-# Extract values needed to upload and process file
-presigned_url = presigned_data$presigned_url
-asUUid = presigned_data$asUUid
-```
-
-### Upload file to presigned URL
-```{r}
-# Pushes file into an s3 bucket in AWS
-upload_res = upload_csv(presigned_url, file_path)
-# Status code of 200 = Success
-upload_res$status_code
-```
-
-### Process the file into the NABat database
-```{r}
-# Process file into the Database and uploads it into 
-## the Website User interface under Bulk Upload Status
-## and Acoustic Data
-process_uploaded_csv(user_id, 
-                     project_id, 
-                     asUUid, 
-                     template, 
-                     file_name, 
-                     token, 
-                     data_type)
+# Refresh token
+token = get_refresh_token(token)
+# Uploads file_path csv into the NABat database
+## Double check project_id, survey_type, and project_id!
+upload_data(token = token, 
+  user_id = user_id, 
+  file_path = file_path,
+  project_id = project_id,
+  survey_type = survey_type)
 ```
 
 
