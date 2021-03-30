@@ -9,9 +9,10 @@ process_uploaded_csv(
   project_id,
   asUUid,
   template,
-  file_name,
+  survey_type,
   token,
-  survey_type = "bulk_sae",
+  file_path,
+  file_name = NULL,
   branch = "prod",
   url = NULL,
   aws_gql = NULL,
@@ -28,13 +29,15 @@ process_uploaded_csv(
 
 \item{template}{Dataframe - from get_upload_file_preview()}
 
-\item{file_name}{String Name of file to be uploaded into NABat website}
+\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae' 
+| 'bulk_hib' | 'bulk_mat' | 'bulk_ee'}
 
 \item{token}{List token created from get_nabat_gql_token() or
 get_refresh_token()}
 
-\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae' 
-| 'bulk_hib' | 'bulk_mat' | 'bulk_ee'}
+\item{file_path}{String full path to CSV file for preview}
+
+\item{file_name}{String Name of file to be uploaded into NABat website}
 
 \item{branch}{(optional) String that defaults to 'prod' but can also be
 'dev'|'beta'|'local'}

@@ -1252,7 +1252,7 @@ get_colony_bulk_counts = function(
         'site_name' = siteIdentifier) %>%
       as.data.frame(stringsAsFactors = FALSE)
 
-    # Define package environmental varioables
+    # Define package environmental variables
     if (is.null(pkg.env$bats_df)){
       species_df = get_species(token = token, url = url, aws_gql = aws_gql,
         aws_alb = aws_alb, docker = docker)
@@ -1553,6 +1553,7 @@ upload_csv = function(
 #' @param project_id Numeric or String a project id
 #' @param asUUid String asUUid - from get_presigned_data()
 #' @param template Dataframe - from get_upload_file_preview()
+#' @param file_path String full path to CSV file for preview
 #' @param file_name String Name of file to be uploaded into NABat website
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
@@ -1572,9 +1573,10 @@ process_uploaded_csv = function(
   project_id,
   asUUid,
   template,
-  file_name,
+  survey_type,
   token,
-  survey_type = 'bulk_sae',
+  file_path,
+  file_name = NULL,
   branch = 'prod',
   url = NULL,
   aws_gql = NULL,
@@ -1628,6 +1630,12 @@ process_uploaded_csv = function(
     dplyr::mutate(missing = FALSE)
   template_json = jsonlite::toJSON(template_df)
 
+  if (!is.null(file_name)){
+    short_name = file_name
+  } else {
+    short_name = basename(file_path)
+  }
+  
   short_name = file_name
   proc_variables = paste0('{"userId" : ',user_id,',
     "projectId" : ',project_id,',
@@ -2914,4 +2922,79 @@ get_grts_covariate = function(
 
 
 
+#' @title Upload CSV Data to NABat Database
+#'
+#' @description
+#' Gets a preview file, presigned URL, UUID, uploads the CSV
+#' to an S3 bucket, and then processes the CSV into the NABat
+#' Database.
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param user_id Numeric NABat user Id - from get_user_id_by_email()
+#' @param file_path String full path to CSV file for preview
+#' @param project_id Numeric or String a project id
+#' @param survey_type (optional) String 'bulk_sae' | 'bulk_mae' | 'bulk_hib' | 'bulk_mat'
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#' or not
+#'
+#' @export
+#'
+
+upload_data = function(
+  token, 
+  user_id, 
+  file_path,
+  project_id,
+  survey_type,
+  file_name = NULL, 
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE){
+  
+  # Preview File
+  template = get_upload_file_preview(
+    file_path = file_path,
+    survey_type = survey_type,
+    token = token,
+    branch = branch)
+  
+  # Get presigned URL to upload data
+  presigned_data = get_presigned_data(
+    project_id = project_id, 
+    token = token, 
+    branch = branch,
+    url = url,
+    aws_gql = aws_gql,
+    aws_alb = aws_alb,
+    docker = docker)
+  presigned_url = presigned_data$presigned_url
+  asUUid = presigned_data$asUUid
+  
+  # Upload file
+  upload_res = upload_csv(presigned_url, file_path)
+  
+  # Process file
+  process_uploaded_csv(
+    user_id = user_id,
+    project_id = project_id,
+    asUUid = asUUid,
+    template = template,
+    file_path = file_path,
+    file_name = file_name,
+    survey_type = survey_type,
+    token = token,
+    branch = branch,
+    url = url,
+    aws_gql = aws_gql,
+    aws_alb = aws_alb,
+    docker = docker)
+}
 
