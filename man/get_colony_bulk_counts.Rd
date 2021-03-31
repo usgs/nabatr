@@ -2,7 +2,7 @@
 % Please edit documentation in R/nabat_gql_queries.R
 \name{get_colony_bulk_counts}
 \alias{get_colony_bulk_counts}
-\title{Get Winter colony count bulk upload template dataframe for a project}
+\title{Get Colony Count Project Data}
 \usage{
 get_colony_bulk_counts(
   token,
@@ -38,15 +38,6 @@ get_acoustic_project_summary()}
 }
 \description{
 Returns all surveys within a single project (project_id)
-}
-\examples{
-
-\dontrun{
-cc_bulk_df = get_colony_bulk_counts(token,
-                                    get_cc_project_summary(),
-                                    project_id)
-}
-
 }
 \keyword{GQL,}
 \keyword{NABat,}

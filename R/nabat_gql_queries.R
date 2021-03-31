@@ -1182,7 +1182,7 @@ get_nabat_banding_by_states = function(
 
 
 
-#' @title Get Winter colony count bulk upload template dataframe for a project
+#' @title Get Colony Count Project Data
 #'
 #' @description Returns all surveys within a single project (project_id)
 #'
@@ -1200,14 +1200,6 @@ get_nabat_banding_by_states = function(
 #'
 #'
 #' @keywords bats, NABat, GQL, Surveys
-#'
-#' @examples
-#'
-#' \dontrun{
-#' cc_bulk_df = get_colony_bulk_counts(token,
-#'                                     get_cc_project_summary(),
-#'                                     project_id)
-#' }
 #'
 #' @export
 #'
@@ -1240,102 +1232,102 @@ get_colony_bulk_counts = function(
     }
     }
     }')
-    pbody = list(query = sites_query)
-    # Query GQL API
-    res       = httr::POST(url, headers, body = pbody, encode='json')
-    content   = httr::content(res, as = 'text')
-    site_json = fromJSON(content, flatten = TRUE)
-    # Extract Dataframe form json returned from API
-    site_type_df = as_tibble(site_json$data$allSites$nodes) %>%
-      dplyr::rename('site_id' = id,
-        'site_type' = siteTypeBySiteTypeId.type,
-        'site_name' = siteIdentifier) %>%
-      as.data.frame(stringsAsFactors = FALSE)
+  pbody = list(query = sites_query)
+  # Query GQL API
+  res       = httr::POST(url, headers, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  site_json = fromJSON(content, flatten = TRUE)
+  # Extract Dataframe form json returned from API
+  site_type_df = as_tibble(site_json$data$allSites$nodes) %>%
+    dplyr::rename('site_id' = id,
+      'site_type' = siteTypeBySiteTypeId.type,
+      'site_name' = siteIdentifier) %>%
+    as.data.frame(stringsAsFactors = FALSE)
 
-    # Define package environmental variables
-    if (is.null(pkg.env$bats_df)){
-      species_df = get_species(token = token, url = url, aws_gql = aws_gql,
-        aws_alb = aws_alb, docker = docker)
-      assign('bats_df', species_df, pkg.env)
-    }
+  # Define package environmental variables
+  if (is.null(pkg.env$bats_df)){
+    species_df = get_species(token = token, url = url, aws_gql = aws_gql,
+      aws_alb = aws_alb, docker = docker)
+    assign('bats_df', species_df, pkg.env)
+  }
 
-    # Extract all survey ids from survey_df
-    survey_ids = unique(survey_df$survey_id)
+  # Extract all survey ids from survey_df
+  survey_ids = unique(survey_df$survey_id)
 
-    # Set empty dataframe to build acoustic stationary bulk template data in
-    all_colony_count = data.frame()
+  # Set empty dataframe to build acoustic stationary bulk template data in
+  all_colony_count = data.frame()
 
-    # Query each survey through GQL to extract and build a dataframe with all
-    #   acoustic stationary records for these acoustic survey ids
-    for (survey in survey_ids){
-      # Refresh token for each survey
-      tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
-      headers = tkn_hdr$headers
-      token   = tkn_hdr$token
-      url     = tkn_hdr$url
-      message(paste0('Getting colony count data for survey: ', survey))
+  # Query each survey through GQL to extract and build a dataframe with all
+  #   acoustic stationary records for these acoustic survey ids
+  for (survey in survey_ids){
+    # Refresh token for each survey
+    tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+    headers = tkn_hdr$headers
+    token   = tkn_hdr$token
+    url     = tkn_hdr$url
+    message(paste0('Getting colony count data for survey: ', survey))
 
-      # GQL Query
-      query = paste0('query RRccSurveys {
-                allSurveyEvents(
-                  filter: { surveyTypeId: { in: [9, 10] },
-                            surveyId: { equalTo: ', as.numeric(survey),' } }
-                ) {
-                  nodes {
-                    id
-                    startTime
-                    endTime
-                    surveyId
-                    colonyCountEventById {
-                      siteId
-                      winterYearPdPresumed
-                      winterYearWnsPresumed
-                      siteBySiteId {
-                        grtsId
-                      }
-                      colonyCountValuesByEventId {
-                        nodes {
-                          id
-                          speciesId
-                          speciesBySpeciesId {
-                            species
-                          }
-                          countValue
-                          countDead
+    # GQL Query
+    query = paste0('query RRccSurveys {
+              allSurveyEvents(
+                filter: { surveyTypeId: { in: [9, 10] },
+                          surveyId: { equalTo: ', as.numeric(survey),' } }
+              ) {
+                nodes {
+                  id
+                  startTime
+                  endTime
+                  surveyId
+                  colonyCountEventById {
+                    siteId
+                    winterYearPdPresumed
+                    winterYearWnsPresumed
+                    siteBySiteId {
+                      grtsId
+                    }
+                    colonyCountValuesByEventId {
+                      nodes {
+                        id
+                        speciesId
+                        speciesBySpeciesId {
+                          species
                         }
+                        countValue
+                        countDead
                       }
                     }
                   }
                 }
-              }')
+              }
+            }')
 
 
-    pbody = list(query = query, operationName = 'RRccSurveys')
-    # Query GQL API
-    res       = httr::POST(url, headers, body = pbody, encode='json')
-    content   = httr::content(res, as = 'text')
-    count_json = fromJSON(content, flatten = TRUE)
-    # Extract Dataframe form json returned from API
-    count_df = as_tibble(count_json$data$allSurveyEvents$nodes) %>%
-      dplyr::select(- id) %>%
-      tidyr::unnest(cols = c(colonyCountEventById.colonyCountValuesByEventId.nodes)) %>%
-      dplyr::rename('ccId' = id,
-        'species' = speciesBySpeciesId.species,
-        'grtsId' = colonyCountEventById.siteBySiteId.grtsId,
-        'winterYearPdPresumed' = colonyCountEventById.winterYearPdPresumed,
-        'winterYearWnsPresumed' = colonyCountEventById.winterYearWnsPresumed,
-        'siteId' = colonyCountEventById.siteId,
-        'survey_start_time' = startTime,
-        'survey_end_time' = endTime) %>%
-      as.data.frame(stringsAsFactors = FALSE) %>%
-      dplyr::left_join(site_type_df, by= c('siteId' = 'site_id'))
+  pbody = list(query = query, operationName = 'RRccSurveys')
+  # Query GQL API
+  res       = httr::POST(url, headers, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  count_json = fromJSON(content, flatten = TRUE)
+  # Extract Dataframe form json returned from API
+  count_df = as_tibble(count_json$data$allSurveyEvents$nodes) %>%
+    dplyr::select(- id) %>%
+    tidyr::unnest(cols = c(colonyCountEventById.colonyCountValuesByEventId.nodes)) %>%
+    dplyr::rename('ccId' = id,
+      'species' = speciesBySpeciesId.species,
+      'grtsId' = colonyCountEventById.siteBySiteId.grtsId,
+      'winterYearPdPresumed' = colonyCountEventById.winterYearPdPresumed,
+      'winterYearWnsPresumed' = colonyCountEventById.winterYearWnsPresumed,
+      'siteId' = colonyCountEventById.siteId,
+      'survey_start_time' = startTime,
+      'survey_end_time' = endTime) %>%
+    as.data.frame(stringsAsFactors = FALSE) %>%
+    dplyr::left_join(site_type_df, by= c('siteId' = 'site_id'))
 
-    # Rename fields
-    names(count_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_",
-      names(count_df), perl = TRUE))
+  # Rename fields
+  names(count_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_",
+    names(count_df), perl = TRUE))
 
-    all_colony_count = rbind(all_colony_count, count_df)
-  }
+  all_colony_count = rbind(all_colony_count, count_df)
+}
 
   # Massage colony count dataframe
   all_colony_count_final = all_colony_count %>%
@@ -2998,3 +2990,156 @@ upload_data = function(
     docker = docker)
 }
 
+
+#' @title Get Emergence Count Project Data
+#'
+#' @description
+#' Returns a dataframe matching the upload bulk template
+#' for Emergence Count data
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param survey_df Dataframe a survey dataframe from the output
+#' of get_ma_project_summary()
+#' @param project_id Numeric or String a project id
+#' @param branch (optional) String that defaults to 'prod' but
+#' can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container
+#' or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
+#'
+#' @export
+#'
+get_emergence_bulk_counts = function(
+  token,
+  survey_df,
+  project_id,
+  branch = 'prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE,
+  return_t = FALSE){
+  
+  # Query each survey through GQL to extract and build a dataframe with all
+  #   acoustic stationary records for these acoustic survey ids
+  # Refresh token for each survey
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
+  
+  # Format for the in filter for GQL using survey_ids
+  survey_ids = unique(survey_df$survey_id)
+  survey_id_list = paste0('[', paste0(survey_ids, collapse=','), ']')
+  # GQL Query
+  query = paste0('query RReeSurveys {
+    allSurveyEvents(filter: {surveyTypeId: {equalTo: 12}, surveyId: {in: ', survey_id_list ,'}}) {
+    nodes {
+    startTime
+    endTime
+    surveyId
+    emergenceCountEventById {
+    emergenceCountValuesByEventId {
+    nodes {
+    _speciesIds
+    eventId
+    countSpeciesOut
+    countSpeciesIn
+    estimateInRoostMin
+    estimateInRoostMax
+    batsInRoost
+    countConfidenceByCountConfidenceId{description}
+    identificationMethodByIdentificationMethodId{description}
+    observer
+    distanceFromRoost
+    roostObservationMethodByRoostObservationMethodId{description}
+    }
+    }
+    exitIdentifier
+    roostLocationMethodByRoostLocationMethodId{description}
+    habitatTypeByHabitatTypeId{description}
+    roostTypeByRoostTypeId{description}
+    roostingBatLocation
+    numberOfExitPoints
+    seasonalUseBySeasonalUseId{description}
+    maternityStageByMaternityStageId{description}
+    aspectOfEmergencePointByAspectOfEmergencePointId{description}
+    emergencePointHeight
+    emergenceOpeningWidth
+    emergenceOpeningHeight
+    structureHeight
+    structureWidth
+    buildingOccupancy
+    buildingTypeByBuildingTypeId{description}
+    treeSpecies
+    depthBreastHeight
+    treeDecayByTreeDecayId{description}
+    guanoAmountByGuanoAmountId{description}
+    eventConditionByStartConditionsId{temperature,relativeHumidity,precipitation,windSpeed,cloudCoverTime,cloudCover}
+    eventConditionByEndConditionsId{temperature,relativeHumidity,precipitation,windSpeed,cloudCoverTime,cloudCover}
+    emergenceReasonEndedByEmergenceReasonEndedId{description}
+    comments
+    vegetationObstruction
+    }
+    }
+    }
+  }
+  ')
+  
+  pbody = list(query = query, operationName = 'RReeSurveys')
+  # Query GQL API
+  res       = httr::POST(url, headers, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  json = fromJSON(content, flatten = TRUE)
+  
+  df = as_tibble(json$data$allSurveyEvents$nodes) %>% 
+    tidyr::unnest(cols = c(emergenceCountEventById.emergenceCountValuesByEventId.nodes)) %>%
+    tidyr::unnest(cols = c("_speciesIds")) %>%
+    dplyr::mutate(projectId = project_id) %>%
+    as.data.frame(stringsAsFactors = FALSE) %>%
+    dplyr::rename_all(dplyr::recode,
+      `_speciesIds` = 'species_ids',
+      countConfidenceByCountConfidenceId.description = 'countConfidence',
+      identificationMethodByIdentificationMethodId.description = 'identificationMethod',
+      roostObservationMethodByRoostObservationMethodId.description = 'roostObservationMethod',
+      emergenceCountEventById.roostLocationMethodByRoostLocationMethodId.description = 'roostLocationMethod',
+      emergenceCountEventById.habitatTypeByHabitatTypeId.description = 'habitatType',
+      emergenceCountEventById.roostTypeByRoostTypeId.description = 'roostType',
+      emergenceCountEventById.seasonalUseBySeasonalUseId.description = 'seasonalUse',
+      emergenceCountEventById.maternityStageByMaternityStageId.description = 'MaternityStage',
+      emergenceCountEventById.aspectOfEmergencePointByAspectOfEmergencePointId.description = 'aspectOfEmergencePoint',
+      emergenceCountEventById.buildingTypeByBuildingTypeId.description = 'buildingType',
+      emergenceCountEventById.treeDecayByTreeDecayId.description = 'treeDecay',
+      emergenceCountEventById.guanoAmountByGuanoAmountId.description = 'guanoAmount',
+      emergenceCountEventById.eventConditionByStartConditionsId.temperature = 'StartConditionsTemperature',
+      emergenceCountEventById.eventConditionByStartConditionsId.relativeHumidity = 'StartConditionsRelativeHumidity',
+      emergenceCountEventById.eventConditionByStartConditionsId.precipitation = 'StartConditionsPrecipitation',
+      emergenceCountEventById.eventConditionByStartConditionsId.windSpeed = 'StartConditionsWindSpeed',
+      emergenceCountEventById.eventConditionByStartConditionsId.cloudCoverTime = 'StartConditionsCloudCoverTime',
+      emergenceCountEventById.eventConditionByStartConditionsId.cloudCover = 'StartConditionsCloudCover',
+      emergenceCountEventById.eventConditionByEndConditionsId.temperature = 'EndConditionsTemperature',
+      emergenceCountEventById.eventConditionByEndConditionsId.relativeHumidity = 'EndConditionsRelativeHumidity',
+      emergenceCountEventById.eventConditionByEndConditionsId.precipitation = 'EndConditionsPrecipitation',
+      emergenceCountEventById.eventConditionByEndConditionsId.windSpeed = 'EndConditionsWindSpeed',
+      emergenceCountEventById.eventConditionByEndConditionsId.cloudCoverTime = 'EndConditionsCloudCoverTime',
+      emergenceCountEventById.eventConditionByEndConditionsId.cloudCover = 'EndConditionsCloudCover',
+      emergenceCountEventById.emergenceReasonEndedByEmergenceReasonEndedId.description = 'EmergenceReasonEnded'
+    )
+  
+  # Rename fields
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
+  names(df) = sub('.*\\.', '', names(df))
+  if ('nodes' %in% names(df)) {df = df %>% dplyr::select(-c(nodes))}
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (df)
+  }
+}
