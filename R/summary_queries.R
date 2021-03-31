@@ -385,7 +385,6 @@ get_cc_project_summary = function(
 #'
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
-#' @param project_df Dataframe output from get_projects()
 #' @param project_id Numeric or String a project id
 #' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
 #' @param url (optional) String url to use for GQL
@@ -399,7 +398,6 @@ get_cc_project_summary = function(
 #'
 get_ee_project_summary = function(
   token,
-  project_df,
   project_id,
   branch ='prod',
   url = NULL,
@@ -407,13 +405,13 @@ get_ee_project_summary = function(
   aws_alb = NULL,
   docker = FALSE,
   return_t = FALSE){
-  
+
   # Get headers for token
   tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
-  
+
   # GQL Query
   query = paste0('
     query RReeSummaries {
@@ -438,7 +436,7 @@ get_ee_project_summary = function(
   json = fromJSON(content, flatten = TRUE)
   df = as_tibble(json$data$allVwEmergenceCountSummaries$nodes) %>% as.data.frame(stringsAsFactors = FALSE)
   names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
-  
+
   # If return_t is TRUE, return token as well
   if (return_t){
     return (list(df = df, token = token))

@@ -6,7 +6,6 @@
 \usage{
 get_ee_project_summary(
   token,
-  project_df,
   project_id,
   branch = "prod",
   url = NULL,
@@ -19,8 +18,6 @@ get_ee_project_summary(
 \arguments{
 \item{token}{List token created from get_nabat_gql_token() or
 get_refresh_token()}
-
-\item{project_df}{Dataframe output from get_projects()}
 
 \item{project_id}{Numeric or String a project id}
 
