@@ -37,7 +37,8 @@
 #' @description Extracts all of the species found within these
 #' stationary acoustic wav files (for, manual, automatic, or both detection types)
 #' type = 'all' | 'auto' | 'man'
-#' format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
+#' format = 'df' | 'vector' | 'vectorNoId'
+#' (remove NoID + other ambigous bat calls from list)
 #'
 #' @param sa_bulk_df Dataframe Mobile acoustic bulk data. Can get from
 #' get_ma_bulk_wavs() in nabatr
@@ -116,7 +117,7 @@ get_sa_species = function(
   }else if (format == 'vector'){
     return(final_species)
   }else if (format == 'vectorNoId'){
-    return(final_species[final_species != 'NoID'])
+    return(final_species[final_species %!in% c('NoID', '40kMyo', 'HighF', 'LowF', '25k', '40k')])
   }
 }
 
@@ -448,7 +449,7 @@ get_sa_results = function(
         as.integer(as.Date(survey_night_end) - as.Date(survey_night_start)) + 1)
   number_of_net_nights = sum(total_nights_df$total_nights)
 
-  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vector')
+  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vectorNoId')
   number_of_species_detected = length(proj_species)
 
   # Subset the stationary acoustic dataframe with only
@@ -537,7 +538,7 @@ build_sa_table_1 = function(
   all_grts = unique(sa_bulk_df$grts_cell_id)
   for (grts in all_grts){
     grts_bulk_df = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
-    species_count = length(get_sa_species(grts_bulk_df, species_df, 'all','vector'))
+    species_count = length(get_sa_species(grts_bulk_df, species_df, 'all','vectorNoId'))
     species_counts = c(species_counts, species_count)
   }
   all_grts_rows_add = data.frame(GRTS = all_grts, Species_Detected = species_counts)
