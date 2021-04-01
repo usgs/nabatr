@@ -291,3 +291,11 @@ get_project_file_bucket = function(
   return(bucket)
 }
 
+
+#' @title Not in function
+#'
+#' @export
+#'
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
+
