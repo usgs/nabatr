@@ -117,7 +117,14 @@ get_sa_species = function(
   }else if (format == 'vector'){
     return(final_species)
   }else if (format == 'vectorNoId'){
-    return(final_species[final_species %!in% c('NoID', '40kMyo', 'HighF', 'LowF', '25k', '40k')])
+    return(final_species[final_species %!in%  c('NoID')])
+  }else if (format == 'cleanVector'){
+    return(final_species[final_species %!in%  c('ANPAEPFU', 'EPFULANO',
+      'LABLPAHE', 'LABOPESU', 'LABOMYLU', 'LABOLASE', 'LANOTABR',
+      'LACITABR', 'LEMY', 'MYCAMYYU', 'LACILANO', 'MYCIMYVO', 'LUSO',
+      'MYCAMYCI', 'MYLUMYVO', 'MYEVMYTH', 'MYLUMYCI', 'EPFULABO',
+      'LABONYHU', 'MYLUMYSE', 'EPFUMYLU', 'NOISE', 'NoID', '25k',
+      '40k', 'LowF', 'HighF', '40kMyo', 'NYSP', 'LESP')])
   }
 }
 
@@ -162,7 +169,7 @@ get_sa_range_maps = function(
   # Set CRS to WGS
   proj4string(species_shp) =
     CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vectorNoId')
+  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','cleanVector')
   proj_grts = unique(sa_bulk_df$grts_cell_id)
 
   # Build species dataframe to merge with NABat's species lookup table
@@ -449,7 +456,7 @@ get_sa_results = function(
         as.integer(as.Date(survey_night_end) - as.Date(survey_night_start)) + 1)
   number_of_net_nights = sum(total_nights_df$total_nights)
 
-  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vectorNoId')
+  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','cleanVector')
   number_of_species_detected = length(proj_species)
 
   # Subset the stationary acoustic dataframe with only
@@ -466,12 +473,21 @@ get_sa_results = function(
 
   # Text for Results using Project Summary Data
   results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells,
-    " NABat GRTS cells were surveyed in ", selected_year," (Figure 1, Table 1). ",
+    " NABat GRTS cells were surveyed in ", selected_year," (Table 1, Figure 1). ",
     number_of_bat_calls," call files were recorded over ", number_of_net_nights,
     " detector nights, and ", number_of_species_detected,
-    " species were detected (Figure 1, Table 2). Activity rate (average bat passes per night) ranged from ",
+    " species were detected (Table 1, Figure 3). Activity rate (average bat passes per night) ranged from ",
     low_avg_per_night," to ", high_avg_per_night,", with a median of ",
     median_activity_rate," and a mean of ", mean_activity_rate," (Figures 3, 4).")
+
+  # Edit it to
+  # A total of 92 sites in 30 NABat GRTS cells were surveyed in 2020 (Figure 1, Table 1).
+  # 59389 call files were recorded over 149 detector nights.  A total of 18 species were
+  # detected: MYLU, ANPA, EPFU, LANO, MYYU.. (Figure 1, Table 2). Activity rate (average
+  #   bat passes per night) ranged from 3 to 3974, with a median of 360.5 and a mean of 646
+  # (Figures 3, 4).
+
+
   return(results_overview)
 }
 
@@ -538,7 +554,7 @@ build_sa_table_1 = function(
   all_grts = unique(sa_bulk_df$grts_cell_id)
   for (grts in all_grts){
     grts_bulk_df = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
-    species_count = length(get_sa_species(grts_bulk_df, species_df, 'all','vectorNoId'))
+    species_count = length(get_sa_species(grts_bulk_df, species_df, 'all','cleanVector'))
     species_counts = c(species_counts, species_count)
   }
   all_grts_rows_add = data.frame(GRTS = all_grts, Species_Detected = species_counts)
@@ -609,9 +625,9 @@ build_sa_table_3 = function(
     grts_sa_bulk_row = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
     # Get species information for this grts
     proj_species_df = get_sa_species(grts_sa_bulk_row, species_df, 'all','df')
-    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vector')
-    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vector')
-    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vector')
+    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vectorNoId')
+    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vectorNoId')
+    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vectorNoId')
     # Find species at this grts for all, man, and auto types
     all_species_names = unique(subset(proj_species_df,
       proj_species_df$species_code %in% proj_species)$species)
