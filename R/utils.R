@@ -129,9 +129,7 @@ add_observed_nights = function(df){
 add_start_end_nights = function(df){
   if('survey_start_time' %in% names(df) & 'survey_end_time' %in% names(df)){
     clean_df = df %>%
-      dplyr::mutate(survey_night_start = ifelse(format(survey_start_time, '%H') >=12,
-        format(survey_start_time, '%Y-%m-%d') ,
-        format(survey_start_time - days(1), '%Y-%m-%d'))) %>%
+      dplyr::mutate(survey_night_start = format(survey_start_time, '%Y-%m-%d')) %>%
       dplyr::mutate(survey_night_end = format(survey_end_time - days(1), '%Y-%m-%d')) %>%
       dplyr::mutate(survey_night_start = as.Date(survey_night_start)) %>%
       dplyr::mutate(survey_night_end = as.Date(survey_night_end))
