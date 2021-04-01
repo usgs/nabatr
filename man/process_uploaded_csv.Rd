@@ -29,7 +29,7 @@ process_uploaded_csv(
 
 \item{template}{Dataframe - from get_upload_file_preview()}
 
-\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae' 
+\item{survey_type}{String Type of data to process: 'bulk_sae' | 'bulk_mae'
 | 'bulk_hib' | 'bulk_mat' | 'bulk_ee'}
 
 \item{token}{List token created from get_nabat_gql_token() or

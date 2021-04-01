@@ -1388,7 +1388,7 @@ get_upload_file_preview = function(
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
-  
+
   if (survey_type == 'bulk_hib' || survey_type == 'bulk_mat') survey_type = 'bulk_cc'
 
   data_type_ = 'full'
@@ -1482,7 +1482,7 @@ get_presigned_data = function(
   token   = tkn_hdr$token
   url     = tkn_hdr$url
   bucket = get_project_file_bucket(branch = branch)
-  
+
   content_type = 'text/plain'
   key = paste0(project_id, '/bulk-uploads')
 
@@ -1549,7 +1549,7 @@ upload_csv = function(
 #' @param file_name String Name of file to be uploaded into NABat website
 #' @param token List token created from get_nabat_gql_token() or
 #' get_refresh_token()
-#' @param survey_type String Type of data to process: 'bulk_sae' | 'bulk_mae' 
+#' @param survey_type String Type of data to process: 'bulk_sae' | 'bulk_mae'
 #' | 'bulk_hib' | 'bulk_mat' | 'bulk_ee'
 #' @param branch (optional) String that defaults to 'prod' but can also be
 #' 'dev'|'beta'|'local'
@@ -1580,7 +1580,7 @@ process_uploaded_csv = function(
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
-  
+
   # Set subtype
   sub_type = 'null'
   if (survey_type == 'bulk_hib'){
@@ -1590,7 +1590,7 @@ process_uploaded_csv = function(
     sub_type = 10
     survey_type = 'bulk_cc'
   }
-  
+
   operation_name = paste0('RR',survey_type,'CsvProcess')
   # GQL Query
   process_query = paste0('query ',operation_name,' (
@@ -1616,9 +1616,9 @@ process_uploaded_csv = function(
     success
     }
   }')
-  
+
   template_df = template %>% dplyr::select(-c(options)) %>%
-    dplyr::select(key, name, meta, type, required) %>% 
+    dplyr::select(key, name, meta, type, required) %>%
     dplyr::mutate(missing = FALSE)
   template_json = jsonlite::toJSON(template_df)
 
@@ -1627,7 +1627,7 @@ process_uploaded_csv = function(
   } else {
     short_name = basename(file_path)
   }
-  
+
   short_name = file_name
   proc_variables = paste0('{"userId" : ',user_id,',
     "projectId" : ',project_id,',
@@ -1961,8 +1961,10 @@ get_sa_batch = function(
       }
     # Create sae content dataframe intermediate if neither of the above issues come up
     }else{
-      sae_content_df_int = as_tibble(content_json$data$allAcousticBatches$nodes) %>%
-        tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+      sae_content_df_int = as_tibble(content_json$data$allAcousticBatches$nodes)
+      if (dim(sae_content_df_int)[1] > 0){
+        sae_content_df_int = sae_content_df_int %>% tidyr::unnest(cols = c(acousticFileBatchesByBatchId.nodes))
+      }
     }
 
     # Add data to sae content dataframe for each loop
@@ -2939,29 +2941,29 @@ get_grts_covariate = function(
 #'
 
 upload_data = function(
-  token, 
-  user_id, 
+  token,
+  user_id,
   file_path,
   project_id,
   survey_type,
-  file_name = NULL, 
+  file_name = NULL,
   branch = 'prod',
   url = NULL,
   aws_gql = NULL,
   aws_alb = NULL,
   docker = FALSE){
-  
+
   # Preview File
   template = get_upload_file_preview(
     file_path = file_path,
     survey_type = survey_type,
     token = token,
     branch = branch)
-  
+
   # Get presigned URL to upload data
   presigned_data = get_presigned_data(
-    project_id = project_id, 
-    token = token, 
+    project_id = project_id,
+    token = token,
     branch = branch,
     url = url,
     aws_gql = aws_gql,
@@ -2969,10 +2971,10 @@ upload_data = function(
     docker = docker)
   presigned_url = presigned_data$presigned_url
   asUUid = presigned_data$asUUid
-  
+
   # Upload file
   upload_res = upload_csv(presigned_url, file_path)
-  
+
   # Process file
   process_uploaded_csv(
     user_id = user_id,
@@ -3024,7 +3026,7 @@ get_emergence_bulk_counts = function(
   aws_alb = NULL,
   docker = FALSE,
   return_t = FALSE){
-  
+
   # Query each survey through GQL to extract and build a dataframe with all
   #   acoustic stationary records for these acoustic survey ids
   # Refresh token for each survey
@@ -3032,7 +3034,7 @@ get_emergence_bulk_counts = function(
   headers = tkn_hdr$headers
   token   = tkn_hdr$token
   url     = tkn_hdr$url
-  
+
   # Format for the in filter for GQL using survey_ids
   survey_ids = unique(survey_df$survey_id)
   survey_id_list = paste0('[', paste0(survey_ids, collapse=','), ']')
@@ -3090,14 +3092,14 @@ get_emergence_bulk_counts = function(
     }
   }
   ')
-  
+
   pbody = list(query = query, operationName = 'RReeSurveys')
   # Query GQL API
   res       = httr::POST(url, headers, body = pbody, encode='json')
   content   = httr::content(res, as = 'text')
   json = fromJSON(content, flatten = TRUE)
-  
-  df = as_tibble(json$data$allSurveyEvents$nodes) %>% 
+
+  df = as_tibble(json$data$allSurveyEvents$nodes) %>%
     tidyr::unnest(cols = c(emergenceCountEventById.emergenceCountValuesByEventId.nodes)) %>%
     tidyr::unnest(cols = c("_speciesIds")) %>%
     dplyr::mutate(projectId = project_id) %>%
@@ -3130,7 +3132,7 @@ get_emergence_bulk_counts = function(
       emergenceCountEventById.eventConditionByEndConditionsId.cloudCover = 'EndConditionsCloudCover',
       emergenceCountEventById.emergenceReasonEndedByEmergenceReasonEndedId.description = 'EmergenceReasonEnded'
     )
-  
+
   # Rename fields
   names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
   names(df) = sub('.*\\.', '', names(df))
