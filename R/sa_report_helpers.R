@@ -77,34 +77,24 @@ get_sa_species = function(
   if (type == 'auto' | type == 'all'){
     # If Auto data exists
     if (length(unique(sa_bulk_df$auto_id)) > 1 |
-        (length(unique(sa_bulk_df$auto_id)) == 1 &
-            !is.na(unique(sa_bulk_df$auto_id))[1])){
+        (length(unique(sa_bulk_df$auto_id)) == 1 & !is.na(unique(sa_bulk_df$auto_id))[1])){
       # Auto Species
-      auto_project_species = (data.frame(id = unique(auto_ids),
-        stringsAsFactors = FALSE) %>%
-          dplyr::left_join(species_df, by = 'id'))
-      auto_species_found =
-        subset(auto_project_species, auto_project_species$bat_call) %>%
+      auto_project_species = data.frame(id = unique(auto_ids), stringsAsFactors = FALSE) %>%
+        dplyr::left_join(species_df, by = 'id')
+      auto_species_found = subset(auto_project_species, auto_project_species$bat_call) %>%
         dplyr::mutate(detection_type = 'automatic')
-      auto_species_detected_wav =
-        subset(sa_bulk_df, sa_bulk_df$auto_id %in% auto_species_found$id)
     }
   }
 
   if (type == 'man' | type == 'all'){
     # If Manual data exists
     if (length(unique(sa_bulk_df$manual_id)) > 1 |
-        (length(unique(sa_bulk_df$manual_id)) == 1 &
-            !is.na(unique(sa_bulk_df$manual_id))[1])){
+        (length(unique(sa_bulk_df$manual_id)) == 1 &!is.na(unique(sa_bulk_df$manual_id))[1])){
       # Manual Species
-      man_project_species = (data.frame(id = unique(manual_ids),
-        stringsAsFactors = FALSE) %>%
+      man_project_species = (data.frame(id = unique(manual_ids), stringsAsFactors = FALSE) %>%
           dplyr::left_join(species_df, by = 'id'))
-      man_species_found =
-        subset(man_project_species, man_project_species$bat_call) %>%
+      man_species_found = subset(man_project_species, man_project_species$bat_call) %>%
         dplyr::mutate(detection_type = 'manual')
-      man_species_detected_wav =
-        subset(sa_bulk_df, sa_bulk_df$manual_id %in% man_species_found$id)
     }
   }
 
@@ -475,18 +465,11 @@ get_sa_results = function(
   results_overview = paste0("A total of ", number_of_sites," sites in ", number_of_cells,
     " NABat GRTS cells were surveyed in ", selected_year," (Table 1, Figure 1). ",
     number_of_bat_calls," call files were recorded over ", number_of_net_nights,
-    " detector nights, and ", number_of_species_detected,
-    " species were detected (Table 1, Figure 3). Activity rate (average bat passes per night) ranged from ",
+    " detector nights. A total of ", number_of_species_detected,
+    " species were detected: ", paste0(proj_species, collapse=", "),
+    " (Table 2, Figure 1). Activity rate (average bat passes per night) ranged from ",
     low_avg_per_night," to ", high_avg_per_night,", with a median of ",
-    median_activity_rate," and a mean of ", mean_activity_rate," (Figures 3, 4).")
-
-  # Edit it to
-  # A total of 92 sites in 30 NABat GRTS cells were surveyed in 2020 (Figure 1, Table 1).
-  # 59389 call files were recorded over 149 detector nights.  A total of 18 species were
-  # detected: MYLU, ANPA, EPFU, LANO, MYYU.. (Figure 1, Table 2). Activity rate (average
-  #   bat passes per night) ranged from 3 to 3974, with a median of 360.5 and a mean of 646
-  # (Figures 3, 4).
-
+    median_activity_rate," and a mean of ", mean_activity_rate," (Figure 3).")
 
   return(results_overview)
 }
@@ -516,9 +499,8 @@ build_sa_table_1 = function(
   selected_year){
 
   # Create Table Description
-  sa_descr_table_1 = paste0("Table 1. NABat GRTS cells surveyed in ",
-    selected_year,
-    ". Number of detector points, detector nights, and species detected are shown for each cell.")
+  sa_descr_table_1 = paste0("Table 1. NABat GRTS cells surveyed (", selected_year,
+    "). Number of detector points, detector nights, and species detected are shown for each cell.")
 
   project_id_ = project_id
   grts_fname = as.character(subset(project_df,
@@ -595,7 +577,7 @@ build_sa_table_1 = function(
 
 
 
-#' @title Build stationary acoustic table 3 for report
+#' @title Build stationary acoustic table 2 for report
 #'
 #' @description Returns a table with GRTS, Species_Detected,
 #' and Method_of_Species_ID
@@ -607,27 +589,26 @@ build_sa_table_1 = function(
 #'
 #' @export
 
-build_sa_table_3 = function(
+build_sa_table_2 = function(
   sa_bulk_df,
   selected_year,
   species_df){
 
   # Create Table Description
-  sa_descr_table_3 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed, ",
-    selected_year,
-    ". Years with detections and method of species identification are shown for each species in each cell. ")
+  sa_descr_table_2 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed (", selected_year,
+    "). Years with detections and method of species identification are shown for each species in each cell. ")
 
   all_grts = unique(sa_bulk_df$grts_cell_id)
-  table_3_df = data.frame()
+  table_2_df = data.frame()
   for (grts in all_grts){
-    grts_3_df= data.frame()
+    grts_2_df= data.frame()
     # Get stationary acoustic bulk row data for this GRTS cell
     grts_sa_bulk_row = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
     # Get species information for this grts
     proj_species_df = get_sa_species(grts_sa_bulk_row, species_df, 'all','df')
-    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vectorNoId')
-    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vectorNoId')
-    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vectorNoId')
+    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','cleanVector')
+    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','cleanVector')
+    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','cleanVector')
     # Find species at this grts for all, man, and auto types
     all_species_names = unique(subset(proj_species_df,
       proj_species_df$species_code %in% proj_species)$species)
@@ -647,32 +628,32 @@ build_sa_table_3 = function(
       }
       methods = c(methods, method)
     }
-    grts_3_df = data.frame('GRTS' = rep(grts, length(all_species_names)),
+    grts_2_df = data.frame('GRTS' = rep(grts, length(all_species_names)),
       stringsAsFactors = FALSE) %>%
       dplyr::mutate(Species_Detected = all_species_names) %>%
       dplyr::mutate(Method_of_Species_ID = methods)
 
-    table_3_df = rbind(grts_3_df, table_3_df)
+    table_2_df = rbind(grts_2_df, table_2_df)
 
   }
 
-  sa_table_3 = table_3_df %>%
+  sa_table_2 = table_2_df %>%
     dplyr::arrange(GRTS, Species_Detected)
 
-  sa_ft3_names_list = list()
-  for (name in names(sa_table_3)){
-    sa_ft3_names_list[name] = gsub("_", " ", name)
+  sa_ft2_names_list = list()
+  for (name in names(sa_table_2)){
+    sa_ft2_names_list[name] = gsub("_", " ", name)
   }
-  sa_ft3 = flextable::flextable(sa_table_3)
-  sa_ft3 = flextable::set_header_labels(sa_ft3, values = sa_ft3_names_list)
-  sa_ft3 = flextable::height(sa_ft3, height =.5, part = 'header')
-  sa_ft3 = flextable::width(sa_ft3, width =2)
-  sa_ft3 = flextable::merge_v(sa_ft3, j = 'GRTS')
-  sa_ft3 = flextable::fontsize(sa_ft3, size = 10, part = "all")
-  sa_ft3 = flextable::italic(sa_ft3, j = 2)
-  sa_ft3 = flextable::hline(sa_ft3, border = fp_border(color = "black"), part = "body")
+  sa_ft2 = flextable::flextable(sa_table_2)
+  sa_ft2 = flextable::set_header_labels(sa_ft2, values = sa_ft2_names_list)
+  sa_ft2 = flextable::height(sa_ft2, height =.5, part = 'header')
+  sa_ft2 = flextable::width(sa_ft2, width =2)
+  sa_ft2 = flextable::merge_v(sa_ft2, j = 'GRTS')
+  sa_ft2 = flextable::fontsize(sa_ft2, size = 10, part = "all")
+  sa_ft2 = flextable::italic(sa_ft2, j = 2)
+  sa_ft2 = flextable::hline(sa_ft2, border = fp_border(color = "black"), part = "body")
 
-  return (list(table = sa_ft3, description = sa_descr_table_3, df = sa_table_3))
+  return (list(table = sa_ft2, description = sa_descr_table_2, df = sa_table_2))
 }
 
 
@@ -692,9 +673,7 @@ build_sa_figure_1 = function(
   save_bool = FALSE){
 
   # Create figure description
-  sa_descr_fig1  = paste0("Figure 1. Map of all NABat GRTS cells surveyed in ",
-    selected_year
-    ," and detector points in each surveyed cell. ")
+  sa_descr_fig1  = paste0("Figure 1. Map of all NABat GRTS cells surveyed in ", selected_year, ".")
   sa_figure_1 =
     get_grts_leaflet_map(all_grts = unique(subset(survey_df,
       survey_df$year == selected_year)$grts_cell_id),
@@ -742,18 +721,14 @@ build_sa_figure_2 = function(
   save_bool = FALSE){
 
   # Create figure descriptions
-  sa_descr_fig2a = paste0("Figure 2a. ",
-    selected_year,
-    " bat activity rate (average number of bat passes per night) by species. Species with
-at least one manual identification per site are shown in orange, species identified only
-by automated identification software are shown in blue, and species identified only by
+  sa_descr_fig2a = paste0("Figure 2a. Bat activity rate (total number of bat passes / total number of GRTS cells surveyed)
+by species (", selected_year,"). Species with at least one manual identification per site are shown in orange, species
+identified only by automated identification software are shown in blue, and species identified only by
 manual identification software are shown in green.")
-  sa_descr_fig2b = paste0("Figure 2b. ",
-    selected_year,
-    " bat activity rate (average number of bat passes per night using a logarithmic scale)
-by species. Species with at least one manual identification per site are shown in orange,
-species identified only by automated identification software are shown in blue, and
-species identified only by manual identification software are shown in green.")
+  sa_descr_fig2b = paste0("Figure 2b. Logarithmic scale - Bat activity rate (total number of bat passes / total number of GRTS cells surveyed)
+by species (", selected_year,"). Species with at least one manual identification per site are shown in orange,
+species identified only by automated identification software are shown in blue, and species identified only by
+manual identification software are shown in green.")
 
   # Get all bat species
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
@@ -762,56 +737,25 @@ species identified only by manual identification software are shown in green.")
   auto_proj_species = get_sa_species(sa_bulk_df, species_df, 'auto','vector')
 
 
-  all_grts = unique(sa_bulk_df$grts_cell_id)
   table_3_df = data.frame()
-  for (grts in all_grts){
-    grts_3_df= data.frame()
-    # Get stationary acoustic bulk row data for this GRTS cell
-    grts_sa_bulk_row = subset(sa_bulk_df, sa_bulk_df$grts_cell_id == grts)
-    # Get species information for this grts
-    proj_species_df = get_sa_species(grts_sa_bulk_row, species_df, 'all','df')
-    proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'all','vector')
-    man_proj_species  = get_sa_species(grts_sa_bulk_row, species_df, 'man','vector')
-    auto_proj_species = get_sa_species(grts_sa_bulk_row, species_df, 'auto','vector')
-    # Find species at this grts for all, man, and auto types
-    all_species_names = unique(subset(proj_species_df,
-      proj_species_df$species_code %in% proj_species)$species_code)
-    all_species_names = unique(subset(proj_species_df,
-      proj_species_df$species_code %in% proj_species)$species_code)
-    man_species_names = unique(subset(proj_species_df,
-      proj_species_df$species_code %in% man_proj_species)$species_code)
-    auto_species_names = unique(subset(proj_species_df,
-      proj_species_df$species_code %in% auto_proj_species)$species_code)
-
-    methods = c()
-    for (species in all_species_names){
-      if (species %in% man_species_names & species %in% auto_species_names){
-        method = 'Auto, Manual'
-      }else if(species %in% man_species_names){
-        method = 'Manual'
-      }else if(species %in% auto_species_names){
-        method = 'Auto'
-      }
-      methods = c(methods, method)
+  methods = c()
+  for (species in proj_species){
+    if (species %in% man_proj_species & species %in% auto_proj_species){
+      method = 'Auto, Manual'
+    }else if(species %in% man_proj_species){
+      method = 'Manual'
+    }else if(species %in% auto_proj_species){
+      method = 'Auto'
     }
-    grts_3_df = data.frame('GRTS' = rep(grts, length(all_species_names)),
-      stringsAsFactors = FALSE) %>%
-      dplyr::mutate(Species_Detected = all_species_names) %>%
-      dplyr::mutate(Method_of_Species_ID = methods) %>%
-      dplyr::mutate()
-
-    table_3_df = rbind(grts_3_df, table_3_df)
+    methods = c(methods, method)
   }
+  table_3_df = data.frame(Species_Detected = proj_species,
+    Method_of_Species_ID = methods ,stringsAsFactors = FALSE)
 
   all_bat_id_types = data.frame()
   for (bat_spc in proj_species){
-    types = unique(subset(table_3_df,
-      table_3_df$Species_Detected == subset(species_df,
-        species_df$species_code == bat_spc)$species_code)$Method_of_Species_ID)
-
+    types = subset(table_3_df,table_3_df$Species_Detected == bat_spc)$Method_of_Species_ID
     if ('Auto, Manual' %in% types){
-      this_type = 'At least one manual ID/site'
-    }else if('Auto' %in% types & 'Manual' %in% types){
       this_type = 'At least one manual ID/site'
     }else if('Manual' %in% types){
       this_type = 'Manual ID only'
@@ -822,26 +766,26 @@ species identified only by manual identification software are shown in green.")
     }
 
     if (this_type == 'At least one manual ID/site'){
-      species_auto_count = subset(auto_species_grts_df_w,
+      species_count = subset(auto_species_grts_df_w,
         auto_species_grts_df_w$names == bat_spc)$species_totals
     }else if (this_type == 'Auto ID only'){
-      species_auto_count = subset(auto_species_grts_df_w,
+      species_count = subset(auto_species_grts_df_w,
         auto_species_grts_df_w$names == bat_spc)$species_totals
     }else if (this_type == 'Manual ID only'){
       if (!is.null(manual_species_grts_df_w)){
-        species_auto_count = subset(manual_species_grts_df_w,
+        species_count = subset(manual_species_grts_df_w,
           manual_species_grts_df_w$names == bat_spc)$species_totals
       }else {
-        species_auto_count = 0
+        species_count = 0
       }
     }else if(this_type == 'Not a Species'){
-      species_auto_count = subset(auto_species_grts_df_w,
+      species_count = subset(auto_species_grts_df_w,
         auto_species_grts_df_w$names == bat_spc)$species_totals
     }
 
     bat_id_type_row = data.frame(species = bat_spc,
       bat_types = this_type,
-      auto_count = species_auto_count,
+      auto_count = species_count,
       stringsAsFactors = FALSE)
     all_bat_id_types = rbind(all_bat_id_types, bat_id_type_row)
   }
@@ -852,7 +796,7 @@ species identified only by manual identification software are shown in green.")
     types = c('At least one manual ID/site', 'Auto ID only', 'Manual ID only'),
     stringsAsFactors = FALSE)
   bat_id_colors = subset(bat_id_color_df, bat_id_color_df$types %in% bat_id_type)$colors
-  bat_auto_counts = all_bat_id_types$auto_count / length(unique(sa_bulk_df$grts_cell_id))
+  bat_auto_counts = ceiling(all_bat_id_types$auto_count / length(unique(sa_bulk_df$grts_cell_id)))
   bat_species = all_bat_id_types$species
 
   # Setting aesthetics for words in plot
@@ -907,14 +851,14 @@ species identified only by manual identification software are shown in green.")
 
 
 
-#' @title Build stationary acoustic figure 4 for report
+#' @title Build stationary acoustic figure 3 for report
 #'
 #' @description Returns 1 plot with grts and the number of bat
 #' passes they had
 #'
 #' @export
 
-build_sa_figure_4 = function(
+build_sa_figure_3 = function(
   sa_bulk_df,
   out_dir,
   species_df,
@@ -922,46 +866,58 @@ build_sa_figure_4 = function(
   save_bool = FALSE){
 
   # Build description
-  sa_descr_fig4 = paste0("Figure 4. ",selected_year,
-    " bat activity rate (average number of bat passes per night) by NABat GRTS cell")
+  sa_descr_fig3 = paste0("Figure 3. Average number of bat passes per detector night at each GRTS cell surveyed (", selected_year,").")
   # Get fig data
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
-  proj_species_w_noid = get_sa_species(sa_bulk_df, species_df, 'all','vector')
-  proj_species_ids = unique(subset(proj_species_df,
-    proj_species_df$species_code %in% proj_species_w_noid)$id)
+  proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vector')
+  proj_species_ids = unique(subset(proj_species_df, proj_species_df$species_code %in% proj_species)$id)
 
-  species_only_df = subset(sa_bulk_df,
-    sa_bulk_df$manual_id %in% proj_species_ids | sa_bulk_df$auto_id %in% proj_species_ids)
+  species_only_df = subset(sa_bulk_df,sa_bulk_df$manual_id %in% proj_species_ids | sa_bulk_df$auto_id %in% proj_species_ids)
   proj_grts = unique(species_only_df$grts_cell_id)
 
-  fig4_data = as.data.frame(table(species_only_df$grts_cell_id),
+  # Calculate Detector nights based on survey_start and survey_end times for each Site
+  detector_nights_df = sa_bulk_df %>% dplyr::group_by(grts_cell_id) %>%
+    dplyr::select(grts_cell_id, site_name, survey_night_start, survey_night_end) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(Detector_Points = length(unique(site_name))) %>%
+    dplyr::mutate(Site_Detector_Nights =as.integer(as.Date(survey_night_end) - as.Date(survey_night_start)) + 1) %>%
+    dplyr::mutate(Detector_Nights = sum(Site_Detector_Nights)) %>%
+    dplyr::select(grts_cell_id, Detector_Points, Detector_Nights) %>%
+    dplyr::distinct() %>%
+    dplyr::rename('GRTS' = grts_cell_id) %>% dplyr::ungroup() %>%
+    dplyr::mutate(GRTS = as.character(GRTS))
+
+  # Create figure data to use in plot
+  fig3_data = as.data.frame(table(species_only_df$grts_cell_id),
     stringsAsFactors = FALSE) %>%
-    dplyr::rename('GRTS' = Var1, 'values' = Freq)
+    dplyr::rename('GRTS' = Var1, 'values' = Freq) %>%
+    dplyr::left_join(detector_nights_df, 'GRTS') %>%
+    dplyr::mutate(calc_values = values / Detector_Nights)
 
   # Fig styles
   l = list(family = "cambria", size = 22, color = "#6b6b6b")
   leg = list(family = "cambria", size = 16, color = "#6b6b6b")
   x_ = list(title = "NABat GRTS Cell", titlefont = leg)
   y_ = list(title = "Average No. of Bat Passes",titlefont = l)
-  m_fig_4 = list(t = 50, b = 20, l = 20, r = 10, pad = 0)
+  m_fig_3 = list(t = 50, b = 20, l = 20, r = 10, pad = 0)
 
   # Build Fig
-  sa_fig4_p = plot_ly(x = fig4_data$GRTS, y = fig4_data$values, type = 'bar',
+  sa_fig3_p = plot_ly(x = fig3_data$GRTS, y = fig3_data$calc_values, type = 'bar',
     # width = 850, height = 650,
     marker = list(line = list(color = 'black', width = .5)),
     color = '#337acc', colors = c('#337acc')) %>%
-    layout(margin = m_fig_4, font = leg, xaxis = x_, yaxis = y_,
+    layout(margin = m_fig_3, font = leg, xaxis = x_, yaxis = y_,
       showlegend = F, autosize= T, bargap = .6,
       title = 'Average Bat Calls at each GRTS',
       legend = list(x = .2, y = 1.05, orientation = 'h', font = leg))
   if(save_bool){
-    sa_fig4_f = paste0(out_dir, "/temps/fig4.png")
-    plotly::export(sa_fig4_p, file = sa_fig4_f)
+    sa_fig3_f = paste0(out_dir, "/temps/fig3.png")
+    plotly::export(sa_fig3_p, file = sa_fig3_f)
   }else{
-    sa_fig4_f = NULL
+    sa_fig3_f = NULL
   }
 
-  return(list(figure = sa_fig4_p, description = sa_descr_fig4, file = sa_fig4_f))
+  return(list(figure = sa_fig3_p, description = sa_descr_fig3, file = sa_fig3_f))
 }
 
 
