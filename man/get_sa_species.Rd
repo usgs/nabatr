@@ -34,5 +34,6 @@ auto_proj_species = get_sa_species(sa_bulk_df, species_df, 'auto','vectorNoId')
 Extracts all of the species found within these
 stationary acoustic wav files (for, manual, automatic, or both detection types)
 type = 'all' | 'auto' | 'man'
-format = 'df' | 'vector' | 'vectorNoId' (remove NoID from list)
+format = 'df' | 'vector' | 'vectorNoId'
+(remove NoID + other ambigous bat calls from list)
 }

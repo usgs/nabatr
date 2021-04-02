@@ -51,19 +51,19 @@ clean_time_fields = function(df){
   if ('recording_time' %in% names(df)){
     df$recording_time = gsub("T", " ", df$recording_time, fixed = TRUE)
     df$recording_time = as.POSIXct(df$recording_time,
-      tryFormats = c('%Y-%m-%d' , '%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'),
+      tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z', '%Y-%m-%d'),
       tz=Sys.timezone())
   }
   if ('survey_start_time' %in% names(df)){
     df$survey_start_time = gsub("T", " ", df$survey_start_time, fixed = TRUE)
     df$survey_start_time = as.POSIXct(df$survey_start_time,
-      tryFormats = c('%Y-%m-%d' ,'%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'),
+      tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z', '%Y-%m-%d'),
       tz=Sys.timezone())
   }
   if ('survey_end_time' %in% names(df)){
     df$survey_end_time = gsub("T", " ", df$survey_end_time, fixed = TRUE)
     df$survey_end_time = as.POSIXct(df$survey_end_time,
-      tryFormats = c('%Y-%m-%d' ,'%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z'),
+      tryFormats = c('%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M', '%Y-%m-%d %H:%M:%S+%Z', '%Y-%m-%d'),
       tz=Sys.timezone())
   }
   return (df)
@@ -129,12 +129,8 @@ add_observed_nights = function(df){
 add_start_end_nights = function(df){
   if('survey_start_time' %in% names(df) & 'survey_end_time' %in% names(df)){
     clean_df = df %>%
-      dplyr::mutate(survey_night_start = ifelse(format(survey_start_time, '%H') >=12,
-        format(survey_start_time, '%Y-%m-%d') ,
-        format(survey_start_time - days(1), '%Y-%m-%d'))) %>%
-      dplyr::mutate(survey_night_end = ifelse(format(survey_end_time, '%H') >=12,
-        format(survey_end_time, '%Y-%m-%d') ,
-        format(survey_end_time - days(1), '%Y-%m-%d'))) %>%
+      dplyr::mutate(survey_night_start = format(survey_start_time, '%Y-%m-%d')) %>%
+      dplyr::mutate(survey_night_end = format(survey_end_time - days(1), '%Y-%m-%d')) %>%
       dplyr::mutate(survey_night_start = as.Date(survey_night_start)) %>%
       dplyr::mutate(survey_night_end = as.Date(survey_night_end))
     return(clean_df)
@@ -294,4 +290,12 @@ get_project_file_bucket = function(
   }
   return(bucket)
 }
+
+
+#' @title Not in function
+#'
+#' @export
+#'
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
 
