@@ -376,3 +376,73 @@ get_cc_project_summary = function(
     return (cont_df)
   }
 }
+
+
+#' @title Get a Project's Emergence Count Summary Data
+#'
+#' @description Returns a dataframe with all of a project's colony
+#' count data down to the event
+#'
+#' @param token List token created from get_nabat_gql_token() or
+#' get_refresh_token()
+#' @param project_id Numeric or String a project id
+#' @param branch (optional) String that defaults to 'prod' but can also be 'dev'|'beta'|'local'
+#' @param url (optional) String url to use for GQL
+#' @param aws_gql (optional) String url to use in aws
+#' @param aws_alb (optional) String url to use in aws
+#' @param docker (optional) Boolean if being run in docker container or not
+#' @param return_t (optional) Boolean Changes the Returned value to a list
+#' and adds a token as one of the returned values (if set to TRUE)
+#'
+#' @export
+#'
+get_ee_project_summary = function(
+  token,
+  project_id,
+  branch ='prod',
+  url = NULL,
+  aws_gql = NULL,
+  aws_alb = NULL,
+  docker = FALSE,
+  return_t = FALSE){
+
+  # Get headers for token
+  tkn_hdr = get_token_headers(token, branch, url, aws_gql, aws_alb, docker)
+  headers = tkn_hdr$headers
+  token   = tkn_hdr$token
+  url     = tkn_hdr$url
+
+  # GQL Query
+  query = paste0('
+    query RReeSummaries {
+      allVwEmergenceCountSummaries(filter: {projectId: {in: [', project_id ,']}}) {
+        nodes {
+          date
+          eventId
+          grtsCellId
+          grtsId
+          projectId
+          siteName
+          surveyId
+          surveyTypeId
+          year
+        }
+      }
+    }')
+  pbody = list(query = query, operationName = 'RReeSummaries')
+  # Query GQL API
+  res       = httr::POST(url, headers, body = pbody, encode='json')
+  content   = httr::content(res, as = 'text')
+  json = fromJSON(content, flatten = TRUE)
+  df = as_tibble(json$data$allVwEmergenceCountSummaries$nodes) %>% as.data.frame(stringsAsFactors = FALSE)
+  names(df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(df), perl = TRUE))
+
+  # If return_t is TRUE, return token as well
+  if (return_t){
+    return (list(df = df, token = token))
+  }else{
+    # Return dataframe of projects
+    return (df)
+  }
+}
+

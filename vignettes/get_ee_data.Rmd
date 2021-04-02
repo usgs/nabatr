@@ -1,0 +1,63 @@
+---
+title: "Get Emergence Count data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Explore Colony Count NABat data}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Explore your Emergence Count NABat data using this Rmd example
+
+
+### Get a token for NABat Database
+```
+library(nabatr)
+# Enter your NABat username here
+username = 'NABat_Username'
+token = get_nabat_gql_token(username)
+token
+
+# Note: if you leave run token = get_nabat_gql_token(),
+#   it will prompt you for a username and then a password
+```
+
+
+### Get Project dataframe which contains all of your NABat projects in the NABat Database
+```
+# Refresh token
+token = get_refresh_token(token)
+# Get your projects lookup table
+project_df = get_projects(token)
+# Display your projects lookup table
+project_df
+```
+
+
+### Get all Emergence Count Surveys within a single Project set with project_id
+```
+# Refresh token
+token = get_refresh_token(token)
+# Fill in project id using the project_df lookup table
+project_id = 000 # Set equal to one of your project ids
+
+# Get survey dataframe 
+ee_survey_df = get_ee_project_summary(token,
+                                      project_id)
+# Display survey dataframe
+ee_survey_df
+```
+
+
+### Get all Emergence Count data within a single Project set with project_id
+```
+# Refresh token
+token = get_refresh_token(token)
+# Get Emergence Count bulk dataframe
+ee_bulk_df = get_emergence_bulk_counts(token,
+                                       ee_survey_df,
+                                       project_id)
+
+# Display Emergence Count dataframe
+ee_bulk_df
+```

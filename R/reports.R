@@ -131,9 +131,9 @@ build_sa_doc =  function(
   sa_table_1 = build_sa_table_1(sa_bulk_df, project_id, project_df,
     species_df, selected_year)
 
-  message ('Build table 3')
-  # sa table 3
-  sa_table_3 = build_sa_table_3(sa_bulk_df, selected_year, species_df)
+  message ('Build table 2')
+  # sa table 2
+  sa_table_2 = build_sa_table_2(sa_bulk_df, selected_year, species_df)
 
   message ('Build figure 1')
   # Figure 1 (map)
@@ -146,9 +146,9 @@ build_sa_doc =  function(
     selected_year, auto_species_grts_df_w, manual_species_grts_df_w,
     save_figures)
 
-  message('Build figure 4')
-  # Figure 4
-  sa_figure_4 = build_sa_figure_4(sa_bulk_df, out_dir, species_df,
+  message('Build figure 3')
+  # Figure 3
+  sa_figure_3 = build_sa_figure_3(sa_bulk_df, out_dir, species_df,
     selected_year, save_figures)
 
   if (range_maps){
@@ -253,10 +253,10 @@ build_sa_doc =  function(
 
     body_add_break() %>%
 
-    # Table 3
-    body_add_par(value = sa_table_3$description, style = "Normal") %>%
+    # Table 2
+    body_add_par(value = sa_table_2$description, style = "Normal") %>%
     body_add_par(value = "", style = "Normal") %>%
-    body_add_flextable(sa_table_3$table, align='left') %>%
+    body_add_flextable(sa_table_2$table, align='left') %>%
 
     body_add_break() %>%
 
@@ -280,9 +280,9 @@ build_sa_doc =  function(
 
     body_add_break() %>%
 
-    # Figure 4
-    body_add_par(value = sa_figure_4$description, style = "Normal") %>%
-    slip_in_img(src = sa_figure_4$file, width = 6.5, height = 5) %>%
+    # Figure 3
+    body_add_par(value = sa_figure_3$description, style = "Normal") %>%
+    slip_in_img(src = sa_figure_3$file, width = 6.5, height = 5) %>%
     body_add_break()
 
   message('Adding species range maps to .docx')
