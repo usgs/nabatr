@@ -289,24 +289,27 @@ build_sa_doc =  function(
   # Add species range maps
   if (range_maps){
     map_c = 0
-    letters_ = myLetters(length(maps_data$maps_range_files))
+    fig_count = 3
     for (range_m in maps_data$maps_range_files){
       map_c = map_c + 1
+      fig_count = fig_count + 1
       grts_m = maps_data$maps_grts_files[map_c]
       spc_range_name = str_split(str_split(sub('\\.png$', '', range_m),
         'range_maps/')[[1]][2], '_range')[[1]][1]
       spc_grts_name = str_split(str_split(sub('\\.png$', '', grts_m),
         'range_maps/')[[1]][2], '_grts')[[1]][1]
-      descr_fig5 = paste0("Figure 5",letters_[map_c],". Species range map for ",
-        spc_range_name)
-      descr_fig6 = paste0("Figure 6",letters_[map_c],
-        ". NABat GRTS map with the species range map overlayed(",
-        spc_range_name,").  Green GRTS cells represent the presence of ",
-        spc_range_name,
-        " found using only Manual detection. Blue GRTS cells represent the presence of ",
-        spc_range_name," found using only Automatic detection. Orange GRTS cells represent the presence of ",
-        spc_range_name," found using both Automatic and Manual detection. Transparent GRTS cells represent no detections found for ",
-        spc_range_name,".")
+
+      fig_a_name = paste0('Figure ', as.character(fig_count), 'a. ')
+      fig_b_name = paste0('Figure ', as.character(fig_count), 'b. ')
+
+      descr_fig5 = paste0(fig_a_name,"Species range map for ", spc_range_name, ".")
+      descr_fig6 = paste0(fig_b_name,"Map of NABat GRTS cells surveyed in ",selected_year," with species range map overlayed (",
+spc_range_name,"). Green cells indicate the presence of ",spc_range_name," was confirmed exclusively through
+manual vetting, blue cells indicate the presence of ",spc_range_name," was confirmed exclusively through
+automated identification software, and orange cells indicate the presence of ",spc_range_name," was confirmed
+using both automated identification software and manual vetting. Transparent
+cells indicated that ",spc_range_name," was not detected at those locations.")
+
       # Add the maps to the doc
       sa_doc = sa_doc %>%
         body_add_fpar(fpar(ftext(paste0('Species:  ',spc_range_name),
