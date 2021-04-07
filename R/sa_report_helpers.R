@@ -467,7 +467,7 @@ get_sa_results = function(
     number_of_bat_calls," call files were recorded over ", number_of_net_nights,
     " detector nights. A total of ", number_of_species_detected,
     " species were detected: ", paste0(proj_species, collapse=", "),
-    " (Table 2, Figure 1). Activity rate (average bat passes per night) ranged from ",
+    " (Table 2, Figure 2a). GRTS cell activity rates (average bat passes per night) ranged from ",
     low_avg_per_night," to ", high_avg_per_night,", with a median of ",
     median_activity_rate," and a mean of ", mean_activity_rate," (Figure 3).")
 
@@ -596,7 +596,7 @@ build_sa_table_2 = function(
 
   # Create Table Description
   sa_descr_table_2 = paste0("Table 2. Bat species detected in each NABat GRTS cell surveyed (", selected_year,
-    "). Years with detections and method of species identification are shown for each species in each cell. ")
+    "). Method of species identification (auto ID and/or manual ID) is shown for each species in each cell.")
 
   all_grts = unique(sa_bulk_df$grts_cell_id)
   table_2_df = data.frame()
@@ -722,13 +722,13 @@ build_sa_figure_2 = function(
 
   # Create figure descriptions
   sa_descr_fig2a = paste0("Figure 2a. Bat activity rate (total number of bat passes / total number of GRTS cells surveyed)
-by species (", selected_year,"). Species with at least one manual identification per site are shown in orange, species
-identified only by automated identification software are shown in blue, and species identified only by
-manual identification software are shown in green.")
+by species (", selected_year,"). Species identified through automated identification software and at least one manually vetted
+file are shown in orange, species identified only by automated identification software are shown in blue, and species confirmed
+exclusively through manual vetting are shown in green.")
   sa_descr_fig2b = paste0("Figure 2b. Logarithmic scale - Bat activity rate (total number of bat passes / total number of GRTS cells surveyed)
-by species (", selected_year,"). Species with at least one manual identification per site are shown in orange,
-species identified only by automated identification software are shown in blue, and species identified only by
-manual identification software are shown in green.")
+by species (", selected_year,"). Species identified through automated identification software and at least one manually vetted
+file are shown in orange, species identified only by automated identification software are shown in blue, and species confirmed
+exclusively through manual vetting are shown in green.")
 
   # Get all bat species
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
@@ -866,7 +866,7 @@ build_sa_figure_3 = function(
   save_bool = FALSE){
 
   # Build description
-  sa_descr_fig3 = paste0("Figure 3. Average number of bat passes per detector night at each GRTS cell surveyed (", selected_year,").")
+  sa_descr_fig3 = paste0("Figure 3. Activity rate (average number of bat passes per detector night) at each GRTS cell surveyed (", selected_year,").")
   # Get fig data
   proj_species_df = get_sa_species(sa_bulk_df, species_df, 'all','df')
   proj_species = get_sa_species(sa_bulk_df, species_df, 'all','vector')
