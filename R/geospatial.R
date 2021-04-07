@@ -113,8 +113,8 @@ get_grts_leaflet_map = function(
 
   }
   # Add legend to leaflet map
-  m = m %>% addLegend('bottomright',labels = c('Has survey data', 'No survey data'),
-    colors = c('#198a00', '#ff0000'), opacity =1)
+  m = m %>% addLegend('bottomright',labels = c('Has survey data'),
+    colors = c('#198a00'), opacity =1)
 
   # Return the leaflet map
   return (m)
