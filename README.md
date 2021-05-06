@@ -1,13 +1,13 @@
-NABat R - Data Access and Manipulation Tools <a href='https://nabatmonitoring.org/#/home'><img src='./inst/templates/NABat_Circle_color.jpg' align="right" height="139" /></a>
+North American Bat Monitoring Program: R Data Connection Package <a href='https://nabatmonitoring.org/#/home'><img src='./inst/templates/NABat_Circle_color.jpg' align="right" height="139" /></a>
 ===
 
-Tools for interfacing R with NABat data services.
+## Package Abstract
 
-## Package Description
+The North American Bat Monitoring Program: R Data Connection Package can be used to extract and upload data to the NABat Monitoring Program through the GQL API. This software is written as a wrapper around the NABat GQL API. Documentation for the database and API can be found at https://sciencebase.usgs.gov/. This code includes the ability to reformat NABat data, upload NABat data, create reports, find GRTS cells, and more (see vignettes in package). This code does not support modeling and analysis of data.
 
-This package provides an interface to North American Bat Monitoring (NABat) data services.  For full access to NABatR, be sure to go to the link below and setup an account with NABat!
+Vignettes and Examples can be used to better understand/utilize the functionality of the code. Users may access data or connect to projects that they have permissions to in the NABat Partner Portal ([NABat Website](https://sciencebase.usgs.gov/nabat/#/home)). Because permissions are defined NABat Partner Portal user accounts, users must have a partner portal account to interact with the NABat API. Accounts can be created via the Partner Portal.
 
-[NABat](https://nabatmonitoring.org/#/home)
+
 
 ## Package Status
 
@@ -17,7 +17,7 @@ Proof of concept, community input/collaboration welcome!
 
 To install the toolbox in R run the following commands in a R terminal
 
-```R
+```
 # If you are on windows, be sure to install Rtools from 
 ##  https://cran.r-project.org/bin/windows/Rtools and follow 
 ##  install directions from there
@@ -26,10 +26,21 @@ install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwid
   'httr','jsonlite','leaflet','lubridate','magrittr','maps','maptools','mapview','officer',
   'plotly','plyr','raster','rgdal','rmarkdown','sp','xml2', 'stringr'))
 
+```
+
+## Install from provisional software (most up to date) (https://github.com/usgs/nabatr)
+```
 # Download Master branch and if it's been updated, reinstall latest version. build_vignettes
 ##  allows you to run the browseVignettes() function in the next cell. force will rebuild
 ##  the package if any new changes have been made
 devtools::install_github('usgs/nabatr', build_vignettes = TRUE, upgrade = 'never', force = TRUE)
+
+library(nabatr)
+```
+
+## Install from USGS software release (https://code.usgs.gov/fort/nabat/nabatR)
+```
+devtools::install_git("https://code.usgs.gov/fort/nabat/nabatR/git")
 
 library(nabatr)
 ```
@@ -62,6 +73,7 @@ webshot::install_phantomjs()
 ```
 
 ## Notes
+
 The Examples and Vignettes directories are essentially mirrors of each other.  One is formatted into code blocks without {r} and the other
 is formatted with {r}.  ex:  ```{r} code that runs in R (examples directory)``` and ``` code that does not run in R (vignettes directory) ``` 
 
@@ -69,7 +81,13 @@ If ever running any of the functions in branch = 'beta', be sure you are logged 
 Use branch = 'beta' in the login and refresh token methods in order to use any get functions with branch = 'beta'.  
 
 
+## Suggested Citation
+
+Enns, K.D. and Talbert, C.B., 2021, North American Bat Monitoring Program: R Data Connection Package, Version 1.0.0: U.S. Geological Survey software release, https://doi.org/10.5066/P9LSLF93
+
+
 ## Disclaimer
+
 This software is in the public domain because it contains materials that originally came from the U.S. Geological Survey, an agency of the United States Department of Interior. For more information, see the [official USGS copyright policy](https://www.usgs.gov/visual-id/credit_usgs.html#copyright/ "official USGS copyright policy")
 
 Although this software program has been used by the U.S. Geological Survey (USGS), no warranty, expressed or implied, is made by the USGS or the U.S. Government as to the accuracy and functioning of the program and related program material nor shall the fact of distribution constitute any such warranty, and no responsibility is assumed by the USGS in connection therewith.
