@@ -23,6 +23,14 @@ install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwid
 
 ```
 
+## Install from USGS software release (https://code.usgs.gov/fort/nabat/nabatR)
+```
+devtools::install_git("https://code.usgs.gov/fort/nabat/nabatR/git")
+
+library(nabatr)
+```
+note: Refreshing R on windows: (Ctrl+Shift+F10)  Mac: (Cmd+Shift+Fn+F10)
+
 ## Install from provisional software (most up to date) (https://github.com/usgs/nabatr)
 ```
 # Download Master branch and if it's been updated, reinstall latest version. build_vignettes
@@ -33,13 +41,6 @@ devtools::install_github('usgs/nabatr', build_vignettes = TRUE, upgrade = 'never
 library(nabatr)
 ```
 
-## Install from USGS software release (https://code.usgs.gov/fort/nabat/nabatR)
-```
-devtools::install_git("https://code.usgs.gov/fort/nabat/nabatR/git")
-
-library(nabatr)
-```
-note: Refreshing R on windows: (Ctrl+Shift+F10)  Mac: (Cmd+Shift+Fn+F10)
 
 ## See Vignettes for examples (run in RStudio) or See .Rmd files in Examples directory
 ```
