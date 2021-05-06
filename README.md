@@ -8,11 +8,6 @@ The North American Bat Monitoring Program: R Data Connection Package can be used
 Vignettes and Examples can be used to better understand/utilize the functionality of the code. Users may access data or connect to projects that they have permissions to in the NABat Partner Portal ([NABat Website](https://sciencebase.usgs.gov/nabat/#/home)). Because permissions are defined NABat Partner Portal user accounts, users must have a partner portal account to interact with the NABat API. Accounts can be created via the Partner Portal.
 
 
-
-## Package Status
-
-Proof of concept, community input/collaboration welcome!
-
 ## Installation
 
 To install the toolbox in R run the following commands in a R terminal
