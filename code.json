@@ -11,14 +11,14 @@
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "https://code.usgs.gov/fort/nabat/nabatr/-/blob/v1.0.0/LICENSE.md"
+          "URL": "https://code.usgs.gov/fort/nabat/nabatr/-/raw/v1.0.0/LICENSE.md"
         }
       ]
     },
 
     "homepageURL": "https://code.usgs.gov/fort/nabat/nabatr/-/tree/v1.0.0",
     "downloadURL": "https://code.usgs.gov/fort/nabat/nabatr/-/archive/v1.0.0/nabatr-v1.0.0.zip",
-    "disclaimerURL": "https://code.usgs.gov/fort/nabat/nabatr/-/blob/v1.0.0/DISCLAIMER.md",
+    "disclaimerURL": "https://code.usgs.gov/fort/nabat/nabatr/-/raw/v1.0.0/DISCLAIMER.md",
     "repositoryURL": "https://code.usgs.gov/fort/nabat/nabatr/-/tree/v1.0.0",
     "vcs": "git",
 
@@ -47,22 +47,22 @@
     "name": "nabatr",
     "organization": "U.S. Geological Survey",
     "description": "Tools for interfacing R with NABat data services.",
-    "version": "1.*.*",
-    "status": "Provisional",
+    "version": "1.0.0",
+    "status": "Development",
 
     "permissions": {
       "usageType": "openSource",
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "https://code.usgs.gov/fort/nabat/nabatr/-/blob/master/LICENSE.md"
+          "URL": "https://code.usgs.gov/fort/nabat/nabatr/-/raw/master/LICENSE.md"
         }
       ]
     },
 
     "homepageURL": "https://code.usgs.gov/fort/nabat/nabatr/-/tree/master",
     "downloadURL": "https://code.usgs.gov/fort/nabat/nabatr/-/archive/master/nabatr-master.zip",
-    "disclaimerURL": "https://code.usgs.gov/fort/nabat/nabatr/-/blob/master/DISCLAIMER.md",
+    "disclaimerURL": "https://code.usgs.gov/fort/nabat/nabatr/-/raw/master/DISCLAIMER.md",
     "repositoryURL": "https://code.usgs.gov/fort/nabat/nabatr/-/tree/master",
     "vcs": "git",
 
