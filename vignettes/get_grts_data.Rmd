@@ -2,7 +2,7 @@
 title: "Get GRTS Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get GRTS data with demo}
+  %\VignetteIndexEntry{Get GRTS Data}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

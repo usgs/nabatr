@@ -2,7 +2,7 @@
 title: "Get Project Types"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{View all of your Projects and their included data types}
+  %\VignetteIndexEntry{Get Project Types}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

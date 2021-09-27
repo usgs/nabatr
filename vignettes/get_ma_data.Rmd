@@ -2,7 +2,7 @@
 title: "Get Mobile Acoustic Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Explore Mobile Acoustic NABat data}
+  %\VignetteIndexEntry{Get Mobile Acoustic Data}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
