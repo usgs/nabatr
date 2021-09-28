@@ -4,7 +4,9 @@
 \name{species_range_shps}
 \alias{species_range_shps}
 \title{NABat species range maps}
-\format{An object of class \code{SpatialPolygonsDataFrame} with 49 rows and 4 columns.}
+\format{
+An object of class \code{SpatialPolygonsDataFrame} with 49 rows and 4 columns.
+}
 \usage{
 species_range_shps
 }

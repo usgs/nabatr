@@ -2,7 +2,7 @@
 title: "Get Stationary Acoustic data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Explore Stationary Acoustic NABat data}
+  %\VignetteIndexEntry{Get Stationary Acoustic data}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

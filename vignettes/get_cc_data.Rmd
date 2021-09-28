@@ -2,7 +2,7 @@
 title: "Get Colony Count data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Explore Colony Count NABat data}
+  %\VignetteIndexEntry{Get Colony Count data}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

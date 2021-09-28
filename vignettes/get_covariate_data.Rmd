@@ -2,7 +2,7 @@
 title: "Get Covariate Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get Covariate Data for All GRTS in a sample frame}
+  %\VignetteIndexEntry{Get Covariate Data}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

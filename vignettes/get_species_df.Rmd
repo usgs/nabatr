@@ -2,7 +2,7 @@
 title: "Get species df"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get the NABat Species lookup dataframe}
+  %\VignetteIndexEntry{Get species df}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---

@@ -2,7 +2,7 @@
 title: "Upload Data to Project"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Upload Stationary Acoustic Data to Project}
+  %\VignetteIndexEntry{Upload Data to Project}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
