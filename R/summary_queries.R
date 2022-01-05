@@ -146,6 +146,7 @@ get_sa_project_summary = function(
       surveyEventId
       surveyTypeId
       event
+      date
       verified
       missing
       }
@@ -161,9 +162,9 @@ get_sa_project_summary = function(
   cont_df   = as.data.frame(cont_json$data$allVwAcousticSummaries$nodes,
     stringsAsFactors = FALSE)
   names(cont_df) = tolower(gsub("(?<=[a-z0-9])(?=[A-Z])", "_", names(cont_df), perl = TRUE))
-  # Add a year field that is a string split from the event field
+  # Add a year field that is a string split from the date field
   if (dim(cont_df)[1] > 0){
-    cont_df$year = as.integer(gsub("^.* ", "", cont_df$event))
+    cont_df$year = as.integer(gsub("^.* ", "", cont_df$date))
     row.names(cont_df) = NULL
   }
 
