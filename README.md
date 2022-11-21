@@ -25,7 +25,7 @@ install.packages(c('devtools','dplyr','flextable','ggplot2','htmltools','htmlwid
 
 ## Install from USGS software release (https://code.usgs.gov/fort/nabat/nabatr)
 ```
-devtools::install_git("https://code.usgs.gov/fort/nabat/nabatr/git")
+devtools::install_git("https://code.usgs.gov/fort/nabat/nabatr.git")
 
 library(nabatr)
 ```
